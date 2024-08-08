@@ -19,11 +19,11 @@
   "source",
   "lead_owner",
   "person_tab",
-  "salutation",
   "first_name",
   "last_name",
   "email",
   "mobile_no",
+  "salutation",
   "organization_tab",
   "section_break_uixv",
   "naming_series",
@@ -60,14 +60,9 @@
    "options": "CRM-LEAD-.YYYY.-"
   },
   {
-   "fieldname": "salutation",
-   "fieldtype": "Link",
-   "label": "Salutation",
-   "options": "Salutation"
-  },
-  {
    "fieldname": "first_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "First Name",
    "reqd": 1
   },
@@ -79,6 +74,7 @@
   {
    "fieldname": "last_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Last Name"
   },
   {
@@ -286,12 +282,18 @@
    "fieldtype": "Table",
    "label": "Status Change Log",
    "options": "CRM Status Change Log"
+  },
+  {
+   "fieldname": "salutation",
+   "fieldtype": "Link",
+   "label": "Salutation",
+   "options": "Salutation"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-05 00:58:07.321058",
+ "modified": "2024-08-08 09:15:46.278170",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",

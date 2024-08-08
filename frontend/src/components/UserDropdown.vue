@@ -79,6 +79,7 @@ let dropdownOptions = ref([
         label: computed(() => __('Switch to Desk')),
         onClick: () => window.location.replace('/app'),
       },
+      /*
       {
         icon: 'life-buoy',
         label: computed(() => __('Support')),
@@ -89,6 +90,7 @@ let dropdownOptions = ref([
         label: computed(() => __('Docs')),
         onClick: () => window.open('https://docs.frappe.io/crm', '_blank'),
       },
+      */
     ],
   },
   {

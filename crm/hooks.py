@@ -231,3 +231,12 @@ doc_events = {
 # auth_hooks = [
 #	"crm.auth.validate"
 # ]
+
+fixtures = [
+    {
+        "doctype": "CRM Deal Type",
+        "filters": [
+            ["name", "in", ["Sales", "Support", "Maintenance", "Managed Services"]]
+        ]
+    }
+]
