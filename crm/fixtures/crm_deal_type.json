@@ -1,0 +1,30 @@
+[
+ {
+  "description": null,
+  "docstatus": 0,
+  "doctype": "CRM Deal Type",
+  "modified": "2024-08-08 14:35:31.952391",
+  "name": "Sales"
+ },
+ {
+  "description": null,
+  "docstatus": 0,
+  "doctype": "CRM Deal Type",
+  "modified": "2024-08-08 14:35:42.465270",
+  "name": "Support"
+ },
+ {
+  "description": null,
+  "docstatus": 0,
+  "doctype": "CRM Deal Type",
+  "modified": "2024-08-08 14:35:51.541827",
+  "name": "Managed Services"
+ },
+ {
+  "description": null,
+  "docstatus": 0,
+  "doctype": "CRM Deal Type",
+  "modified": "2024-08-08 14:36:22.174387",
+  "name": "Maintenance"
+ }
+]
