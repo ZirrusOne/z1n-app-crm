@@ -77,6 +77,8 @@ const router = useRouter()
 const error = ref(null)
 
 const deal = reactive({
+  deal_name: '',
+  deal_type: '',
   organization: '',
   organization_name: '',
   website: '',
@@ -85,12 +87,10 @@ const deal = reactive({
   annual_revenue: '',
   industry: '',
   contact: '',
-  salutation: '',
   first_name: '',
   last_name: '',
   email: '',
   mobile_no: '',
-  gender: '',
   status: '',
   deal_owner: '',
 })
@@ -125,6 +125,11 @@ const filteredSections = computed(() => {
 
   let _filteredSections = []
 
+  /* Put Deal Info First */
+  _filteredSections.push(
+    allSections.find((s) => s.label === 'Deal Info'),
+  )
+
   if (chooseExistingOrganization.value) {
     _filteredSections.push(
       allSections.find((s) => s.label === 'Select Organization'),
@@ -148,6 +153,7 @@ const filteredSections = computed(() => {
   allSections.forEach((s) => {
     if (
       ![
+        'Deal Info',
         'Select Organization',
         'Organization Details',
         'Select Contact',
@@ -232,3 +238,4 @@ onMounted(() => {
   }
 })
 </script>
+padding

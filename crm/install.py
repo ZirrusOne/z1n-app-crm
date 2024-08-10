@@ -64,29 +64,41 @@ def add_default_deal_statuses():
 			"color": "gray",
 			"position": 1,
 		},
-		"Demo/Making": {
+		"Demo": {
 			"color": "orange",
 			"position": 2,
 		},
-		"Proposal/Quotation": {
-			"color": "blue",
+		"Discovery": {
+			"color": "orange",
 			"position": 3,
+		},
+		"Proposal - In Progress": {
+			"color": "blue",
+			"position": 4,
+		},
+		"Proposal - Delivered": {
+			"color": "blue",
+			"position": 5,
 		},
 		"Negotiation": {
 			"color": "yellow",
-			"position": 4,
+			"position": 6,
 		},
 		"Ready to Close": {
 			"color": "purple",
-			"position": 5,
-		},
-		"Won": {
-			"color": "green",
-			"position": 6,
-		},
-		"Lost": {
-			"color": "red",
 			"position": 7,
+		},
+		"Closed - Won": {
+			"color": "green",
+			"position": 8,
+		},
+		"Closed - Lost": {
+			"color": "red",
+			"position": 9,
+		},
+		"Closed - Passed": {
+			"color": "red",
+			"position": 10,
 		},
 	}
 
@@ -115,11 +127,11 @@ def add_default_fields_layout():
 	quick_entry_layouts = {
 		"CRM Lead-Quick Entry": {
 			"doctype": "CRM Lead",
-			"layout": '[{"label":"Person","fields":["salutation","first_name","last_name","email","mobile_no", "gender"],"hideLabel":true},{"label":"Organization","fields":["organization","website","no_of_employees","territory","annual_revenue","industry"],"hideLabel":true,"hideBorder":false},{"label":"Other","columns":2,"fields":["status","lead_owner"],"hideLabel":true,"hideBorder":false}]'
+			"layout": '[{"label":"Person","fields":["first_name","last_name","email","mobile_no"],"hideLabel":true},{"label":"Organization","fields":["organization","website","no_of_employees","territory","annual_revenue","industry"],"hideLabel":true,"hideBorder":false},{"label":"Other","columns":2,"fields":["status","lead_owner"],"hideLabel":true,"hideBorder":false}]'
 		},
 		"CRM Deal-Quick Entry": {
 			"doctype": "CRM Deal",
-			"layout": '[{"label": "Select Organization", "fields": ["organization"], "hideLabel": true, "editable": true}, {"label": "Organization Details", "fields": ["organization_name", "website", "no_of_employees", "territory", "annual_revenue", "industry"], "hideLabel": true, "editable": true}, {"label": "Select Contact", "fields": ["contact"], "hideLabel": true, "editable": true}, {"label": "Contact Details", "fields": ["salutation", "first_name", "last_name", "email", "mobile_no", "gender"], "hideLabel": true, "editable": true}, {"label": "Other", "columns": 2, "fields": ["status", "deal_owner"], "hideLabel": true}]'
+			"layout": '[{"label": "Deal Info", "fields": ["deal_name", "deal_type"], "hideLabel":true, "editable":true},{"label": "Select Organization", "fields": ["organization"], "hideLabel": true, "editable": true}, {"label": "Organization Details", "fields":["organization_name", "website", "no_of_employees", "territory", "annual_revenue", "industry"], "hideLabel": true, "editable": true}, {"label": "Select Contact", "fields": ["contact"], "hideLabel": true, "editable": true}, {"label": "Contact Details", "fields": ["first_name", "last_name", "email", "mobile_no"], "hideLabel": true, "editable": true}, {"label": "Other", "columns": 2, "fields": ["status", "deal_owner"], "hideLabel": true}]'
 		},
 		"Contact-Quick Entry": {
 			"doctype": "Contact",
@@ -138,7 +150,7 @@ def add_default_fields_layout():
 		},
 		"CRM Deal-Side Panel": {
 			"doctype": "CRM Deal",
-			"layout": '[{"label":"Contacts","name":"contacts_section","opened":true,"editable":false,"contacts":[]},{"label":"Organization Details","name":"organization_tab","opened":true,"fields":["organization","website","territory","annual_revenue","close_date","probability","next_step","deal_owner"]}]'
+			"layout": '[{"label":"Contacts","name":"contacts_section","opened":true,"editable":false,"contacts":[]},{"label":"Deal Info", "name":"info_tab", "opened":true, "editable":true, "fields": ["deal_name", "deal_type"]}, {"label":"Organization Details","name":"organization_tab","opened":true,"fields":["organization","website","territory","annual_revenue","close_date","probability","next_step","deal_owner"]}]'
 		},
 	}
 
