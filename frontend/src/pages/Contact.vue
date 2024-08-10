@@ -387,34 +387,29 @@ function getDealRowObject(deal) {
 }
 
 const dealColumns = [
+{
+    label: __('Deal Name'),
+    key: 'deal_name',
+    width: '20rem',
+  },
   {
     label: __('Organization'),
     key: 'organization',
+    width: '15rem',
+  },
+  {
+    label: __('Deal Type'),
+    key: 'Deal_Type',
     width: '11rem',
   },
   {
-    label: __('Amount'),
-    key: 'annual_revenue',
-    width: '9rem',
+    label: __('Deal Owner'),
+    key: 'deal_owner',
+    width: '10rem',
   },
   {
     label: __('Status'),
     key: 'status',
-    width: '10rem',
-  },
-  {
-    label: __('Email'),
-    key: 'email',
-    width: '12rem',
-  },
-  {
-    label: __('Mobile no'),
-    key: 'mobile_no',
-    width: '11rem',
-  },
-  {
-    label: __('Deal owner'),
-    key: 'deal_owner',
     width: '10rem',
   },
   {
