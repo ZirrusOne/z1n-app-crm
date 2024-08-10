@@ -93,6 +93,10 @@ inline-flex.items-center.justify-center.gap-2.transition-colors.focus:outline-no
 	color: var(--text-color);
 }
 
+.text-red-600 {
+	color: rgb(204 41 41 / var(--tw-text-opacity)) !important;
+}
+
 .text-sm {
 	color: var(--subheading-color) !important;
 }
