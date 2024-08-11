@@ -360,6 +360,8 @@ const deals = createListResource({
   cache: ['deals', props.organizationId],
   fields: [
     'name',
+    'deal_name',
+    'deal_type',
     'organization',
     'currency',
     'annual_revenue',
@@ -416,6 +418,8 @@ const columns = computed(() => {
 function getDealRowObject(deal) {
   return {
     name: deal.name,
+    deal_name: deal.deal_name,
+    deal_type: deal.deal_type,
     organization: {
       label: deal.organization,
       logo: props.organization?.organization_logo,
@@ -475,7 +479,7 @@ const dealColumns = [
   },
   {
     label: __('Deal Type'),
-    key: 'Deal_Type',
+    key: 'deal_type',
     width: '11rem',
   },
   {

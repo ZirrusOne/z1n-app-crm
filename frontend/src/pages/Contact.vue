@@ -361,6 +361,8 @@ const columns = computed(() => dealColumns)
 function getDealRowObject(deal) {
   return {
     name: deal.name,
+    deal_name: deal.deal_name,
+    deal_type: deal.deal_type,
     organization: {
       label: deal.organization,
       logo: getOrganization(deal.organization)?.organization_logo,
@@ -387,7 +389,7 @@ function getDealRowObject(deal) {
 }
 
 const dealColumns = [
-{
+  {
     label: __('Deal Name'),
     key: 'deal_name',
     width: '20rem',
@@ -399,7 +401,7 @@ const dealColumns = [
   },
   {
     label: __('Deal Type'),
-    key: 'Deal_Type',
+    key: 'deal_type',
     width: '11rem',
   },
   {
