@@ -129,35 +129,30 @@ class CRMDeal(Document):
 	def default_list_data():
 		columns = [
 			{
+				'label': 'Deal Name',
+				'type': 'Data',
+				'key': 'deal_name',
+				'width': '20rem',
+			},
+			{
 				'label': 'Organization',
 				'type': 'Link',
 				'key': 'organization',
 				'options': 'CRM Organization',
 				'width': '11rem',
 			},
-			{
-				'label': 'Amount',
-				'type': 'Currency',
-				'key': 'annual_revenue',
-				'width': '9rem',
-			},
+            {
+                'label': 'Deal Type',
+                'type': 'link',
+                'key': 'deal_type',
+                'options': 'CRM Deal Type',
+                'width': '10rem',
+            },
 			{
 				'label': 'Status',
 				'type': 'Select',
 				'key': 'status',
 				'width': '10rem',
-			},
-			{
-				'label': 'Email',
-				'type': 'Data',
-				'key': 'email',
-				'width': '12rem',
-			},
-			{
-				'label': 'Mobile No',
-				'type': 'Data',
-				'key': 'mobile_no',
-				'width': '11rem',
 			},
 			{
 				'label': 'Assigned To',
@@ -174,12 +169,11 @@ class CRMDeal(Document):
 		]
 		rows = [
 			"name",
+            "deal_name",
 			"organization",
+            "deal_type",
 			"annual_revenue",
 			"status",
-			"email",
-			"currency",
-			"mobile_no",
 			"deal_owner",
 			"sla_status",
 			"response_by",
