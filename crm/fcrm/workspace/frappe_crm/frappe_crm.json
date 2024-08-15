@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"gSiul_Blfp\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Portal</b></span>\",\"col\":12}},{\"id\":\"1hyi8SysUY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"CRM Portal\",\"col\":3}},{\"id\":\"OPedGSXlh8\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b><span class=\\\"h5\\\"><b>Data</b> <b>Management</b></span><br></b></span>\",\"col\":12}},{\"id\":\"EJg6bIfJ86\",\"type\":\"card\",\"data\":{\"card_name\":\"CRM Data\",\"col\":4}},{\"id\":\"7R1ew5UciI\",\"type\":\"card\",\"data\":{\"card_name\":\"Campaigns\",\"col\":4}},{\"id\":\"L99iJmtlVE\",\"type\":\"card\",\"data\":{\"card_name\":\"Meta\",\"col\":4}}]",
+ "content": "[{\"id\":\"g0iusLZP0J\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Portal</span><span class=\\\"h4\\\"><b><br></b></span>\",\"col\":12}},{\"id\":\"1hyi8SysUY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"CRM Portal\",\"col\":3}},{\"id\":\"OPedGSXlh8\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Data Management</span>\",\"col\":12}},{\"id\":\"EJg6bIfJ86\",\"type\":\"card\",\"data\":{\"card_name\":\"CRM Data\",\"col\":4}},{\"id\":\"7R1ew5UciI\",\"type\":\"card\",\"data\":{\"card_name\":\"Campaigns\",\"col\":4}},{\"id\":\"L99iJmtlVE\",\"type\":\"card\",\"data\":{\"card_name\":\"Meta\",\"col\":4}}]",
  "creation": "2023-11-27 13:55:17.090361",
  "custom_blocks": [],
  "docstatus": 0,
@@ -171,7 +171,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-08-15 10:47:24.008685",
+ "modified": "2024-08-15 15:34:07.562870",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "Frappe CRM",

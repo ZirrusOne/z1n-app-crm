@@ -146,12 +146,18 @@
   {
    "fieldname": "source",
    "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Source",
    "options": "CRM Lead Source"
   },
   {
    "fieldname": "industry",
    "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Industry",
    "options": "CRM Industry"
   },
@@ -182,6 +188,9 @@
   {
    "fieldname": "organization",
    "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Organization"
   },
   {
@@ -293,7 +302,7 @@
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-08 09:15:46.278170",
+ "modified": "2024-08-15 14:17:00.772103",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",
