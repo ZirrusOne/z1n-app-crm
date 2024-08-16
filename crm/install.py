@@ -18,6 +18,7 @@ def after_install():
 	add_email_template_custom_fields()
 	add_default_industries()
 	add_default_lead_sources()
+	set_contact_filters()
 	frappe.db.commit()
 
 def add_default_lead_statuses():
@@ -235,3 +236,11 @@ def add_default_lead_sources():
 		doc = frappe.new_doc("CRM Lead Source")
 		doc.source_name = source
 		doc.insert()
+
+def set_contact_filters():
+    frappe.db.sql("""
+        UPDATE `tabDocField`
+        SET in_list_view = 1, in_standard_filter = 1, in_filter = 1
+        WHERE parent = 'Contact' AND fieldname IN ('full_name', 'email_id')
+    """)
+    frappe.clear_cache(doctype="Contact")
