@@ -215,6 +215,37 @@
     }"
   >
     <template #body-content>
+      <!-- Deal Name -->
+      <div class="mb-4 flex items-center gap-2 text-gray-600">
+        <DealsIcon class="h-4 w-4" />
+        <label class="block text-base">{{ __('Deal Name') }}</label>
+      </div>
+      <div class="ml-6 mb-6">
+        <TextInput
+          v-model="dealName"
+          type="text"
+          class="flex items-center justify-between text-base"
+          :placeholder="__('Enter deal name')"
+        />
+      </div>
+
+      <!-- Deal Type -->
+      <div class="mb-4 flex items-center gap-2 text-gray-600">
+        <SelectIcon class="h-4 w-4" />
+        <label class="block text-base">{{ __('Deal Type') }}</label>
+      </div>
+      <div class="ml-6 mb-6">
+          <Link
+            class="form-control mt-2.5"
+            variant="outline"
+            size="md"
+            :value="dealType"
+            doctype="CRM Deal Type"
+            @change="(data) => (dealType = data)"
+          />
+      </div>
+
+      <!-- Organization-->
       <div class="mb-4 flex items-center gap-2 text-gray-600">
         <OrganizationsIcon class="h-4 w-4" />
         <label class="block text-base">{{ __('Organization') }}</label>
@@ -242,6 +273,7 @@
         </div>
       </div>
 
+      <!-- Contact -->
       <div class="mb-4 mt-6 flex items-center gap-2 text-gray-600">
         <ContactsIcon class="h-4 w-4" />
         <label class="block text-base">{{ __('Contact') }}</label>
@@ -284,6 +316,8 @@ import CameraIcon from '@/components/Icons/CameraIcon.vue'
 import LinkIcon from '@/components/Icons/LinkIcon.vue'
 import OrganizationsIcon from '@/components/Icons/OrganizationsIcon.vue'
 import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
+import DealsIcon from '../components/Icons/DealsIcon.vue'
+import SelectIcon from '../components/Icons/SelectIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import Activities from '@/components/Activities/Activities.vue'
 import AssignmentModal from '@/components/Modals/AssignmentModal.vue'
@@ -515,8 +549,34 @@ const existingOrganizationChecked = ref(false)
 const existingContact = ref('')
 const existingOrganization = ref('')
 
+const dealName = ref('')
+const dealType = ref('')
+
 async function convertToDeal(updated) {
+  console.log('Deal Name:', dealName.value)
+  console.log('Deal Type:', dealType.value)
+
   let valueUpdated = false
+
+  if (!dealName.value.trim()) {
+    createToast({
+      title: __('Error'),
+      text: __('Please enter a deal name'),
+      icon: 'x',
+      iconClasses: 'text-red-600',
+    })
+    return
+  }
+
+  if (!dealType.value) {
+    createToast({
+      title: __('Error'),
+      text: __('Please select a deal type'),
+      icon: 'x',
+      iconClasses: 'text-red-600',
+    })
+    return
+  }
 
   if (existingContactChecked.value && !existingContact.value) {
     createToast({
@@ -569,12 +629,25 @@ async function convertToDeal(updated) {
     )
     showConvertToDealModal.value = false
   } else {
+    if (!dealName.value.trim()) {
+      createToast({
+        title: __('Error'),
+        text: __('Please enter a deal name'),
+        icon: 'x',
+        iconClasses: 'text-red-600',
+      })
+      return
+    }
+
     let deal = await call(
       'crm.fcrm.doctype.crm_lead.crm_lead.convert_to_deal',
       {
         lead: lead.data.name,
+        deal_name: dealName.value.trim(),
+        deal_type: dealType.value,
       },
     )
+    console.log('API Response:', deal)
     if (deal) {
       if (updated) {
         await organizations.reload()
@@ -582,7 +655,7 @@ async function convertToDeal(updated) {
       }
       router.push({ name: 'Deal', params: { dealId: deal } })
     }
-  }
+  } 
 }
 
 const activities = ref(null)

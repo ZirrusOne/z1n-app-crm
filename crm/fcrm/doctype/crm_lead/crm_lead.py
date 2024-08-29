@@ -181,7 +181,7 @@ class CRMLead(Document):
 
 		return False
 
-	def create_deal(self, contact, organization):
+	def create_deal(self, contact, organization, deal_name=None, deal_type=None):
 		deal = frappe.new_doc("CRM Deal")
 
 		lead_deal_map = {
@@ -211,6 +211,8 @@ class CRMLead(Document):
 			{
 				"lead": self.name,
 				"contacts": [{"contact": contact}],
+				"deal_name": deal_name or f"{self.lead_name} Deal",
+            	"deal_type": deal_type or "New Business", 
 			}
 		)
 
@@ -335,7 +337,7 @@ class CRMLead(Document):
 
 
 @frappe.whitelist()
-def convert_to_deal(lead, doc=None):
+def convert_to_deal(lead, deal_name=None, deal_type=None, doc=None):
 	if not (doc and doc.flags.get("ignore_permissions")) and not frappe.has_permission("CRM Lead", "write", lead):
 		frappe.throw(_("Not allowed to convert Lead to Deal"), frappe.PermissionError)
 
@@ -348,5 +350,5 @@ def convert_to_deal(lead, doc=None):
 	lead.save(ignore_permissions=True)
 	contact = lead.create_contact(False)
 	organization = lead.create_organization()
-	deal = lead.create_deal(contact, organization)
+	deal = lead.create_deal(contact, organization, deal_name, deal_type)
 	return deal
