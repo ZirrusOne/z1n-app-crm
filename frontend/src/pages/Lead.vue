@@ -604,6 +604,7 @@ async function convertToDeal(updated) {
     lead.data.last_name = getContactByName(existingContact.value).last_name
     lead.data.email_id = getContactByName(existingContact.value).email_id
     lead.data.mobile_no = getContactByName(existingContact.value).mobile_no
+    lead.data.job_title = getContactByName(existingContact.value).designation
     existingContactChecked.value = false
     valueUpdated = true
   }
@@ -622,6 +623,7 @@ async function convertToDeal(updated) {
         last_name: lead.data.last_name,
         email_id: lead.data.email_id,
         mobile_no: lead.data.mobile_no,
+        designation: lead.data.job_title,
         organization: lead.data.organization,
       },
       '',
