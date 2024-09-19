@@ -48,6 +48,7 @@ def get_notifications():
 def mark_as_read(user=None, doc=None):
     user = user or frappe.session.user
     filters = {"to_user": user, "read": False}
+    or_filters = []
     if doc:
         or_filters = [
             {"comment": doc},
@@ -57,3 +58,14 @@ def mark_as_read(user=None, doc=None):
         d = frappe.get_doc("CRM Notification", n.name)
         d.read = True
         d.save()
+
+def create_task_notification(doc, method):
+    notification = frappe.new_doc("CRM Notification")
+    notification.update({
+        "notification_text": f"Task {doc.title} is due on {doc.due_date}",
+        "reference_doctype": "CRM Task",
+        "reference_name": doc.name,
+        "to_user": doc.assigned_to,
+        "from_user": frappe.session.user
+    })
+    notification.insert(ignore_permissions=True)

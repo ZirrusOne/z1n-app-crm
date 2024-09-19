@@ -152,6 +152,9 @@ doc_events = {
 		"validate": ["crm.api.whatsapp.validate"],
 		"on_update": ["crm.api.whatsapp.on_update"],
 	},
+	"CRM Task": {
+		"after_insert": "crm.api.notifications.create_task_notification",
+	},
 }
 
 # Scheduled Tasks
