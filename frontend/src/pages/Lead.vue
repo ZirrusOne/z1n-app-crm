@@ -1,7 +1,11 @@
 <template>
   <LayoutHeader v-if="lead.data">
     <template #left-header>
-      <Breadcrumbs :items="breadcrumbs" />
+      <Breadcrumbs :items="breadcrumbs">
+        <template #prefix="{ item }">
+          <Icon v-if="item.icon" :icon="item.icon" class="mr-2 h-4" />
+        </template>
+      </Breadcrumbs>
     </template>
     <template #right-header>
       <CustomActions
@@ -14,7 +18,7 @@
           @click="showAssignmentModal = true"
         />
       </component>
-      <Dropdown :options="statusOptions('lead', updateField)">
+      <Dropdown :options="statusOptions('lead', updateField, lead.data._customStatuses)">
         <template #default="{ open }">
           <Button
             :label="lead.data.status"
@@ -298,9 +302,14 @@
       </div>
     </template>
   </Dialog>
-  <SidePanelModal v-if="showSidePanelModal" v-model="showSidePanelModal" />
+  <SidePanelModal
+    v-if="showSidePanelModal"
+    v-model="showSidePanelModal"
+    @reload="() => fieldsLayout.reload()"
+  />
 </template>
 <script setup>
+import Icon from '@/components/Icon.vue'
 import Resizer from '@/components/Resizer.vue'
 import EditIcon from '@/components/Icons/EditIcon.vue'
 import ActivityIcon from '@/components/Icons/ActivityIcon.vue'
@@ -333,15 +342,18 @@ import {
   createToast,
   setupAssignees,
   setupCustomActions,
+  setupCustomStatuses,
   errorMessage,
   copyToClipboard,
 } from '@/utils'
+import { getView } from '@/utils/view'
 import { globalStore } from '@/stores/global'
 import { contactsStore } from '@/stores/contacts'
 import { organizationsStore } from '@/stores/organizations'
 import { statusesStore } from '@/stores/statuses'
 import { usersStore } from '@/stores/users'
 import { whatsappEnabled, callEnabled } from '@/composables/settings'
+import { capture } from '@/telemetry'
 import {
   createResource,
   FileUploader,
@@ -352,6 +364,7 @@ import {
   Switch,
   Breadcrumbs,
   call,
+  usePageMeta,
 } from 'frappe-ui'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
@@ -376,8 +389,7 @@ const lead = createResource({
   params: { name: props.leadId },
   cache: ['lead', props.leadId],
   onSuccess: (data) => {
-    setupAssignees(data)
-    setupCustomActions(data, {
+    let obj = {
       doc: data,
       $dialog,
       router,
@@ -385,7 +397,10 @@ const lead = createResource({
       createToast,
       deleteDoc: deleteLead,
       call,
-    })
+    }
+    setupAssignees(data)
+    setupCustomStatuses(data, obj)
+    setupCustomActions(data, obj)
   },
 })
 
@@ -449,11 +464,33 @@ function validateRequired(fieldname, value) {
 
 const breadcrumbs = computed(() => {
   let items = [{ label: __('Leads'), route: { name: 'Leads' } }]
+
+  if (route.query.view || route.query.viewType) {
+    let view = getView(route.query.view, route.query.viewType, 'CRM Lead')
+    if (view) {
+      items.push({
+        label: __(view.label),
+        icon: view.icon,
+        route: {
+          name: 'Leads',
+          params: { viewType: route.query.viewType },
+          query: { view: route.query.view },
+        },
+      })
+    }
+  }
+
   items.push({
     label: lead.data.lead_name || __('Untitled'),
     route: { name: 'Lead', params: { leadId: lead.data.name } },
   })
   return items
+})
+
+usePageMeta(() => {
+  return {
+    title: lead.data?.lead_name || lead.data?.name,
+  }
 })
 
 const tabIndex = ref(0)
@@ -651,6 +688,7 @@ async function convertToDeal(updated) {
     )
     console.log('API Response:', deal)
     if (deal) {
+      capture('convert_lead_to_deal')
       if (updated) {
         await organizations.reload()
         await contacts.reload()
