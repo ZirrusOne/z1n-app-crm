@@ -401,6 +401,18 @@ const deal = createResource({
 onMounted(() => {
   if (deal.data) return
   deal.fetch()
+
+  // Check for query parameter 'tab'
+    const urlParams = new URLSearchParams(window.location.search);
+  const tab = urlParams.get('tab');
+
+  // If 'tab' is 'tasks', switch to the Tasks pane
+  if (tab === 'tasks') {
+      const index = tabs.value.findIndex(tab => tab.name.toLowerCase() === 'tasks');
+      if (index !== -1) {
+          tabIndex.value = index;
+      }
+  }
 })
 
 const reload = ref(false)
