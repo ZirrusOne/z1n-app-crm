@@ -257,3 +257,19 @@ from frappe.desk.doctype.notification_log import notification_log
 from crm.overrides.notification_log import send_notification_email
 
 notification_log.send_notification_email = send_notification_email
+
+fixtures = [ 
+    { "dt": "Custom Field", 
+        "filters": [ 
+            ["dt", "=", "Contact"], 
+            ["fieldname", "=", "buying_role"]
+        ]
+    } ,
+    {
+        "doctype": "CRM Buying Role", 
+        "filters": [
+            ["name", "in", ["Blocker", "Budget Holder", "Champion", "Decision Maker", "End user", 
+            "Influencer","Technical Evaluator","Procurement","Gatekeeper","User Advocate"]]  
+        ]
+    }
+]
