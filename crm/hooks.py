@@ -259,10 +259,9 @@ from crm.overrides.notification_log import send_notification_email
 notification_log.send_notification_email = send_notification_email
 
 fixtures = [ 
-    { "dt": "Custom Field", 
+    { "doctype": "Custom Field", 
         "filters": [ 
-            ["dt", "=", "Contact"], 
-            ["fieldname", "=", "buying_role"]
+            ["name", "=", "Contact-buying_role"]
         ]
     } ,
     {
