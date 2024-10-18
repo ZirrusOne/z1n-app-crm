@@ -8,8 +8,8 @@ import frappe
 def execute(filters=None):
 	# Define columns for the report
     columns = [
-        {"label": "Name", "fieldname": "name", "fieldtype": "Data", "width": 150},
         {"label": "Organization", "fieldname": "organization", "fieldtype": "Data", "width": 150},
+        {"label": "Contact", "fieldname": "contact", "fieldtype": "Data", "width": 150},
         {"label": "Status", "fieldname": "status", "fieldtype": "Data", "width": 100},
         {"label": "Email", "fieldname": "email", "fieldtype": "Data", "width": 200},
         {"label": "Assigned To", "fieldname": "deal_owner", "fieldtype": "Link", "options": "User", "width": 150},
@@ -29,16 +29,17 @@ def get_assigned_deals(filters):
     conditions = ""  
     # Add condition for status if provided
     if filters.get("status"):
-        conditions += f""" AND deal.status =  {filters.get("status")} """
+        conditions += f""" AND deal.status =  '{filters.get("status")}' """
     
     # Add condition for organization if provided
     if filters.get("organization"):
-        conditions += f""" AND deal.organization =  {filters.get("organization")} """
+        conditions += f""" AND deal.organization =  '{filters.get("organization")}' """
 
     # Execute the SQL query to fetch the assigned deals
     return frappe.db.sql(f"""
         SELECT
             deal.name,
+            deal.contact,
             deal.organization,
             deal.status,
             deal.email, 
