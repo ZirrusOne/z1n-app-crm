@@ -7,10 +7,10 @@ import frappe
 def execute(filters=None):
     # Define columns for the report
     columns =[
-        {"label": "Name", "fieldname": "name", "fieldtype": "Data", "width": 150},
         {"label": "Organization", "fieldname": "organization", "fieldtype": "Data", "width": 150},
+        {"label": "Contact", "fieldname": "contact", "fieldtype": "Data", "width": 100},
         {"label": "Status", "fieldname": "status", "fieldtype": "Data", "width": 100},
-        {"label": "Email", "fieldname": "email_id", "fieldtype": "Data", "width": 200},
+        {"label": "Email", "fieldname": "email", "fieldtype": "Data", "width": 200},
         {"label": "Assigned To", "fieldname": "deal_owner", "fieldtype": "Link", "options": "User", "width": 150},
         {"label": "Time Assigned", "fieldname": "time_assigned", "fieldtype": "Datetime", "width": 180}
     ]
@@ -28,13 +28,14 @@ def get_uncontacted_deals(filters):
         
     # Add condition for organization if provided
     if filters.get("organization"):
-        conditions += f""" AND deal.organization =  {filters.get("organization")} """
+        conditions += f""" AND deal.organization =  '{filters.get("organization")}' """
 
     # Execute the SQL query to fetch the uncontacted deals (no email or phone communication)
     return frappe.db.sql(f"""
         SELECT
             deal.name,
             deal.organization,
+            deal.contact,
             deal.status,
             deal.email,
 			deal.deal_owner,  
@@ -52,8 +53,8 @@ def get_uncontacted_deals(filters):
                AND comm.reference_name = deal.name 
                AND (comm.communication_medium = 'Email' OR comm.communication_medium = 'Phone')
         WHERE
-            ass.allocated_to = '{assigned_to}' and deal.deal_owner = '{assigned_to}' -- here deal_owner and allocated_to can be diffrent 
-            AND comm.name IS NULL  # Ensure no emails or phone calls exist
+            ass.allocated_to = '{assigned_to}' and deal.deal_owner = '{assigned_to}' 
+            AND comm.name IS NULL  
             {conditions}
         ORDER BY deal.name
     """, {
