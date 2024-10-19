@@ -14,7 +14,8 @@ frappe.query_reports["Uncontacted Deals"] = {
 		{
 			"fieldname": "organization",
 			"label": "Organization",
-			"fieldtype": "Data",
+			"fieldtype": "Link",
+			"options": "CRM Organization",
 			"reqd": 0
 		}
 	]
