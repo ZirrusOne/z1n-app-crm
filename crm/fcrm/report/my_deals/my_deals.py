@@ -57,9 +57,11 @@ def get_assigned_deals(filters):
             ON ass.reference_type = 'CRM Deal' 
                AND ass.reference_name = deal.name
         WHERE
-            ass.allocated_to = '{assigned_to}' and deal.deal_owner = '{assigned_to}' -- here deal_owner and allocated_to can be diffrent 
+            ass.allocated_to = '{assigned_to}' 
+        or
+            deal.deal_owner = '{assigned_to}' -- here deal_owner and allocated_to can be diffrent 
             {conditions}
-        ORDER BY deal.name
+        ORDER BY deal.name,ass.name
     """, {
         "assigned_to": assigned_to,
         "conditions":conditions
