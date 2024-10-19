@@ -21,7 +21,8 @@ frappe.query_reports["My Deals"] = {
 		{
 			"fieldname": "organization",
 			"label": "Organization",
-			"fieldtype": "Data",
+			"fieldtype": "Link",
+			"options": "CRM Organization",
 			"reqd": 0
 		}
 	]
