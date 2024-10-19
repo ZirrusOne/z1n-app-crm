@@ -1,17 +1,19 @@
 # Copyright (c) 2024, Korecent and contributors
 # For license information, please see license.txt
+# Copyright (c) 2024, Korecent and contributors
+# For license information, please see license.txt
 
 import frappe
 
-# Report function to fetch data
 def execute(filters=None):
     # Define columns for the report
-    columns =[
+    columns = [
         {"label": "Organization", "fieldname": "organization", "fieldtype": "Data", "width": 150},
         {"label": "Contact", "fieldname": "contact", "fieldtype": "Data", "width": 100},
         {"label": "Status", "fieldname": "status", "fieldtype": "Data", "width": 100},
         {"label": "Email", "fieldname": "email", "fieldtype": "Data", "width": 200},
-        {"label": "Assigned To", "fieldname": "deal_owner", "fieldtype": "Link", "options": "User", "width": 150},
+        {"label": "Deal Owner", "fieldname": "deal_owner", "fieldtype": "Link", "options": "User", "width": 150},
+        {"label": "Assigned To", "fieldname": "assigned_to", "fieldtype": "Data", "width": 150},
         {"label": "Time Assigned", "fieldname": "time_assigned", "fieldtype": "Datetime", "width": 180}
     ]
 
@@ -19,45 +21,53 @@ def execute(filters=None):
     data = get_uncontacted_deals(filters)
     return columns, data
 
-
 def get_uncontacted_deals(filters):
     # Default to the current user if no user is provided in the filters
     assigned_to = filters.get("user") or frappe.session.user
 
     conditions = ""
-        
+    
     # Add condition for organization if provided
     if filters.get("organization"):
-        conditions += f""" AND deal.organization =  '{filters.get("organization")}' """
+        conditions += f""" AND deal.organization = '{filters.get("organization")}' """
 
-    # Execute the SQL query to fetch the uncontacted deals (no email or phone communication)
+    # Modified query to show deals where the user is either the owner or an assignee
     return frappe.db.sql(f"""
-        SELECT
+        SELECT DISTINCT
             deal.name,
             deal.organization,
             deal.contact,
             deal.status,
             deal.email,
-			deal.deal_owner,  
-            ass.allocated_to AS assigned_to,
-            ass.creation AS time_assigned
+            deal.deal_owner,
+            GROUP_CONCAT(DISTINCT ass.allocated_to) as assigned_to,
+            MIN(ass.creation) as time_assigned
         FROM
             `tabCRM Deal` AS deal
-        JOIN
+        LEFT JOIN
             `tabToDo` AS ass
-            ON ass.reference_type = 'CRM Deal' 
-               AND ass.reference_name = deal.name
+            ON ass.reference_type = 'CRM Deal'
+            AND ass.reference_name = deal.name
         LEFT JOIN
             `tabCommunication` AS comm
-            ON comm.reference_doctype = 'CRM Deal' 
-               AND comm.reference_name = deal.name 
-               AND (comm.communication_medium = 'Email' OR comm.communication_medium = 'Phone')
+            ON comm.reference_doctype = 'CRM Deal'
+            AND comm.reference_name = deal.name
+            AND (comm.communication_medium = 'Email' 
+                OR comm.communication_medium = 'Phone')
         WHERE
-            ass.allocated_to = '{assigned_to}' and deal.deal_owner = '{assigned_to}' 
-            AND comm.name IS NULL  
+            (deal.deal_owner = %(user)s OR ass.allocated_to = %(user)s)
+            AND comm.name IS NULL
             {conditions}
-        ORDER BY deal.name
+        GROUP BY
+            deal.name,
+            deal.organization,
+            deal.contact,
+            deal.status,
+            deal.email,
+            deal.deal_owner
+        ORDER BY 
+            deal.name
     """, {
-        "assigned_to": assigned_to,
+        "user": assigned_to,
         "conditions": conditions
     }, as_dict=True)
