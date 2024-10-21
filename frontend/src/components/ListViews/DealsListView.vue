@@ -1,6 +1,6 @@
 <template>
   <ListView
-    :class="$attrs.class"
+    :class="[$attrs.class, 'deal-chip']"
     :columns="columns"
     :rows="rows"
     :options="{
