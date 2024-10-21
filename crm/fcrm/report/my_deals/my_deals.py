@@ -10,7 +10,6 @@ def execute(filters=None):
         {"label": "Contact", "fieldname": "contact", "fieldtype": "Data", "width": 150},
         {"label": "Status", "fieldname": "status", "fieldtype": "Data", "width": 100},
         {"label": "Email", "fieldname": "email", "fieldtype": "Data", "width": 200},
-        {"label": "Deal Owner", "fieldname": "deal_owner", "fieldtype": "Link", "options": "User", "width": 150},
         {"label": "Assigned To", "fieldname": "assigned_to", "fieldtype": "Data", "width": 150},
         {"label": "Last Email Communication", "fieldname": "last_email_communication", "fieldtype": "Datetime", "width": 180}
     ]
