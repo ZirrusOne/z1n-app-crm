@@ -18,6 +18,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Element",
+   "length": 24,
    "unique": 1
   },
   {
@@ -32,7 +33,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-17 09:22:09.844125",
+ "modified": "2024-10-21 11:01:35.302026",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Deal Element",
