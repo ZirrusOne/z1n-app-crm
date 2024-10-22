@@ -13,7 +13,6 @@ def execute(filters):
 
 def get_columns():
     return [
-        {"fieldname": "deal_name", "label": _("Deal Name"), "fieldtype": "Link","options": "CRM Deal", "width": 220},
         {"fieldname": "organization", "label": _("Organization"), "fieldtype": "Data", "width": 200},
         {"fieldname": "status", "label": _("Status"), "fieldtype": "Link","options": "CRM Deal Status", "width": 200},
         {"fieldname": "email_id", "label": _("Email Id"), "fieldtype": "Data", "width": 200},
