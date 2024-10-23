@@ -27,7 +27,7 @@ def get_data(filters):
     #fetch lead data order by creation date
     lead_details = frappe.db.sql(f"""SELECT l.name, l.lead_name,l.status,l.organization AS organization,
                                             l.email, l.creation, t.allocated_to AS assigned_to
-                                     FROM `tabCRM Lead` l LEFT JOIN `tabToDo` t 
+                                     FROM `tabCRM Lead` l LEFT JOIN `tabToDo` t
                                      ON t.reference_type = 'CRM Lead' AND t.reference_name = l.name
                                      WHERE l.docstatus < 2 {conditions}""", as_dict=1)
     #fetch time if creation date is today else fetch date
@@ -35,7 +35,7 @@ def get_data(filters):
         if (lead.get('creation')).date() == date.today():
             lead['time_assigned'] = lead.get('creation').strftime('%I:%M %p')
         else:
-            lead['time_assigned'] = lead.get('creation').date() 
+            lead['time_assigned'] = lead.get('creation').date()
     return lead_details
 
 def get_filter_conditions(filters):
