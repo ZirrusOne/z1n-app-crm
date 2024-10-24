@@ -4,9 +4,9 @@ from frappe import _
 from frappe.utils import get_url,quoted
 from frappe.desk.doctype.notification_log.notification_log import (
 	NotificationLog,
-	get_email_header,
+	get_email_header
 )
-from frappe.desk.doctype.notification_log.notification_log import send_notification_email as original_send_notification_email
+from frappe.desk.doctype.notification_log.notification_log import send_notification_email 
 
 # overriding open 
 def send_notification_email(doc: NotificationLog):
@@ -19,7 +19,7 @@ def send_notification_email(doc: NotificationLog):
 	if not user:
 		return
 
-	header = get_email_header(doc, user.language)
+	header = custom_get_email_header(doc, user.language)
 	email_subject = strip_html(doc.subject)
 	args = {
 		"body_content": doc.subject,
@@ -64,3 +64,23 @@ def apply_patch():
     """Apply the monkey patch to override send_notification_email. because send_notification_email is not @frappe.whitlisted  """
     from frappe.desk.doctype.notification_log import notification_log
     notification_log.send_notification_email = send_notification_email
+    notification_log.get_email_header = custom_get_email_header
+
+#doctype and lead name added for email header- Anuradha
+def custom_get_email_header(doc, language: str | None = None):
+	docname = doc.document_name
+	if doc.document_type == "CRM Lead":
+		lead_name = frappe.db.get_value(doc.document_type, {'name':doc.document_name}, 'lead_name')
+		docname = (doc.document_type) +' : '+ lead_name
+	elif doc.document_type == "CRM Deal":
+		deal_name = frappe.db.get_value(doc.document_type, {'name':doc.document_name}, 'organization')
+		docname = (doc.document_type) +' : '+ deal_name
+	header_map = {
+		"Default": _("New Notification", lang=language),
+		"Mention": _("New Mention on {0}", lang=language).format(docname),
+		"Assignment": _("Assignment Update on {0}", lang=language).format(docname),
+		"Share": _("New Document Shared {0}", lang=language).format(docname),
+		"Energy Point": _("Energy Point Update on {0}", lang=language).format(docname),
+	}
+
+	return header_map[doc.type or "Default"]
