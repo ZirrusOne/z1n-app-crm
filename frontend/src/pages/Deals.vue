@@ -212,7 +212,7 @@
     :rows="rows"
     :columns="deals.data.columns"
     :options="{
-      showTooltip: false,
+      showTooltip: true,
       resizeColumn: true,
       rowCount: deals.data.row_count,
       totalCount: deals.data.total_count,
@@ -533,6 +533,7 @@ function showTask(name) {
   docname.value = name
   showTaskModal.value = true
 }
+
 function customFormatNumberIntoCurrency(value, currency) {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
