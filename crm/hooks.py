@@ -191,6 +191,10 @@ doc_events = {
 # Overriding Methods
 # ------------------------------
 #
+override_whitelisted_methods = {
+    "frappe.desk.form.assign_to.add": "crm.api.assign_to.add"
+}
+
 # override_whitelisted_methods = {
 #	"frappe.desk.doctype.event.event.get_events": "crm.event.get_events"
 # }
@@ -254,6 +258,23 @@ doc_events = {
 
 """Apply the monkey patch to override send_notification_email. because send_notification_email is not @frappe.whitlisted  """
 from frappe.desk.doctype.notification_log import notification_log
-from crm.overrides.notification_log import send_notification_email
+from crm.overrides.notification_log import send_notification_email, custom_get_email_header
 
 notification_log.send_notification_email = send_notification_email
+notification_log.get_email_header = custom_get_email_header
+
+
+fixtures = [ 
+    { "doctype": "Custom Field", 
+        "filters": [ 
+            ["name", "=", "Contact-buying_role"]
+        ]
+    } ,
+    {
+        "doctype": "CRM Buying Role", 
+        "filters": [
+            ["name", "in", ["Blocker", "Budget Holder", "Champion", "Decision Maker", "End user", 
+            "Influencer","Technical Evaluator","Procurement","Gatekeeper","User Advocate"]]  
+        ]
+    }
+]
