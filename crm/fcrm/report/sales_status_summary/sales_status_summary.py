@@ -29,6 +29,10 @@ def get_data(filters):
 	if filters.get("crm_organization"):
 		conditions += f""" AND de.crm_organization = '{filters.get("crm_organization")}' """
 
+	if filters.get("status"):
+		conditions += f""" AND de.status = '{filters.get("status")}' """
+
+
 	sales_stages_data = frappe.db.sql(f"""
 		SELECT 
 			de.status, 

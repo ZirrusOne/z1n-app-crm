@@ -28,6 +28,13 @@ frappe.query_reports["Sales Status Summary"] = {
             "fieldtype": "Link",
             "options": "CRM Organization",
             "reqd": 0
+        },
+        {
+            "fieldname": "status",
+            "label": "Deal Status",
+            "fieldtype": "Link",
+            "options": "CRM Deal Status",
+            "reqd": 0
         }
     ]
 };
