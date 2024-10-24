@@ -387,7 +387,7 @@ function getKanbanRows(data) {
 function parseRows(rows) {
   return rows.map((deal) => {
     let _rows = {}
-    deals.value.data.rows.forEach((row) => {      
+    deals.value.data.rows.forEach((row) => {
       _rows[row] = deal[row]
 
       if (row == 'organization') {
