@@ -78,3 +78,29 @@ def get_deal_contacts(name):
 		}
 		deal_contacts.append(_contact)
 	return deal_contacts
+
+
+
+@frappe.whitelist(allow_guest=True)
+def update_crm_deal_elements(name, deal_elements):
+	# Fetch the CRM Deal by name
+	deal = frappe.get_doc("CRM Deal", name)
+	
+	# Clear the existing deal elements
+	deal.set("deal_elements", [])
+	
+	# Add new deal elements from the list of strings
+	for element in deal_elements:
+		deal.append("deal_elements", {
+			"deal_elements": element,  # now element is the string itself
+			"parent": name,
+			"parentfield": "deal_elements",
+			"parenttype": "CRM Deal",
+			"doctype": "CRM Deal Elements"
+		})
+	
+	# Save the updated CRM Deal document
+	deal.save(ignore_permissions=True)
+	frappe.db.commit()
+ 
+	return {"name":name, "deal_elements":deal.deal_elements}
