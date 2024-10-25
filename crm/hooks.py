@@ -263,18 +263,19 @@ from crm.overrides.notification_log import send_notification_email, custom_get_e
 notification_log.send_notification_email = send_notification_email
 notification_log.get_email_header = custom_get_email_header
 
-
-fixtures = [ 
-    { "doctype": "Custom Field", 
-        "filters": [ 
-            ["name", "=", "Contact-buying_role"]
-        ]
-    } ,
+fixtures = [
     {
-        "doctype": "CRM Buying Role", 
+        "dt": "Custom Field",
+        "filters": [["name", "=", "Contact-buying_role"]]
+    },
+    {
+        "doctype": "CRM Buying Role",
         "filters": [
-            ["name", "in", ["Blocker", "Budget Holder", "Champion", "Decision Maker", "End user", 
-            "Influencer","Technical Evaluator","Procurement","Gatekeeper","User Advocate"]]  
+            ["name", "in", ["Blocker", "Budget Holder", "Champion", "Decision Maker", "End user",
+            "Influencer","Technical Evaluator","Procurement","Gatekeeper","User Advocate"]]
         ]
+    },
+    {
+        "dt": "CRM Deal Element"
     }
 ]
