@@ -75,6 +75,7 @@ def get_deal_contacts(name):
 			"email": get_primary_email(contact),
 			"mobile_no": get_primary_mobile_no(contact),
 			"is_primary": is_primary,
+			"buying_role":contact.custom_buying_role
 		}
 		deal_contacts.append(_contact)
 	return deal_contacts

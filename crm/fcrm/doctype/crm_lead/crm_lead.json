@@ -24,6 +24,8 @@
   "last_name",
   "email",
   "mobile_no",
+  "buying_role",
+  "business_unit",
   "organization_tab",
   "section_break_uixv",
   "naming_series",
@@ -285,12 +287,23 @@
    "fieldtype": "Table",
    "label": "Status Change Log",
    "options": "CRM Status Change Log"
+  },
+  {
+   "fieldname": "buying_role",
+   "fieldtype": "Link",
+   "label": "Buying Role",
+   "options": "CRM Buying Role"
+  },
+  {
+   "fieldname": "business_unit",
+   "fieldtype": "Data",
+   "label": "Business Unit"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-17 18:36:57.289897",
+ "modified": "2024-10-23 03:46:25.676765",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",

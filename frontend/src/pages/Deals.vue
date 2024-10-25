@@ -212,7 +212,7 @@
     :rows="rows"
     :columns="deals.data.columns"
     :options="{
-      showTooltip: false,
+      showTooltip: true,
       resizeColumn: true,
       rowCount: deals.data.row_count,
       totalCount: deals.data.total_count,
@@ -402,10 +402,12 @@ function parseRows(rows) {
           data: getAllDealElementNames(deal.child_tables.deal_elements)
         } 
       } else if (row == 'annual_revenue') {
-        _rows[row] = formatNumberIntoCurrency(
+        _rows[row] = customFormatNumberIntoCurrency(
           deal.annual_revenue,
           deal.currency,
         )
+      } else if (row == 'probability') {
+        _rows[row] = deal[row] + '%';
       } else if (row == 'status') {
         _rows[row] = {
           label: deal.status,
@@ -567,5 +569,12 @@ const task = ref({
 function showTask(name) {
   docname.value = name
   showTaskModal.value = true
+}
+
+function customFormatNumberIntoCurrency(value, currency) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+        currency: currency
+    }).format(value);
 }
 </script>
