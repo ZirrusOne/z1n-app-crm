@@ -251,5 +251,3 @@ doc_events = {
 # auth_hooks = [
 #	"crm.auth.validate"
 # ]
-
-fixtures = ["CRM Deal Element"]
