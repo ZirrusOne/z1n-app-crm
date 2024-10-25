@@ -81,7 +81,7 @@ def get_deal_contacts(name):
 
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def update_crm_deal_elements(name, deal_elements):
 	# Fetch the CRM Deal by name
 	deal = frappe.get_doc("CRM Deal", name)
