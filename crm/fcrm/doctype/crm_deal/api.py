@@ -79,8 +79,6 @@ def get_deal_contacts(name):
 		deal_contacts.append(_contact)
 	return deal_contacts
 
-
-
 @frappe.whitelist(methods=["POST", "PUT"])
 def update_crm_deal_elements(name, deal_elements):
 	# Fetch the CRM Deal by name
