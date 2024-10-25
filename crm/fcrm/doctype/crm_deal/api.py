@@ -102,3 +102,10 @@ def update_crm_deal_elements(name, deal_elements):
 	frappe.db.commit()
  
 	return {"name":name, "deal_elements":deal.deal_elements}
+
+
+@frappe.whitelist(methods=["GET"])
+def get_deal_elements():
+	# Fetch all CRM Deal Elements
+	deal_elements = frappe.get_all("CRM Deal Element", fields=["name"])
+	return deal_elements
