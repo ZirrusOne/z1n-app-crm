@@ -108,11 +108,27 @@
         v-model="deal.data"
         @updateField="updateField"
       />
+
       <div
         v-if="fieldsLayout.data"
         class="flex flex-1 flex-col justify-between overflow-hidden"
       >
         <div class="flex flex-col overflow-y-auto">
+          <div  class="section flex flex-col p-3">
+
+            <!-- Manage custom deal elements-->
+            <Section :label="'Deal Details'">
+              <div class="px-8 pb-3 flex flex-wrap items-start text-sm text-gray-600">Deal element : </div>
+              <div class="px-8 flex flex-wrap items-start gap-3 text-sm text-gray-600">
+                <MultiSelectDealElement
+                class="flex-1"
+                v-model="dealElementNames"
+                :deal-name="deal.data.name"
+                />
+              </div>
+            </Section>
+            
+          </div>
           <div
             v-for="(section, i) in fieldsLayout.data"
             :key="section.label"
@@ -249,6 +265,10 @@
                           <PhoneIcon class="h-4 w-4" />
                           {{ contact.mobile_no }}
                         </div>
+                        <div class="flex items-center gap-3 p-1 py-1.5">
+                          <PriceTagIcon class="h-4 w-4" />
+                          {{ contact.buying_role }}
+                        </div>
                       </div>
                     </Section>
                   </div>
@@ -355,12 +375,16 @@ import {
 import { ref, computed, h, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
+import PriceTagIcon from '@/components/Icons/PriceTagIcon.vue'
+import MultiSelectDealElement from '../components/Controls/MultiSelectDealElement.vue'
 
 const { $dialog, $socket, makeCall } = globalStore()
 const { statusOptions, getDealStatus } = statusesStore()
 const { isManager } = usersStore()
 const route = useRoute()
 const router = useRouter()
+const dealElements = ref([]); // Array to store deal elements
+const dealElementNames = ref([]); // Array to store only names of deal elements
 
 const props = defineProps({
   dealId: {
@@ -375,8 +399,10 @@ const customStatuses = ref([])
 const deal = createResource({
   url: 'crm.fcrm.doctype.crm_deal.api.get_deal',
   params: { name: props.dealId },
-  cache: ['deal', props.dealId],
   onSuccess: async (data) => {
+    if (data.probability || data.probability === 0) {
+      data.probability = data.probability + '%'; 
+    }
     if (data.organization) {
       organization.update({
         params: { doctype: 'CRM Organization', name: data.organization },
@@ -401,6 +427,9 @@ const deal = createResource({
     }
     setupAssignees(data)
     let customization = await setupCustomizations(data, obj)
+    dealElements.value = data.child_tables.deal_elements || [];
+    dealElementNames.value = dealElements.value.map(element => element.deal_elements);
+
     customActions.value = customization.actions || []
     customStatuses.value = customization.statuses || []
   },

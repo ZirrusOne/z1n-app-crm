@@ -124,6 +124,10 @@ class CRMLead(Document):
 		if self.custom_buying_role:
 			contact.update({"custom_buying_role":self.buying_role})
 
+        #set buying role from CRM lead on contact- Anuradha(10-21-2024)
+		if self.custom_buying_role:
+			contact.update({"custom_buying_role":self.buying_role})
+
 		if self.email:
 			contact.append("email_ids", {"email_id": self.email, "is_primary": 1})
 

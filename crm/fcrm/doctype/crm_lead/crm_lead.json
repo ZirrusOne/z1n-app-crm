@@ -25,6 +25,7 @@
   "email",
   "mobile_no",
   "buying_role",
+  "business_unit",
   "organization_tab",
   "section_break_uixv",
   "naming_series",
@@ -292,6 +293,11 @@
    "fieldtype": "Link",
    "label": "Buying Role",
    "options": "CRM Buying Role"
+  },
+  {
+   "fieldname": "business_unit",
+   "fieldtype": "Data",
+   "label": "Business Unit"
   }
  ],
  "image_field": "image",
