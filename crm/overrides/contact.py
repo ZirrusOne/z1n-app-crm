@@ -32,6 +32,12 @@ class CustomContact(Contact):
 				'width': '12rem',
 			},
 			{
+				'label': 'Buying Role',
+				'type': 'Data',
+				'key': 'custom_buying_role',
+				'width': '12rem',
+			},
+			{
 				'label': 'Last Modified',
 				'type': 'Datetime',
 				'key': 'modified',
@@ -44,6 +50,7 @@ class CustomContact(Contact):
 			"company_name",
 			"email_id",
 			"mobile_no",
+			"custom_buying_role",
 			"modified",
 			"image",
 		]

@@ -83,7 +83,7 @@ website_route_rules = [
 # ------------
 
 before_install = "crm.install.before_install"
-after_install = "crm.install.after_install"
+after_install = ["crm.install.after_install","crm.overrides.custom_install.after_install"]
 
 # Uninstallation
 # ------------
@@ -133,6 +133,7 @@ override_doctype_class = {
 	"Contact": "crm.overrides.contact.CustomContact",
 	"Email Template": "crm.overrides.email_template.CustomEmailTemplate",
 	"User": "crm.overrides.user.CustomUser",
+	"CRM Lead": "crm.overrides.custom_lead_view.CustomCRMLead"
 }
 
 # Document Events
@@ -252,7 +253,7 @@ doc_events = {
 #	"crm.auth.validate"
 # ]
 
-fixtures = [ "CRM Fields Layout",
+fixtures = [ 
     { "doctype": "Custom Field", 
         "filters": [ 
             ["name", "=", "Contact-buying_role"]
