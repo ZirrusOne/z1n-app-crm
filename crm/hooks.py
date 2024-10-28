@@ -252,10 +252,11 @@ doc_events = {
 #	"crm.auth.validate"
 # ]
 
-fixtures = [ "CRM Fields Layout"
+fixtures = [ "CRM Fields Layout",
     { "doctype": "Custom Field", 
         "filters": [ 
             ["name", "=", "Contact-buying_role"]
         ]
     } 
+
 ]
