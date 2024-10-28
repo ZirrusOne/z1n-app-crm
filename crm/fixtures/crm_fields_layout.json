@@ -1,0 +1,65 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "CRM Fields Layout",
+  "dt": "CRM Lead",
+  "layout": "[{\"label\":\"Person\",\"fields\":[\"salutation\",\"first_name\",\"last_name\",\"email\",\"mobile_no\", \"gender\", \"buying_role\"],\"hideLabel\":true},{\"label\":\"Organization\",\"fields\":[\"organization\",\"website\",\"no_of_employees\",\"territory\",\"annual_revenue\",\"industry\"],\"hideLabel\":true,\"hideBorder\":false},{\"label\":\"Other\",\"columns\":2,\"fields\":[\"status\",\"lead_owner\"],\"hideLabel\":true,\"hideBorder\":false}]",
+  "modified": "2024-10-28 00:51:48.189401",
+  "name": "CRM Lead-Quick Entry",
+  "type": "Quick Entry"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "CRM Fields Layout",
+  "dt": "CRM Deal",
+  "layout": "[{\"label\": \"Select Organization\", \"fields\": [\"organization\"], \"hideLabel\": true, \"editable\": true}, {\"label\": \"Organization Details\", \"fields\": [\"organization_name\", \"website\", \"no_of_employees\", \"territory\", \"annual_revenue\", \"industry\"], \"hideLabel\": true, \"editable\": true}, {\"label\": \"Select Contact\", \"fields\": [\"contact\"], \"hideLabel\": true, \"editable\": true}, {\"label\": \"Contact Details\", \"fields\": [\"salutation\", \"first_name\", \"last_name\", \"email\", \"mobile_no\", \"gender\"], \"hideLabel\": true, \"editable\": true}, {\"label\": \"Other\", \"columns\": 2, \"fields\": [\"status\", \"deal_owner\"], \"hideLabel\": true}]",
+  "modified": "2024-10-10 09:09:55.203456",
+  "name": "CRM Deal-Quick Entry",
+  "type": "Quick Entry"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "CRM Fields Layout",
+  "dt": "Contact",
+  "layout": "[{\"label\":\"Salutation\",\"columns\":1,\"fields\":[\"salutation\"],\"hideLabel\":true},\n{\"label\":\"Full Name\",\"columns\":2,\"hideBorder\":true,\"fields\":[\"first_name\",\"last_name\"],\"hideLabel\":true},\n{\"label\":\"Email\",\"columns\":1,\"hideBorder\":true,\"fields\":[\"email_id\"],\"hideLabel\":true},\n{\"label\":\"Mobile No. & Gender\",\"columns\":2,\"hideBorder\":true,\"fields\":[\"mobile_no\",\"gender\"],\"hideLabel\":true},\n{\"label\":\"Buying Role\",\"columns\":1,\"hideBorder\":true,\"fields\":[\"custom_buying_role\"],\"hideLabel\":true},\n{\"label\":\"Organization\",\"columns\":1,\"hideBorder\":true,\"fields\":[\"company_name\"],\"hideLabel\":true},\n{\"label\":\"Designation\",\"columns\":1,\"hideBorder\":true,\"fields\":[\"designation\"],\"hideLabel\":true},\n{\"label\":\"Address\",\"columns\":1,\"hideBorder\":true,\"fields\":[\"address\"],\"hideLabel\":true}]",
+  "modified": "2024-10-28 04:37:34.157746",
+  "name": "Contact-Quick Entry",
+  "type": "Quick Entry"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "CRM Fields Layout",
+  "dt": "CRM Organization",
+  "layout": "[{\"label\":\"Organization Name\",\"columns\":1,\"fields\":[\"organization_name\"],\"hideLabel\":true},{\"label\":\"Website & Revenue\",\"columns\":2,\"hideBorder\":true,\"fields\":[\"website\",\"annual_revenue\"],\"hideLabel\":true},{\"label\":\"Territory\",\"columns\":1,\"hideBorder\":true,\"fields\":[\"territory\"],\"hideLabel\":true},{\"label\":\"No of Employees & Industry\",\"columns\":2,\"hideBorder\":true,\"fields\":[\"no_of_employees\",\"industry\"],\"hideLabel\":true},{\"label\":\"Address\",\"columns\":1,\"hideBorder\":true,\"fields\":[\"address\"],\"hideLabel\":true}]",
+  "modified": "2024-10-10 09:09:55.211960",
+  "name": "CRM Organization-Quick Entry",
+  "type": "Quick Entry"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "CRM Fields Layout",
+  "dt": "Address",
+  "layout": "[{\"label\":\"Address\",\"columns\":1,\"fields\":[\"address_title\",\"address_type\",\"address_line1\",\"address_line2\",\"city\",\"state\",\"country\",\"pincode\"],\"hideLabel\":true}]",
+  "modified": "2024-10-10 09:09:55.215282",
+  "name": "Address-Quick Entry",
+  "type": "Quick Entry"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "CRM Fields Layout",
+  "dt": "CRM Lead",
+  "layout": "[{\"label\":\"Details\",\"name\":\"details\",\"opened\":true,\"fields\":[\"organization\",\"website\",\"territory\",\"industry\",\"job_title\",\"source\",\"lead_owner\"]},{\"label\":\"Person\",\"name\":\"person_tab\",\"opened\":true,\"fields\":[\"salutation\",\"first_name\",\"last_name\",\"email\",\"mobile_no\",\"buying_role\"]}]",
+  "modified": "2024-10-25 07:03:28.057408",
+  "name": "CRM Lead-Side Panel",
+  "type": "Side Panel"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "CRM Fields Layout",
+  "dt": "CRM Deal",
+  "layout": "[{\"label\":\"Contacts\",\"name\":\"contacts_section\",\"opened\":true,\"editable\":false,\"contacts\":[]},{\"label\":\"Organization Details\",\"name\":\"organization_tab\",\"opened\":true,\"fields\":[\"organization\",\"website\",\"territory\",\"annual_revenue\",\"close_date\",\"probability\",\"next_step\",\"deal_owner\"]}]",
+  "modified": "2024-10-28 01:03:39.292980",
+  "name": "CRM Deal-Side Panel",
+  "type": "Side Panel"
+ }
+]
