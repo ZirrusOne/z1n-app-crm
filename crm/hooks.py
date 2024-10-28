@@ -83,7 +83,7 @@ website_route_rules = [
 # ------------
 
 before_install = "crm.install.before_install"
-after_install = ["crm.install.after_install","crm.overrides.custom_install.after_install"]
+after_install = "crm.install.after_install"
 
 # Uninstallation
 # ------------
