@@ -19,6 +19,7 @@
   "website",
   "territory",
   "industry",
+  "government_affiliation",
   "address"
  ],
  "fields": [
@@ -90,6 +91,12 @@
    "label": "Referral Source",
    "link_filters": "[[\"CRM Organization\",\"is_partner\",\"=\",1]]",
    "options": "CRM Organization"
+  },
+  {
+   "fieldname": "government_affiliation",
+   "fieldtype": "Link",
+   "label": "Government Affiliation",
+   "options": "CRM Government Affiliation"
   }
  ],
  "image_field": "organization_logo",

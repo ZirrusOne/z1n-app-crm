@@ -75,6 +75,13 @@
                     <WebsiteIcon class="size-4" />
                     <span>{{ website(organization.doc.website) }}</span>
                   </div>
+                  <div
+                    v-if="organization.doc.government_affiliation"
+                    class="flex items-center gap-1.5"
+                  >
+                    <FeatherIcon name="crosshair" class="h-4 w-4" />
+                    <span class="">{{ organization.doc.government_affiliation }}</span>
+                  </div>
                   <ErrorMessage :message="__(error)" />
                 </div>
               </div>

@@ -338,4 +338,8 @@ fixtures = [
         "dt": "CRM Sales Channel",
         "filters": [["name", "in", ["Direct", "Reseller", "Distributor", "Retail", "E-commerce", "Other"]]]
     },
+    {
+        "dt": "CRM Government Affiliation",
+        "filters": [["name", "in", ["Federal", "State", "County", "City", "Tribal", "Other"]]]
+	}
 ]
