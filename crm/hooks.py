@@ -266,12 +266,29 @@ notification_log.get_email_header = custom_get_email_header
 fixtures = [ 
     {
         "dt": "Custom Field",
-        "filters": [["name", "=", "Contact-buying_role"]]
+        "filters": [
+            ["name", "in", ["Contact-custom_business_unit", "Contact-custom-buying_role"]],
+        ]
     },
     {
         "dt": "CRM Deal Element"
     },
     {
         "dt": "Role"
+    },
+        "dt": "CRM Deal Element",
+        "filters": [["name", "in", ["Hardware", "Software", "Support", "Professional Services"]]]
+    },
+    {
+        "dt": "CRM Government Affiliation",
+        "filters": [["name", "in", ["Federal", "State", "County", "City", "Tribal", "Other"]]]
+	  },
+    {
+        "dt": "Data Doctype",
+        "filters": [["name", "=", "CRM Deal"]]
+    },
+    {
+        "dt": "CRM Sales Channel",
+        "filters": [["name", "in", ["Direct", "Reseller", "Distributor", "Retail", "E-commerce", "Other"]]]
     }
 ]

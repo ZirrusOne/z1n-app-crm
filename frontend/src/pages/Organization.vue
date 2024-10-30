@@ -78,6 +78,19 @@
                 &middot;
               </span>
               <div
+                v-if="organization.doc.government_affiliation"
+                class="flex items-center gap-1.5"
+              >
+                <FeatherIcon name="crosshair" class="h-4 w-4" />
+                <span class="">{{ organization.doc.government_affiliation }}</span>
+              </div>
+              <span
+                v-if="organization.doc.government_affiliation"
+                class="hidden text-3xl leading-[0] text-gray-600 sm:flex"
+              >
+                &middot;
+              </span>
+              <div
                 v-if="organization.doc.industry"
                 class="flex items-center gap-1.5"
               >

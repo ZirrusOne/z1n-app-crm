@@ -121,8 +121,10 @@ class CRMLead(Document):
 			}
 		)
 
-        #set buying role from CRM lead on contact- Anuradha(10-21-2024)
-		if self.custom_buying_role:
+		if self.business_unit:
+			contact.update({"custom_business_unit":self.business_unit})
+		
+		if self.buying_role:
 			contact.update({"custom_buying_role":self.buying_role})
 
 		if self.email:
@@ -155,6 +157,7 @@ class CRMLead(Document):
 				"territory": self.territory,
 				"industry": self.industry,
 				"annual_revenue": self.annual_revenue,
+				"government_affiliation": self.government_affiliation,
 			}
 		)
 		organization.insert(ignore_permissions=True)
