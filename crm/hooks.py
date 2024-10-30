@@ -334,4 +334,8 @@ fixtures = [
         "dt": "CRM Lead Source",
         "filters": [["name", "=", "Partner"]]
     },
+    {
+        "dt": "CRM Sales Channel",
+        "filters": [["name", "in", ["Direct", "Reseller", "Distributor", "Retail", "E-commerce", "Other"]]]
+    },
 ]
