@@ -720,3 +720,10 @@ def getCounts(d, doctype):
 	d["_task_count"] = frappe.db.count("CRM Task", filters={"reference_doctype": doctype, "reference_docname": d.get("name")})
 	d["_note_count"] = frappe.db.count("FCRM Note", filters={"reference_doctype": doctype, "reference_docname": d.get("name")})
 	return d
+
+
+
+@frappe.whitelist()
+def get_reports_for_doctype(doctype):
+    reports = frappe.get_list('Report', filters={'ref_doctype': doctype}, fields=['name'])
+    return reports
