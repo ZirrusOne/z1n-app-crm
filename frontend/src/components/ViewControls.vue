@@ -65,7 +65,11 @@
     >
         <template v-if="route.params.viewType === 'report'">
           <FormControl
+<<<<<<< HEAD
           class="form-control cursor-pointer [&_select]:cursor-pointer m-1 min-w-30 report-filter"
+=======
+          class="form-control cursor-pointer [&_select]:cursor-pointer m-1 min-w-36"
+>>>>>>> 9e3d448 (SCRUM-64 : Report management)
           type="select"
           v-model="selectedOption"
           :options="reports_option"
@@ -371,6 +375,7 @@ const pageLength = computed(() => list.value?.data?.page_length)
 const pageLengthCount = computed(() => list.value?.data?.page_length_count)
 
 watch(loadMore, (value) => {
+  console.log('load more');
   if (!value) return
   updatePageLength(value, true)
 })
@@ -401,7 +406,13 @@ function getParams() {
   const kanban_columns = _view?.kanban_columns || ''
   const kanban_fields = _view?.kanban_fields || ''
   const report_name = _view?.report_name || default_report
+<<<<<<< HEAD
   
+=======
+
+  
+console.log( props.doctype)
+>>>>>>> 9e3d448 (SCRUM-64 : Report management)
   view.value = {
     name: view_name,
     label: _view?.label || getViewType().label,
