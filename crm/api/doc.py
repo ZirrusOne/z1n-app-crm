@@ -725,3 +725,32 @@ def getCounts(d, doctype):
 		"FCRM Note", filters={"reference_doctype": doctype, "reference_docname": d.get("name")}
 	)
 	return d
+
+@frappe.whitelist()
+def get_reports_for_doctype(doctype):
+    reports = frappe.get_list('Report', filters={'ref_doctype': doctype}, fields=['name'])
+    return reports
+
+def parse_js_to_dict(js_code):
+    # Extract the JSON-like part of the JavaScript code using regex
+    match = re.search(r'\{.*\}', js_code, re.DOTALL)
+    if not match:
+        return None
+
+    # Replace JavaScript-specific elements with Python-compatible JSON
+    json_str = match.group(0)
+    json_str = json_str.replace("frappe.session.user", "\"frappe.session.user\"")  # Handle frappe session user
+    json_str = json_str.replace(";", "")  # Remove trailing semicolon if present
+    # Convert to JSON (or Python dict)
+    try:
+        parsed_dict = json.loads(json_str)
+    except json.JSONDecodeError as e:
+        print("Error parsing JSON:", e)
+        return None
+
+    return parsed_dict
+
+@frappe.whitelist()
+def get_crm_deal_status_for_status(status):
+    doc_list = frappe.get_list('CRM Deal Status Detail', filters={'crm_deal_status': status}, fields=['detail_name','description'])
+    return doc_list

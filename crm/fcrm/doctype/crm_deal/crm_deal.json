@@ -7,6 +7,18 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "tab_6_tab",
+  "details_section",
+  "deal_elements",
+  "probability",
+  "close_date",
+  "naming_series",
+  "column_break_tukx",
+  "next_step",
+  "status",
+  "status_detail",
+  "sales_channel",
+  "deal_owner",
   "organization_tab",
   "naming_series",
   "organization",
@@ -14,6 +26,7 @@
   "probability",
   "column_break_ijan",
   "status",
+  "status_detail",
   "close_date",
   "deal_owner",
   "contacts_tab",
@@ -55,7 +68,8 @@
   "first_response_time",
   "first_responded_on",
   "log_tab",
-  "status_change_log"
+  "status_change_log",
+  "amended_from"
  ],
  "fields": [
   {
@@ -334,11 +348,19 @@
    "fieldtype": "Link",
    "label": "Currency",
    "options": "Currency"
-  }
+  },
+  {
+    "depends_on": "eval:doc.status",
+    "fieldname": "status_detail",
+    "fieldtype": "Link",
+    "label": "Status Detail",
+    "options": "CRM Deal Status Detail"
+   }
  ],
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [],
- "modified": "2024-12-11 14:31:41.058895",
+ "modified": "2024-11-05 11:05:30.671900",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Deal",

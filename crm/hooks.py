@@ -320,6 +320,8 @@ standard_dropdown_items = [
 ]
 
 fixtures = [ 
+    "CRM Deal Status",
+    "CRM Deal Status Detail",
     { "doctype": "Custom Field", 
         "filters": [ 
             ["name", "=", "Contact-buying_role"]
