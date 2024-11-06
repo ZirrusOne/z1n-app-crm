@@ -276,7 +276,10 @@ def notify_assignment(assigned_by, allocated_to, doc_type, doc_name, action="CLO
 	#Doctype and docname added on description
 	description_html = " "
 	if description and doc_name not in description:
-		description = f"Assignment for {(doc_type)} {doc_name}"
+		if doc_type == "CRM Task":
+			description = f"Task Due for {(doc_type)} {doc_name}"
+        else:
+			description = f"Assignment for {(doc_type)} {doc_name}"
 		description_html = f"<div>{description}</div>"  
 	else:
 		description_html = f"<div>{description}</div>"
