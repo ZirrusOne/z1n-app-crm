@@ -807,3 +807,20 @@ def set_default_report(doctype, report_name):
     except Exception as e:
         frappe.db.rollback()
         return {"status": "failed", "message": f"An error occurred: {str(e)}"}
+	
+@frappe.whitelist()
+
+def get_default_report(doctype):
+    report_name = frappe.db.get_value("CRM View Settings", {'dt': doctype}, 'report_name')
+    # Check if a report is found in CRM View Settings
+    if report_name:
+        return report_name
+    else:
+        # Default reports if not found in CRM View Settings
+        if doctype == "CRM Lead":
+            return "My Leads"
+        elif doctype == "CRM Deal":
+            return "My Deals"
+        else:
+            return None  # Or a default value for other doctypes if needed
+ 

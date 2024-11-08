@@ -65,11 +65,7 @@
     >
         <template v-if="route.params.viewType === 'report'">
           <FormControl
-<<<<<<< HEAD
-          class="form-control cursor-pointer [&_select]:cursor-pointer m-1 min-w-30 report-filter"
-=======
-          class="form-control cursor-pointer [&_select]:cursor-pointer m-1 min-w-36"
->>>>>>> 9e3d448 (SCRUM-64 : Report management)
+           class="form-control cursor-pointer [&_select]:cursor-pointer m-1 min-w-30 report-filter"
           type="select"
           v-model="selectedOption"
           :options="reports_option"
@@ -406,13 +402,7 @@ function getParams() {
   const kanban_columns = _view?.kanban_columns || ''
   const kanban_fields = _view?.kanban_fields || ''
   const report_name = _view?.report_name || default_report
-<<<<<<< HEAD
-  
-=======
 
-  
-console.log( props.doctype)
->>>>>>> 9e3d448 (SCRUM-64 : Report management)
   view.value = {
     name: view_name,
     label: _view?.label || getViewType().label,
