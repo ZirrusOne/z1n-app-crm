@@ -18,7 +18,7 @@
         doctype="CRM Deal"
       />
       <Dropdown
-        :options="statusOptions('deal', updateField, deal.data._customStatuses)"
+        :options="statusOptions('deal', updateField, deal.data._customStatuses)" class="status-option"
       >
         <template #default="{ open }">
           <Button :label="deal.data.status">
@@ -34,7 +34,37 @@
           </Button>
         </template>
       </Dropdown>
+      <Dropdown
+        v-model="deal.data.status_detail"
+        :options="status_detail_option.map(option => ({
+          label: option.name,
+          value: option.name,
+          title: option.dec,
+          onClick: () => updateStatusDetail(option.name)
+        }))"
+        class="status-option-detail"
+      >
+        <template #default="{ open }">
+          <Button :label="deal.data.status_detail || 'Select Status Detail'">
+            <template #suffix>
+              <FeatherIcon
+                :name="open ? 'chevron-up' : 'chevron-down'"
+                class="h-4"
+              />
+            </template>
+          </Button>
+        </template>
+      </Dropdown>
+      <Tooltip :text="__('Delete')">
+        <Button
+          variant="ghost"
+          icon="trash-2"
+          class="text-ink-gray-5"
+          @click="deleteDeal(deal.data.name)"
+        />
+      </Tooltip>
     </template>
+
   </LayoutHeader>
   <div v-if="deal.data" class="flex h-full overflow-hidden">
     <Tabs as="div" v-model="tabIndex" :tabs="tabs">
@@ -354,6 +384,7 @@ import {
   Breadcrumbs,
   call,
   usePageMeta,
+  FormControl
 } from 'frappe-ui'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { ref, computed, h, onMounted, onBeforeUnmount } from 'vue'
@@ -380,6 +411,8 @@ const props = defineProps({
 
 const errorTitle = ref('')
 const errorMessage = ref('')
+
+const status_detail_option = ref([]);
 
 const deal = createResource({
   url: 'crm.fcrm.doctype.crm_deal.api.get_deal',
@@ -439,14 +472,68 @@ onMounted(() => {
 
   if (deal.data) {
     organization.data = deal.data._organizationObj
+    getStatusDetail(deal.data.status)
     return
   }
-  deal.fetch()
+
+  deal.fetch().then(() => {
+      getStatusDetail(deal.data.status)
+    })
+
 })
 
 onBeforeUnmount(() => {
   $socket.off('crm_customer_created')
 })
+
+function getStatusDetail(status) {
+  createResource({
+  auto: true,
+  params: {
+      status: status,
+    },
+  url: 'crm.api.doc.get_crm_deal_status_for_status',
+  transform: (data) => {
+    const actualData = unwrapProxy(data);
+
+    if (!actualData || !Array.isArray(actualData)) {
+    status_detail_option.value = [];
+    }
+    // const status_array = actualData.map((item) => item.detail_name);
+    // status_detail_option.value = status_array;
+    const status_array = actualData.map((item) => ({
+        name: item.detail_name, // Adjust if `detail_name` is not the correct key
+        dec: item.description || '' // Adjust if `detail_description` is not the correct key or needs a default
+      }));
+
+      status_detail_option.value = status_array;
+  },
+
+});
+}
+
+function updateStatusDetail(value){
+updateDeal('status_detail', value, () => {
+    deal.data['status_detail'] = value
+  })
+}
+
+/**
+ *  Convert proxy object into array
+ * @param proxyData 
+ */
+ function unwrapProxy(proxyData) {
+  if (Array.isArray(proxyData)) {
+    return proxyData.map((item) => unwrapProxy(item));
+  } 
+  else if (proxyData !== null && typeof proxyData === 'object') {
+    return Object.keys(proxyData).reduce((acc, key) => {
+      acc[key] = unwrapProxy(proxyData[key]);
+      return acc;
+    }, {});
+  }
+  return proxyData;
+}
 
 const reload = ref(false)
 const showOrganizationModal = ref(false)
@@ -739,6 +826,7 @@ function updateField(name, value, callback) {
     deal.data[name] = value
     callback?.()
   })
+  getStatusDetail(value);
 }
 
 async function deleteDeal(name) {
