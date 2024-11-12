@@ -167,8 +167,8 @@ doc_events = {
 
 scheduler_events = {
     "cron": {
-        "* * * * *": [
-            "crm.api.crm_task.update_task_notifications"
+        "*/1 * * * *": [
+            "crm.api.crm_task.schedule_task_notifications"
         ]
     }
 #	"all": [
