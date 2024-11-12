@@ -27,7 +27,16 @@ frappe.ui.form.on("CRM Deal", {
 		// add '%' sign for probability
 		if (frm.doc.probability) {
             $('[data-fieldname="probability"] input').val(frm.doc.probability + "%")
+            if (frm.doc.annual_revenue){
+            	frm.set_value('weighted_amount', (frm.doc.annual_revenue * (frm.doc.probability/100)))
+            	frm.set_df_property("weighted_amount", "read_only", 1);
+            }
+        }
+	},
+	amount(frm){
+		if (frm.doc.annual_revenue && frm.doc.probability){
+        	frm.set_value('weighted_amount', (frm.doc.annual_revenue * (frm.doc.probability/100)))
+        	frm.set_df_property("weighted_amount", "read_only", 1);
         }
 	}
-	
 });
