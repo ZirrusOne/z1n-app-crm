@@ -18,10 +18,6 @@ frappe.ui.form.on("CRM Deal", {
 				]
 			}
 		})
-
-
-
-
 	},
 	probability(frm){
 		// add '%' sign for probability
@@ -33,7 +29,7 @@ frappe.ui.form.on("CRM Deal", {
             }
         }
 	},
-	amount(frm){
+	annual_revenue(frm){
 		if (frm.doc.annual_revenue && frm.doc.probability){
         	frm.set_value('weighted_amount', (frm.doc.annual_revenue * (frm.doc.probability/100)))
         	frm.set_df_property("weighted_amount", "read_only", 1);
