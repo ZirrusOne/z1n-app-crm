@@ -325,5 +325,9 @@ fixtures = [
             ["name", "in", ["Blocker", "Budget Holder", "Champion", "Decision Maker", "End user", 
             "Influencer","Technical Evaluator","Procurement","Gatekeeper","User Advocate"]]  
         ]
-    }
+	},
+    {
+        "dt": "CRM Lead Source",
+        "filters": [["name", "=", "Partner"]]
+    },
 ]
