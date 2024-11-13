@@ -157,37 +157,52 @@ class CRMDeal(Document):
 			{
 				'label': 'Weighted Amount',
 				'type': 'Currency',
-				'key': 'weighted_amount', 
-				'width': '6rem',
+				'key': 'weighted_amount',
+				'width': '9rem',
 			},
 			{
-				'label': 'Close Date',
-				'type': 'Date',
-				'key': 'close_date',
+				'label': 'Status',
+				'type': 'Select',
+				'key': 'status',
 				'width': '10rem',
 			},
 			{
-				'label': 'Next Step',  
+				'label': 'Email',
 				'type': 'Data',
-				'key': 'next_step',
-				'width': '10rem',
+				'key': 'email',
+				'width': '12rem',
 			},
 			{
-				'label': 'Deal Owner',  
-				'type': 'Link',
-				'key': 'deal_owner',
+				'label': 'Mobile No',
+				'type': 'Data',
+				'key': 'mobile_no',
+				'width': '11rem',
+			},
+			{
+				'label': 'Assigned To',
+				'type': 'Text',
+				'key': '_assign',
 				'width': '10rem',
-			}
+			},
 		]
 		rows = [
+			"name",
 			"organization",
 			"deal_elements",
 			"annual_revenue",
 			"probability",
 			"weighted_amount",
-			"close_date",
-			"next_step",
-			"deal_owner"
+			"status",
+			"email",
+			"currency",
+			"mobile_no",
+			"deal_owner",
+			"sla_status",
+			"response_by",
+			"first_response_time",
+			"first_responded_on",
+			"modified",
+			"_assign",
 		]
 		return {'columns': columns, 'rows': rows}
 
