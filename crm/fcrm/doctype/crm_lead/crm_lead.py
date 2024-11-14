@@ -171,6 +171,7 @@ class CRMLead(Document):
 				"territory": self.territory,
 				"industry": self.industry,
 				"annual_revenue": self.annual_revenue,
+				"referral_source": self.referral_source,
 			}
 		)
 		organization.insert(ignore_permissions=True)

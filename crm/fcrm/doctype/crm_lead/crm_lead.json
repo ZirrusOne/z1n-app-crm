@@ -12,6 +12,7 @@
  "field_order": [
   "details",
   "organization",
+  "referral_source",
   "website",
   "territory",
   "industry",
@@ -291,6 +292,13 @@
    "fieldname": "business_unit",
    "fieldtype": "Data",
    "label": "Business Unit"
+  },
+  {
+   "fieldname": "referral_source",
+   "fieldtype": "Link",
+   "label": "Referral Source",
+   "link_filters": "[[\"CRM Organization\",\"is_partner\",\"=\",1]]",
+   "options": "CRM Organization"
   }
  ],
  "image_field": "image",

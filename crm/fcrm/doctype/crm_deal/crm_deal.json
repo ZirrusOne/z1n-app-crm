@@ -369,6 +369,13 @@
    "fieldtype": "Currency",
    "label": "Weighted Amount",
    "read_only": 1
+  },
+  {
+    "fieldname": "referral_source",
+    "fieldtype": "Link",
+    "label": "Referral Source",
+    "link_filters": "[[\"CRM Organization\",\"is_partner\",\"=\",1]]",
+    "options": "CRM Organization"
   }
  ],
  "grid_page_length": 50,
