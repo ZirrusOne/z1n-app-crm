@@ -162,6 +162,16 @@ class CRMLead(Document):
 			}
 		)
 		organization.insert(ignore_permissions=True)
+  
+		merge_deals_org = frappe.db.get_value("CRM Organization", {'organization_name':self.organization},['merge_deals_org'])
+		if merge_deals_org:
+			if not frappe.db.exists("CRM Lead Status", "Contacted"):
+				status = frappe.new_doc("CRM Lead Status")
+				status.update({"status": "Contacted"})	
+				status.insert(ignore_permissions=True)
+			frappe.db.sql(""" UPDATE `tabCRM Lead` SET status = %s WHERE organization = %s """, ("Contacted", self.organization))
+			frappe.db.commit()
+   
 		return organization.name
 
 	def contact_exists(self, throw=True):
