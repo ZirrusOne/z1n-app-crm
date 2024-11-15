@@ -14,7 +14,7 @@ class FCRMSettings(Document):
 
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET"])
 def get_fcrm_settings():
     try:
         fcrm_settings = frappe.get_doc('FCRM Settings')
