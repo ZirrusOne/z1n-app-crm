@@ -291,5 +291,10 @@ fixtures = [
     {
         "dt": "CRM Sales Channel",
         "filters": [["name", "in", ["Direct", "Reseller", "Distributor", "Retail", "E-commerce", "Other"]]]
-    }
+    },
+	{
+        "dt": "CRM View Settings",
+        "filters": [["name", "in", ["6"]]]
+    },
+    
 ]
