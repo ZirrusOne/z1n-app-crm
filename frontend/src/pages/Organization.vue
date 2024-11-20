@@ -66,7 +66,7 @@
             >
             <div class="flex items-center gap-2" v-if="organization.doc.is_partner == 1">
               <PartnerIcon class="h-4 w-4" />
-                  <div>Parnter</div>
+                  <div>Partner</div>
             </div>
               
               <Tooltip text="Website">
