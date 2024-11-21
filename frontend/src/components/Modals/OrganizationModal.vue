@@ -36,13 +36,25 @@
                 <div>{{ field.value }}</div>
               </Tooltip>
             </div>
+            <div
+              class="flex h-7 items-center gap-2 text-base text-gray-800" v-if=" _organization.is_partner == 1">
+              <Tooltip :text="'Partner'">
+                <div class="grid w-7 place-content-center">
+                  <PartnerIcon class="h-4 w-4" />
+                </div>
+                <div>Partner</div>
+              </Tooltip>
+            </div>
+           
           </div>
+   
           <Fields
             v-else-if="filteredSections"
             :sections="filteredSections"
             :data="_organization"
           />
         </div>
+
       </div>
       <div v-if="!detailMode" class="px-4 pb-7 pt-4 sm:px-6">
         <div class="space-y-2">
@@ -70,11 +82,12 @@ import WebsiteIcon from '@/components/Icons/WebsiteIcon.vue'
 import OrganizationsIcon from '@/components/Icons/OrganizationsIcon.vue'
 import TerritoryIcon from '@/components/Icons/TerritoryIcon.vue'
 import { usersStore } from '@/stores/users'
-import { formatNumberIntoCurrency } from '@/utils'
+import { customFormatNumberIntoCurrency } from '@/utils'
 import { capture } from '@/telemetry'
 import { call, FeatherIcon, Tooltip, createResource } from 'frappe-ui'
 import { ref, nextTick, watch, computed, h } from 'vue'
 import { useRouter } from 'vue-router'
+import PartnerIcon from '@/components/Icons/PartnerIcon.vue'
 
 const props = defineProps({
   options: {
@@ -113,6 +126,9 @@ let doc = ref({})
 async function updateOrganization() {
   const old = { ...doc.value }
   const newOrg = { ..._organization.value }
+  newOrg.annual_revenue = parseFloat(
+    newOrg.annual_revenue.replace(/[^0-9.-]+/g, '')
+        );
 
   const nameChanged = old.organization_name !== newOrg.organization_name
   delete old.organization_name
@@ -231,7 +247,7 @@ const fields = computed(() => {
       icon: MoneyIcon,
       name: 'annual_revenue',
       label: 'Amount',
-      value: formatNumberIntoCurrency(
+      value: customFormatNumberIntoCurrency(
         _organization.value.annual_revenue,
         _organization.value.currency,
       ),
@@ -297,8 +313,14 @@ watch(
       // TODO: Issue with FormControl
       // title.value.el.focus()
       doc.value = organization.value?.doc || organization.value || {}
-      _organization.value = { ...doc.value }
-      if (_organization.value.name) {
+    _organization.value = { 
+            ...doc.value, 
+            annual_revenue: doc.value.annual_revenue.toLocaleString('en-US', {
+            style: 'currency',
+            currency: doc.value.currency || 'USD',
+        }) 
+    };     
+    if (_organization.value.name) {
         editMode.value = true
       }
     })
@@ -313,4 +335,5 @@ function openQuickEntryModal() {
     show.value = false
   })
 }
+
 </script>

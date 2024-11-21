@@ -396,6 +396,7 @@ import {
   setupCustomizations,
   errorMessage,
   copyToClipboard,
+  customFormatNumberIntoCurrency
 } from '@/utils'
 import { getView } from '@/utils/view'
 import { globalStore } from '@/stores/global'
@@ -417,7 +418,8 @@ import { ref, computed, h, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
 import PriceTagIcon from '@/components/Icons/PriceTagIcon.vue'
-import MultiSelectDealElement from '../components/Controls/MultiSelectDealElement.vue'
+import MultiSelectDealElement from '../components/Controls/MultiSelectDealElement.vue'  
+ 
 
 const { $dialog, $socket, makeCall } = globalStore()
 const { statusOptions, getDealStatus } = statusesStore()
@@ -497,13 +499,6 @@ const organization = createResource({
   url: 'frappe.client.get',
   onSuccess: (data) => (deal.data._organizationObj = data),
 })
-
-function customFormatNumberIntoCurrency(value, currency) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-        currency: currency
-    }).format(value);
-}
 
 onMounted(() => {
   $socket.on('crm_customer_created', () => {
