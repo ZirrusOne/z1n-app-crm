@@ -147,6 +147,7 @@ class CRMLead(Document):
 
 		existing_organization = frappe.db.exists("CRM Organization", {"organization_name": self.organization})
 		if existing_organization:
+			update_organization_leads_status(self.organization)
 			return existing_organization
 
 		organization = frappe.new_doc("CRM Organization")
@@ -162,6 +163,7 @@ class CRMLead(Document):
 			}
 		)
 		organization.insert(ignore_permissions=True)
+		update_organization_leads_status(organization.name)
 		return organization.name
 
 	def contact_exists(self, throw=True):
@@ -392,3 +394,4 @@ def update_organization_leads_status(organization_name):
    
 		frappe.db.commit()
 	return updated_leads
+
