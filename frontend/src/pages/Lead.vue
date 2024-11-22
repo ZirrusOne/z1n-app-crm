@@ -377,6 +377,7 @@ const lead = createResource({
 onMounted(() => {
   if (lead.data) return
   lead.fetch()
+
 })
 
 const reload = ref(false)
@@ -433,6 +434,7 @@ function validateRequired(fieldname, value) {
 }
 
 const breadcrumbs = computed(() => {
+
   let items = [{ label: __('Leads'), route: { name: 'Leads' } }]
 
   if (route.query.view || route.query.viewType) {
@@ -622,6 +624,20 @@ async function convertToDeal(updated) {
     )
     if (deal) {
       capture('convert_lead_to_deal')
+      console.log(lead.data.partner_leads);
+      const actualData = unwrapProxy(lead.data.partner_leads);
+      const status_array = actualData.map((item) => item.name);
+
+      status_array.forEach((leadName) => {
+        createToast({
+          title: __('Success'),
+          text: __(`Lead "${leadName}" successfully converted to Contacts`),
+          icon: 'check',
+          iconClasses: 'text-green-600',
+        });
+      });
+
+
       if (updated) {
         await contacts.reload()
       }
@@ -629,7 +645,22 @@ async function convertToDeal(updated) {
     }
   }
 }
-
+/**
+ *  Convert proxy object into array
+ * @param proxyData 
+ */
+ function unwrapProxy(proxyData) {
+  if (Array.isArray(proxyData)) {
+    return proxyData.map((item) => unwrapProxy(item));
+  } 
+  else if (proxyData !== null && typeof proxyData === 'object') {
+    return Object.keys(proxyData).reduce((acc, key) => {
+      acc[key] = unwrapProxy(proxyData[key]);
+      return acc;
+    }, {});
+  }
+  return proxyData;
+}
 const activities = ref(null)
 
 function openEmailBox() {
