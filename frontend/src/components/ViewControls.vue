@@ -70,7 +70,7 @@
           v-model="selectedOption"
           :options="reports_option"
           :placeholder="'Report Name'"
-          @change.stop="updateReport($event.target.value)"
+          @change.stop="updateReport($event.target.value, reports_custom_option)"
           />
         </template>
 
@@ -307,7 +307,11 @@ const defaultParams = ref('')
 const viewUpdated = ref(false)
 const showViewModal = ref(false)
 const reports_option = ref([]);
+const reports_custom_option = ref([]);
 const default_report_name = ref();
+const default_report_type = ref();
+const emit = defineEmits(['updateCrmCustomData'])
+
 
 
 function getViewType() {
@@ -498,6 +502,22 @@ onMounted(async () => {
     transform: (data) => {
 
       const actualData = unwrapProxy(data);
+      reports_custom_option.value = actualData
+
+        if(default_report_type == 'Report Builder'){
+          const report = actualData.find((item) => item.name === default_report_name);
+          console.log(`Report with name "${report.report_type}"  found.`);
+          crm_report_type.value = report.report_type
+          createResource({
+          url: 'frappe.desk.reportview.get',
+          params: report.builder_report_filter,
+          auto: true,
+          transform: (data) => {
+           emit('updateCrmCustomData',data)
+
+          },
+          })
+        }
 
       if (!actualData || !Array.isArray(actualData)) {
         return []; 
@@ -509,6 +529,8 @@ onMounted(async () => {
       return namesArray;
     },
   });
+
+
   createResource({
   auto: true,
   params: {
@@ -539,6 +561,8 @@ const export_type = ref('Excel')
 const export_all = ref(false)
 
 const selectedOption = ref(default_report_name)
+
+const crm_report_type = ref()
 
 
 async function exportRows() {
@@ -735,15 +759,38 @@ function applyQuickFilter(filter, value) {
   updateFilter(filters)
 }
 
-function updateReport(value) {
-  viewUpdated.value = true
-  if (!defaultParams.value) {
-    defaultParams.value = getParams()
+function updateReport(value, reports_custom_option) {
+  const reports = unwrapProxy(reports_option);
+
+  const report = reports_custom_option.find((item) => item.name === value);
+  console.log(`Report with name "${report.report_type}"  found.`);
+  if(report.report_type == 'Report Builder'){
+      crm_report_type.value = report.report_type
+
+      createResource({
+        url: 'frappe.desk.reportview.get',
+        params: report.builder_report_filter,
+        auto: true,
+        transform: (data) => {
+          emit('updateCrmCustomData',data)
+        
+        },
+      })
   }
-  list.value.params = defaultParams.value
-  list.value.params.report_name = value
-  view.value.report_name = value
-  list.value.reload()
+  else{
+    emit('updateCrmCustomData','')
+
+    crm_report_type.value = report.report_type
+    viewUpdated.value = true
+    if (!defaultParams.value) {
+      defaultParams.value = getParams()
+    }
+    list.value.params = defaultParams.value
+    list.value.params.report_name = value
+    view.value.report_name = value
+    list.value.reload()
+  }
+
 }
 
 function updateFilter(filters) {
@@ -1258,4 +1305,5 @@ function setDefaultReport(){
   },
 });
 }
+
 </script>

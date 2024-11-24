@@ -778,7 +778,12 @@ def getCounts(d, doctype):
 
 @frappe.whitelist()
 def get_reports_for_doctype(doctype):
-    reports = frappe.get_list('Report', filters={'ref_doctype': doctype}, fields=['name'])
+    reports = frappe.get_list('Report', filters={'ref_doctype': doctype}, fields=['name','report_type','json'])
+    for i in reports:
+        if i.report_type =='Report Builder':
+            i['builder_report_filter'] = convert_json_data(doctype,json.loads(i.json))
+        else:
+            i['builder_report_filter'] = {}
     return reports
 
 def parse_js_to_dict(js_code):
