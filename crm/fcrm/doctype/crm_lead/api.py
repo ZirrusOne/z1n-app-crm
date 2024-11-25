@@ -20,7 +20,6 @@ def get_lead(name):
 	lead["_form_script"] = get_form_script('CRM Lead')
 	lead["_assign"] = get_assigned_users("CRM Lead", lead.name, lead.owner)
 	organization_name = frappe.db.get_value("CRM Lead", lead.name, "organization")
-	organization_name = frappe.db.get_value("CRM Lead", lead.name, "organization")
 	merge_deals_org = frappe.db.get_value("CRM Organization", {'organization_name': organization_name}, ['merge_deals_org'])
  
 	if organization_name and merge_deals_org:
