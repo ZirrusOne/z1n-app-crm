@@ -387,7 +387,7 @@ const pageLength = computed(() => list.value?.data?.page_length)
 const pageLengthCount = computed(() => list.value?.data?.page_length_count)
 
 watch(loadMore, (value) => {
-  console.log('load more');
+
   if (!value) return
   updatePageLength(value, true)
 })
@@ -501,12 +501,12 @@ onMounted(async () => {
     url: 'crm.api.doc.get_reports_for_doctype',
     transform: (data) => {
 
-      const actualData = unwrapProxy(data);
-      reports_custom_option.value = actualData
 
-        if(default_report_type == 'Report Builder'){
-          const report = actualData.find((item) => item.name === default_report_name);
-          console.log(`Report with name "${report.report_type}"  found.`);
+      const actualData = unwrapProxy(data);
+      reports_custom_option.value = actualData.reports_list
+
+        if(actualData.default_report.default_report_type == 'Report Builder'){
+          const report = actualData.reports_list.find((item) => item.name === actualData.default_report.default_report_name);
           crm_report_type.value = report.report_type
           createResource({
           url: 'frappe.desk.reportview.get',
@@ -514,16 +514,15 @@ onMounted(async () => {
           auto: true,
           transform: (data) => {
            emit('updateCrmCustomData',data)
-
           },
           })
         }
 
-      if (!actualData || !Array.isArray(actualData)) {
+      if (!actualData.reports_list || !Array.isArray(actualData.reports_list)) {
         return []; 
       }
 
-      const namesArray = actualData.map((item) => item.name);
+      const namesArray = actualData.reports_list.map((item) => item.name);
 
       reports_option.value = namesArray;
       return namesArray;
@@ -763,7 +762,7 @@ function updateReport(value, reports_custom_option) {
   const reports = unwrapProxy(reports_option);
 
   const report = reports_custom_option.find((item) => item.name === value);
-  console.log(`Report with name "${report.report_type}"  found.`);
+
   if(report.report_type == 'Report Builder'){
       crm_report_type.value = report.report_type
 
@@ -776,6 +775,15 @@ function updateReport(value, reports_custom_option) {
         
         },
       })
+      crm_report_type.value = report.report_type
+    viewUpdated.value = true
+    if (!defaultParams.value) {
+      defaultParams.value = getParams()
+    }
+      list.value.params = defaultParams.value
+      list.value.params.report_name = value
+      view.value.report_name = value
+      list.value.reload()
   }
   else{
     emit('updateCrmCustomData','')
