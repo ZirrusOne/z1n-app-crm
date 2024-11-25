@@ -1248,6 +1248,12 @@ function applyDefaultStatusFilter(value) {
   updateFilter(filters)
 }
 
+function applyDefaultDoctypeFilter(value) {
+    let filters = { ...list.value.params?.filters }
+  filters['reference_doctype'] = ['in', `CRM Deal, CRM Lead`]
+  updateFilter(filters)
+}
+
 function likeDoc({ name, liked }) {
   createResource({
     url: 'frappe.desk.like.toggle_like',
@@ -1278,6 +1284,7 @@ defineExpose({
   applyFilter,
   applyLikeFilter,
   applyDefaultStatusFilter,
+  applyDefaultDoctypeFilter,
   likeDoc,
   updateKanbanSettings,
   loadMoreKanban,

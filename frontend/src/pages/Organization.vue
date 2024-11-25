@@ -64,6 +64,11 @@
             <div
               class="flex flex-col flex-wrap gap-3 text-base text-gray-700 sm:flex-row sm:items-center sm:gap-2"
             >
+            <div class="flex items-center gap-2" v-if="organization.doc.is_partner == 1">
+              <PartnerIcon class="h-4 w-4" />
+                  <div>Partner</div>
+            </div>
+              
               <Tooltip text="Website">
                 <div
                   v-if="organization.doc.website"
@@ -138,7 +143,7 @@
                 >
                   <MoneyIcon class="size-4" />
                   <span class="">{{
-                    formatNumberIntoCurrency(
+                    customFormatNumberIntoCurrency(
                       organization.doc.annual_revenue,
                       organization.doc.currency,
                     )
@@ -281,7 +286,7 @@ import {
   dateFormat,
   dateTooltipFormat,
   timeAgo,
-  formatNumberIntoCurrency,
+  customFormatNumberIntoCurrency,
 } from '@/utils'
 import {
   Breadcrumbs,
@@ -297,6 +302,8 @@ import {
 } from 'frappe-ui'
 import { h, computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import PartnerIcon from '@/components/Icons/PartnerIcon.vue'
+
 
 const props = defineProps({
   organizationId: {
@@ -485,7 +492,7 @@ function getDealRowObject(deal) {
       label: deal.organization,
       logo: props.organization?.organization_logo,
     },
-    annual_revenue: formatNumberIntoCurrency(
+    annual_revenue: customFormatNumberIntoCurrency(
       deal.annual_revenue,
       deal.currency,
     ),
