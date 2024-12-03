@@ -5,23 +5,26 @@ from frappe.utils.file_manager import save_file
 def add_attachments_on_note(note, attachments):
     if note and not isinstance(note, dict):
         note = note.as_dict()
-    if note.get('name'):
+    if attachments:  
+        attachments= {r['file_name']: r for r in attachments}.values()
+
+    if frappe.db.exists("FCRM Note", note.get('name')):
         doc = frappe.get_doc("FCRM Note", note.get('name'))
         if note.get('title') != doc.get('title'):
             doc.update({"title": note.get('title')})
         if note.get('content') != doc.get('content'):
             doc.update({"content": note.get('content')})
 
-        # Get existing file URLs in the attachments child table
-        existing_file_urls = {row.file_url for row in doc.attachments}
         if len(attachments) > 0:
-            
             #check file attach is exist in doc if not then add
             for attach in attachments:
-                ex_file_url = frappe.db.get_value("File", attach.get("name"), "file_url")
-                if ex_file_url and ex_file_url not in existing_file_urls:
+                if attach.get('file_url') not in [row.get('file_url') for row in doc.attachments]:
                     row = doc.append("attachments", {})
-                    row.file_url = frappe.db.get_value("File", attach.get("name"), "file_url")
+                    row.file_url = attach.get('file_name')
+        elif len(attachments) == 0:
+            frappe.db.sql(f"""DELETE FROM `tabCRM Note Attachments` 
+                             WHERE parent = "{note.get('name')}"  """)
+            frappe.db.commit()
            
         #delete file from doctype if deleted from frontend
         for doc_att in doc.attachments:
@@ -30,7 +33,6 @@ def add_attachments_on_note(note, attachments):
                          WHERE name = "{doc_att.get('name')}"  """)
                 frappe.db.commit()
 
-       
         doc.save(ignore_permissions=True)
         frappe.db.commit()
         return doc.name
@@ -43,8 +45,8 @@ def add_attachments_on_note(note, attachments):
         })
         if len(attachments) > 0:
             for attach in attachments:
-               row = doc.append("attachments", {})
-               row.file_url= attach.get('file_name')
+                row = doc.append("attachments", {})
+                row.file_url= attach.get('file_url')
         
         doc.insert(ignore_permissions=True)
         frappe.db.commit()
@@ -58,12 +60,14 @@ def get_attachments_from_note(note_name):
         "CRM Note Attachments", 
         filters={'parent': note_name},
         fields=['name', 'file_url'],
-        order_by='creation DESC' 
+        order_by='creation DESC'
     )
-    
+    seen_file_urls = set()
     # Transform the result to use `file_name` instead of `name`
-    formatted_attachments = [{'file_url': att['name'], 'file_name': att['file_url']} for att in attachments]
-    
+    formatted_attachments = [{'file_url': att['name'], 'file_name': att['file_url']} 
+                               for att in attachments 
+                               if att['file_url'] not in seen_file_urls 
+                               and not seen_file_urls.add(att['file_url'])]
     
     # Return the formatted list or an empty list if none found
     return formatted_attachments if formatted_attachments else []
