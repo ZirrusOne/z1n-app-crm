@@ -638,15 +638,16 @@ async function convertToDeal(updated) {
       const actualData = unwrapProxy(lead.data.partner_leads);
       const status_array = actualData.map((item) => item.name);
 
-      status_array.forEach((leadName) => {
-        createToast({
-          title: __('Success'),
-          text: __(`Lead "${leadName}" successfully converted to Contacts`),
-          icon: 'check',
-          iconClasses: 'text-green-600',
+      if (convertAllLeads.value){
+        status_array.forEach((leadName) => {
+          createToast({
+            title: __('Success'),
+            text: __(`Lead "${leadName}" successfully converted to Contacts`),
+            icon: 'check',
+            iconClasses: 'text-green-600',
+          });
         });
-      });
-
+      }
 
       if (updated) {
         await contacts.reload()
