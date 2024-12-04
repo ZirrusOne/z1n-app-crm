@@ -173,6 +173,8 @@ async function updateNote() {
     }
   }
   show.value = false
+  notes.value?.reload()
+
 }
 
 function redirect() {
@@ -227,8 +229,12 @@ function mapped_attachments_on_note(note, attachments){
     auto: true,
     url: 'crm.fcrm.doctype.fcrm_note.api.add_attachments_on_note',
     transform: (data) => {
+      notes.value?.reload()
+
     },
   });
+  notes.value?.reload()
+
 }
 
 function get_attachments_from_note(note_name){
