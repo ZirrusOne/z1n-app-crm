@@ -18,9 +18,9 @@ def add_attachments_on_note(note, attachments):
         if len(attachments) > 0:
             #check file attach is exist in doc if not then add
             for attach in attachments:
-                if attach.get('file_url') not in [row.get('file_url') for row in doc.attachments]:
+                if 'name' in attach and attach.get('file_url') not in [row.get('file_url') for row in doc.attachments]:
                     row = doc.append("attachments", {})
-                    row.file_url = attach.get('file_name')
+                    row.file_url = attach.get('file_url')
         elif len(attachments) == 0:
             frappe.db.sql(f"""DELETE FROM `tabCRM Note Attachments` 
                              WHERE parent = "{note.get('name')}"  """)
@@ -60,7 +60,8 @@ def get_attachments_from_note(note_name):
         "CRM Note Attachments", 
         filters={'parent': note_name},
         fields=['name', 'file_url'],
-        order_by='creation DESC'
+        order_by='creation DESC',
+        limit=10
     )
     seen_file_urls = set()
     # Transform the result to use `file_name` instead of `name`
