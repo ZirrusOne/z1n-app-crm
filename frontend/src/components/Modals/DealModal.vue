@@ -40,13 +40,19 @@
             :data="deal"
           />
           <ErrorMessage class="mt-4" v-if="error" :message="__(error)" />
+          
             <div class="border-t pt-4">
-              <MultiSelectDealElementForCreate
+              <div class="settings-field">
+                <div class="mb-2 text-sm text-gray-600">Deal Element</div>
+                <div class="space-y-1.5 form-control prefix"> 
+                  <MultiSelectDealElementForCreate
                     class="flex-1"
                     v-model="dealElementNames"
                     @update:dealElements="dealElementNames = $event"
 
-                    />
+                    /></div>
+              </div>
+             
             </div>
         </div>
       </div>
