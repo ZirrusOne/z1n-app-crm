@@ -366,7 +366,7 @@ def convert_to_deal(lead, doc=None):
  
 	convert_all_leads =  frappe.form_dict.convert_all_leads
  
-	partner_leads = []
+	partner_leads = {'updated_leads':[],'contacts':[]}
 	if (organization) and (convert_all_leads == 1):
 		partner_leads = update_organization_leads_status(organization,convert_all_leads)
 
