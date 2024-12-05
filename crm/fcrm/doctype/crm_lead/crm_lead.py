@@ -386,10 +386,16 @@ def update_organization_leads_status(organization_name,convert_all_leads=None):
 	if convert_all_leads:
 		frappe.db.set_value("CRM Organization",organization_name,{'merge_deals_org':1})
 		# Update the status of all leads for the given organization
+		if not frappe.db.exists("CRM Lead Status", "Contacted"):
+			status = frappe.new_doc("CRM Lead Status")
+			status.update({"status": "Contacted"})    
+			status.insert(ignore_permissions=True)
+  
 		leads = frappe.get_list("CRM Lead", filters=[["organization",'=',organization_name],['status','!=','Contacted'],['converted','!=',1]], fields=["name"])
 		for lead in leads:
 			frappe.db.set_value("CRM Lead", lead.name, "status", "Contacted")
 			lead_doc = frappe.get_doc("CRM Lead", lead.name)
+			frappe.db.set_value("CRM Lead", lead.name, {"converted": 1})
 			contact = lead_doc.create_contact(False)
 			if contact not in contacts:
 				contacts.append(contact)
