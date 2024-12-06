@@ -8,7 +8,7 @@
             <template #target="{ togglePopover }">
               <ComboboxInput
                 ref="search"
-                class="search-input form-input w-full border-none bg-white hover:bg-white focus:border-none focus:!shadow-none focus-visible:!ring-0"
+                class="search-input form-input w-full rounded bg-gray-100 hover:bg-white focus:border-none focus:!shadow-none focus-visible:!ring-0"
                 type="text"
                 :value="query"
                 placeholder="Deal Element"

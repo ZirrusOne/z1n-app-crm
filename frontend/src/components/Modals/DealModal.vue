@@ -41,7 +41,7 @@
           />
           <ErrorMessage class="mt-4" v-if="error" :message="__(error)" />
           
-            <div class="border-t pt-4">
+            <div class="pt-4">
               <div class="settings-field">
                 <div class="mb-2 text-sm text-gray-600">Deal Element</div>
                 <div class="space-y-1.5 form-control prefix"> 
