@@ -85,8 +85,9 @@
           <div class="flex flex-wrap gap-2 sm:px-10 px-4">
             <AttachmentItem
               v-for="a in attachments"
-              :key="a.file_url"
+              :key="a.file_name"
               :label="a.file_name"
+               :url="a.file_name"
             >
               <template #suffix>
                 <FeatherIcon
@@ -193,8 +194,8 @@ watch(
     if (!value) return
     editMode.value = false
     nextTick(() => {
+      attachments.value = [];
       if(props.note.name){
-        attachments.value = [];
         get_attachments_from_note(props.note.name)
 
       }
@@ -233,7 +234,6 @@ function mapped_attachments_on_note(note, attachments){
 
     },
   });
-  notes.value?.reload()
 
 }
 

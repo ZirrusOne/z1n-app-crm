@@ -46,7 +46,7 @@ def add_attachments_on_note(note, attachments):
         if len(attachments) > 0:
             for attach in attachments:
                 row = doc.append("attachments", {})
-                row.file_url= attach.get('file_url')
+                row.file_url = attach.get('file_name')
         
         doc.insert(ignore_permissions=True)
         frappe.db.commit()
