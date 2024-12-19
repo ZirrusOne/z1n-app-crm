@@ -925,6 +925,9 @@ def process_deal_elements_filters(input_dict):
 
 @frappe.whitelist()
 def transform_filters(data):
+    if not data:  # Check if 'data' is None or an empty value
+        return {}  # or handle the case as required
+
     for filter_item in data.get("filters", []):
         if "fieldtype" in filter_item:
             filter_item["type"] = filter_item.pop("fieldtype")
