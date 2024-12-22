@@ -89,8 +89,8 @@ const chooseExistingOrganization = ref(false)
 
 const sections = createResource({
   url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_fields_layout',
-  cache: ['quickEntryFields', 'CRM Deal'],
-  params: { doctype: 'CRM Deal', type: 'Quick Entry' },
+  cache: ['quickEntryFields', 'CRM Campaign'],
+  params: { doctype: 'CRM Campaign', type: 'Quick Entry' },
   auto: true,
   transform: (data) => {
     return data.forEach((section) => {

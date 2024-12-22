@@ -24,7 +24,7 @@
     @updateCrmCustomData="updateCrmCustomData"
     v-model:resizeColumn="triggerResize"
     v-model:updatedPageCount="updatedPageCount"
-    doctype="CRM Deal"
+    doctype="CRM Campaign"
     :options="{
       allowedViews: ['list'],
     }"
