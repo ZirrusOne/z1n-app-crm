@@ -6,6 +6,19 @@ from frappe.model.document import Document
 
 
 class CRMCampaign(Document):
+    def validate(self):
+        for i in self.campaign_participants:
+            if i.participant_source == "Contact":
+                if  frappe.db.exists("Contact", i.reference_docname):
+                    i.full_name = frappe.db.get_value("Contact", i.reference_docname,'first_name')
+                    i.email = frappe.db.get_value("Contact", i.reference_docname, 'email_id')
+            elif i.participant_source == "CRM Lead":
+                if frappe.db.exists("CRM Lead", i.reference_docname):
+                    i.full_name = frappe.db.get_value("CRM Lead", i.reference_docname,'first_name')
+                    i.organization = frappe.db.get_value("CRM Lead", i.reference_docname,'organization')
+                    i.email = frappe.db.get_value("CRM Lead", i.reference_docname,'email')
+
+    
     @staticmethod
     def default_list_data():
         columns = [
@@ -44,31 +57,38 @@ class CRMCampaign(Document):
         ]
         return {'columns': columns, 'rows': rows}
 
-@frappe.whitelist()
-def update_campaign_participants(args):
-    if args.get('name') and frappe.db.exists("CRM Campaign", args.get('name')):
-        campaign = frappe.get_doc("CRM Campaign", args.get('name'))
-        
-        # Update participants
-        existing_names = [participant.get('email') for participant in campaign.get("campaign_participants")]
-        if len(args.get("campaign_participants")) > 0:
-            for new_participant in args.get("campaign_participants"):
-                if new_participant.get('email') not in existing_names:
-                    row = campaign.append('campaign_participants', {})
-                    row.full_name = new_participant.get('full_name')
-                    row.organization = new_participant.get('organization')
-                    row.email = new_participant.get('email')
-                    row.participant_source = new_participant.get('participant_source')
-                    row.reference_docname = new_participant.get('reference_docname')
-                else:
-                    for exist_participant in campaign.get("campaign_participants"):
-                        if exist_participant.get('email') == new_participant.get('email'):
-                            for key in ['full_name', 'organization', 'email', 'participant_source', 'reference_docname']:
-                                exist_participant.set(key, new_participant.get(key))
 
-        campaign.save(ignore_permissions=True)
+
+
+@frappe.whitelist()
+def update_campaign_participants():
+    campaign_name = frappe.form_dict.get("campaign_name")
+    doctype = frappe.form_dict.get("doctype")
+    campaign_participants = frappe.form_dict.get("campaign_participants")
+
+    if not frappe.db.exists("CRM Campaign",  {"campaign_name": campaign_name}):
+        campaign = frappe.new_doc("CRM Campaign")
+        campaign.campaign_name = campaign_name
+        campaign.insert(ignore_permissions=True)
         frappe.db.commit()
-        return campaign.name
+        
+    campaign = frappe.get_doc("CRM Campaign", {"campaign_name": campaign_name})
+
+    for participant in campaign_participants:
+        reference_docname = participant.get("reference_docname")
+        if not frappe.db.exists("CRM Campaign Participants", {"parent": campaign.name, "participant_source": doctype, "reference_docname": reference_docname}):
+            campaign.append("campaign_participants", {
+                "participant_source": doctype,
+                "reference_docname": reference_docname
+            })
+
+    # Save the campaign to apply changes
+    campaign.save(ignore_permissions=True)
+    frappe.db.commit()
+
+    return {"campaign_name": campaign.name}
+
+        
 
 
 
