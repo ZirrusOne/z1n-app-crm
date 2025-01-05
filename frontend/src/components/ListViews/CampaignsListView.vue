@@ -5,8 +5,8 @@
     :rows="rows"
     :options="{
       getRowRoute: (row) => ({
-        name: 'Deal',
-        params: { dealId: row.name },
+        name: 'Campaign',
+        params: { campaignId: row.name },
         query: { view: route.query.view, viewType: route.params.viewType },
       }),
       selectable: options.selectable,

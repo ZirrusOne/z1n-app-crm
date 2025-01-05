@@ -19,9 +19,8 @@
   </LayoutHeader>
   <ViewControls
     ref="viewControls"
-    v-model="deals"
+    v-model="campigns"
     v-model:loadMore="loadMore"
-    @updateCrmCustomData="updateCrmCustomData"
     v-model:resizeColumn="triggerResize"
     v-model:updatedPageCount="updatedPageCount"
     doctype="CRM Campaign"
@@ -33,16 +32,16 @@
 
   <CampaignsListView
     ref="campaignsListView"
-    v-if="deals.data && rows.length"
-    v-model="deals.data.page_length_count"
-    v-model:list="deals"
+    v-if="campigns.data && rows.length"
+    v-model="campigns.data.page_length_count"
+    v-model:list="campigns"
     :rows="rows"
-    :columns="deals.data.columns"
+    :columns="campigns.data.columns"
     :options="{
       showTooltip: true,
       resizeColumn: true,
-      rowCount: deals.data.row_count,
-      totalCount: deals.data.total_count,
+      rowCount: campigns.data.row_count,
+      totalCount: campigns.data.total_count,
     }"
     @loadMore="() => loadMore++"
     @columnWidthUpdated="() => triggerResize++"
@@ -52,7 +51,7 @@
     @applyLikeFilter="(data) => viewControls.applyLikeFilter(data)"
     @likeDoc="(data) => viewControls.likeDoc(data)"
   />
-  <div v-else-if="deals.data" class="flex h-full items-center justify-center">
+  <div v-else-if="campigns.data" class="flex h-full items-center justify-center">
     <div
       class="flex flex-col items-center gap-3 text-xl font-medium text-gray-500"
     >
@@ -121,9 +120,6 @@ import { ref, reactive, computed, h } from 'vue'
 import CampaignsListView from '../components/ListViews/CampaignsListView.vue'
 
 const { makeCall } = globalStore()
-const { getUser } = usersStore()
-const { getOrganization } = organizationsStore()
-const { getDealStatus } = statusesStore()
 
 const route = useRoute()
 
@@ -133,30 +129,13 @@ const showQuickEntryModal = ref(false)
 
 const defaults = reactive({})
 
-// deals data is loaded in the ViewControls component
-const deals = ref({})
+// campigns data is loaded in the ViewControls component
+const campigns = ref({})
 const loadMore = ref(1)
 const triggerResize = ref(1)
 const updatedPageCount = ref(20)
 const viewControls = ref(null)
-const crmColumns = ref()
-const crmResults = ref()
 
-// onMounted(async () => {
-//   // console.log(crm_columns);
-  
-// });
-function updateCrmCustomData(data) {
-  if(data){
-    crmColumns.value = transformToColumn(data.keys);
-    crmResults.value = transformToResult(data.values, data.keys)
-  }
-  else{
-    crmColumns.value = ''
-    crmResults.value = ''
-  }
-
-}
 function getRow(name, field) {
   function getValue(value) {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -169,115 +148,16 @@ function getRow(name, field) {
 
 // Rows
 const rows = computed(() => {
-  if (!deals.value?.data?.data){
+  if (!campigns.value?.data?.data){
     return []
   } 
   else{
-    return parseRows(deals.value?.data.data)
+    return campigns.value?.data.data
   }
 })
 
-function parseRows(rows) {
-  return rows.map((deal) => {
-    let _rows = {}
-    deals.value.data.rows.forEach((row) => {
-      _rows[row] = deal[row]
-
-      if (row == 'organization') {
-        _rows[row] = {
-          label: deal.organization,
-          logo: getOrganization(deal.organization)?.organization_logo,
-        }
-      } else if (row === 'website') {
-        _rows[row] = website(deal.website)
-      } else if (row === 'deal_elements') {
-        _rows[row] = {
-          data: getAllDealElementNames(deal.child_tables?.deal_elements)
-        } 
-      } else if (row == 'annual_revenue') {
-        _rows[row] = customFormatNumberIntoCurrency(
-          deal.annual_revenue,
-          deal.currency,
-        )
-      } else if (row == 'weighted_amount') {
-        _rows[row] = customFormatNumberIntoCurrency(
-          deal.weighted_amount,
-          deal.currency,
-        )
-      } else if (row == 'probability') {
-        _rows[row] = deal[row] + '%';
-      } else if (row == 'status') {
-        _rows[row] = {
-          label: deal.status,
-          color: getDealStatus(deal.status)?.iconColorClass,
-        }
-      } else if (row == 'sla_status') {
-        let value = deal.sla_status
-        let tooltipText = value
-        let color =
-          deal.sla_status == 'Failed'
-            ? 'red'
-            : deal.sla_status == 'Fulfilled'
-              ? 'green'
-              : 'orange'
-        if (value == 'First Response Due') {
-          value = __(timeAgo(deal.response_by))
-          tooltipText = dateFormat(deal.response_by, dateTooltipFormat)
-          if (new Date(deal.response_by) < new Date()) {
-            color = 'red'
-          }
-        }
-        _rows[row] = {
-          label: tooltipText,
-          value: value,
-          color: color,
-        }
-      } else if (row == 'deal_owner') {
-        _rows[row] = {
-          label: deal.deal_owner && getUser(deal.deal_owner).full_name,
-          ...(deal.deal_owner && getUser(deal.deal_owner)),
-        }
-      } else if (row == '_assign') {
-        let assignees = JSON.parse(deal._assign || '[]')
-        if (!assignees.length && deal.deal_owner) {
-          assignees = [deal.deal_owner]
-        }
-        _rows[row] = assignees.map((user) => ({
-          name: user,
-          image: getUser(user).user_image,
-          label: getUser(user).full_name,
-        }))
-      } else if (['modified', 'creation'].includes(row)) {
-        _rows[row] = {
-          label: dateFormat(deal[row], dateTooltipFormat),
-          timeAgo: __(timeAgo(deal[row])),
-        }
-      } else if (
-        ['first_response_time', 'first_responded_on', 'response_by'].includes(
-          row,
-        )
-      ) {
-        let field = row == 'response_by' ? 'response_by' : 'first_responded_on'
-        _rows[row] = {
-          label: deal[field] ? dateFormat(deal[field], dateTooltipFormat) : '',
-          timeAgo: deal[row]
-            ? row == 'first_response_time'
-              ? formatTime(deal[row])
-              : __(timeAgo(deal[row]))
-            : '',
-        }
-      }
-    })
-    _rows['_email_count'] = deal._email_count
-    _rows['_note_count'] = deal._note_count
-    _rows['_task_count'] = deal._task_count
-    _rows['_comment_count'] = deal._comment_count
-    return _rows
-  })
-}
-
 function onNewClick(column) {
-  let column_field = deals.value.params.column_field
+  let column_field = campigns.value.params.column_field
 
   if (column_field) {
     defaults[column_field] = column.column.name
@@ -312,36 +192,6 @@ function actions(itemName) {
   )
 }
 
-/**
- *  Convert proxy object into array
- * @param proxyData 
- */
-function unwrapProxy(proxyData) {
-  if (Array.isArray(proxyData)) {
-    return proxyData.map((item) => unwrapProxy(item));
-  } 
-  else if (proxyData !== null && typeof proxyData === 'object') {
-    return Object.keys(proxyData).reduce((acc, key) => {
-      acc[key] = unwrapProxy(proxyData[key]);
-      return acc;
-    }, {});
-  }
-  return proxyData;
-}
-
-/**
- * Get deal elamenet and convert into array
- * @param deals 
- */
-function getAllDealElementNames(deals) {
-  deals = unwrapProxy(deals);
-    // Check if deals is an array
-    if (deals && !Array.isArray(deals)) {
-        return '';
-    }
-    return deals;
-}
-
 const docname = ref('')
 const showNoteModal = ref(false)
 const note = ref({
@@ -367,28 +217,5 @@ const task = ref({
 function showTask(name) {
   docname.value = name
   showTaskModal.value = true
-}
-
-function transformToResult(data, columns) {
-  return data.map(row => {
-        const obj = {};
-        
-        // Iterate over columns and map data to corresponding field using the index
-        columns.forEach((column, index) => {
-            const value = row[index];
-            obj[column] = value; // Directly map the value to the column name
-        });
-        
-        return obj;
-    });
-}
-
-function transformToColumn(test) {
-  return test.map(item => ({
-        label: item.charAt(0).toUpperCase() + item.slice(1).replace(/_/g, ' '), // Capitalize first letter and replace underscores with spaces
-        fieldname: item,
-        fieldtype: "Data",
-        width: item === "lead_name" ? 100 : 180 // Example of custom width based on the fieldname
-    }));
 }
 </script>
