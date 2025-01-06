@@ -221,7 +221,7 @@ function bulkActions(selections, unselectAll) {
       onClick: () => convertToDeal(selections, unselectAll),
     })
   }
-  if (props.doctype === 'CRM Lead') {
+  if (props.doctype === 'CRM Lead' || props.doctype === 'Contact') {
     actions.push({
       label: __('Add to Campaign'),
       onClick: () => addToCampaign(selections, unselectAll),

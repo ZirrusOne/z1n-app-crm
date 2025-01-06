@@ -1,210 +1,59 @@
 <template>
-  <LayoutHeader v-if="organization.doc">
-    <template #left-header>
-      <Breadcrumbs :items="breadcrumbs">
-        <template #prefix="{ item }">
-          <Icon v-if="item.icon" :icon="item.icon" class="mr-2 h-4" />
-        </template>
-      </Breadcrumbs>
-    </template>
-  </LayoutHeader>
-  <div v-if="organization.doc" class="flex flex-1 flex-col overflow-hidden">
-    <FileUploader
-      @success="changeOrganizationImage"
-      :validateFile="validateFile"
-    >
-      <template #default="{ openFileSelector, error }">
+  <div v-if="campaignData" class="flex flex-1 flex-col overflow-hidden">
+
         <div class="flex items-start justify-start gap-6 p-5 sm:items-center">
-          <div class="group relative h-24 w-24">
-            <Avatar
-              size="3xl"
-              :image="organization.doc.organization_logo"
-              :label="organization.doc.name"
-              class="!h-24 !w-24"
-            />
-            <component
-              :is="organization.doc.organization_logo ? Dropdown : 'div'"
-              v-bind="
-                organization.doc.organization_logo
-                  ? {
-                      options: [
-                        {
-                          icon: 'upload',
-                          label: organization.doc.organization_logo
-                            ? __('Change image')
-                            : __('Upload image'),
-                          onClick: openFileSelector,
-                        },
-                        {
-                          icon: 'trash-2',
-                          label: __('Remove image'),
-                          onClick: () => changeOrganizationImage(''),
-                        },
-                      ],
-                    }
-                  : { onClick: openFileSelector }
-              "
-              class="!absolute bottom-0 left-0 right-0"
-            >
-              <div
-                class="z-1 absolute bottom-0 left-0 right-0 flex h-13 cursor-pointer items-center justify-center rounded-b-full bg-black bg-opacity-40 pt-3 opacity-0 duration-300 ease-in-out group-hover:opacity-100"
-                style="
-                  -webkit-clip-path: inset(12px 0 0 0);
-                  clip-path: inset(12px 0 0 0);
-                "
-              >
-                <CameraIcon class="h-6 w-6 cursor-pointer text-white" />
-              </div>
-            </component>
-          </div>
           <div class="flex flex-col justify-center gap-2 sm:gap-0.5">
             <div class="text-3xl font-semibold text-gray-900">
-              {{ organization.doc.name }}
+              {{ campaignData.campaign_name}}
             </div>
             <div
               class="flex flex-col flex-wrap gap-3 text-base text-gray-700 sm:flex-row sm:items-center sm:gap-2"
             >
-            <div class="flex items-center gap-2" v-if="organization.doc.is_partner == 1">
-              <PartnerIcon class="h-4 w-4" />
-                  <div>Partner</div>
-            </div>
               
-              <Tooltip text="Website">
+              <Tooltip text="Email Template">
                 <div
-                  v-if="organization.doc.website"
+                  v-if="campaignData.email_template"
                   class="flex items-center gap-1.5"
                 >
-                  <WebsiteIcon class="h-4 w-4" />
-                  <span class="">{{ website(organization.doc.website) }}</span>
+                <FeatherIcon name="message" class="h-4 w-4" />
+
+                  <span class="">{{ campaignData.email_template }}</span>
                 </div>
               </Tooltip>
               <span
-                v-if="organization.doc.website"
                 class="hidden text-3xl leading-[0] text-gray-600 sm:flex"
               >
                 &middot;
               </span>
-              <Tooltip text="Government Affiliation">
+              <Tooltip text="Campaign Type">
                 <div
-                  v-if="organization.doc.government_affiliation"
+                  v-if="campaignData.campaign_type"
                   class="flex items-center gap-1.5"
                 >
-                  <FeatherIcon name="crosshair" class="h-4 w-4" />
-                  <span class="">{{ organization.doc.government_affiliation }}</span>
+                  <FeatherIcon name="mail" class="h-4 w-4" />
+                  <span class="">{{ campaignData.campaign_type }}</span>
                 </div>
               </Tooltip>
+
               <span
-                v-if="organization.doc.government_affiliation"
                 class="hidden text-3xl leading-[0] text-gray-600 sm:flex"
               >
                 &middot;
               </span>
-              <Tooltip text="Industry">
+              <Tooltip text="Status">
                 <div
-                  v-if="organization.doc.industry"
+                  v-if="campaignData.status"
                   class="flex items-center gap-1.5"
                 >
-                  <FeatherIcon name="briefcase" class="h-4 w-4" />
-                  <span class="">{{ organization.doc.industry }}</span>
+                  <FeatherIcon name="bookmark" class="h-4 w-4" />
+                  <span class="">{{ campaignData.status }}</span>
                 </div>
               </Tooltip>
-              <span
-                v-if="organization.doc.industry"
-                class="hidden text-3xl leading-[0] text-gray-600 sm:flex"
-              >
-                &middot;
-              </span>
-              <Tooltip text="Territory">
-                <div
-                  v-if="organization.doc.territory"
-                  class="flex items-center gap-1.5"
-                >
-                  <TerritoryIcon class="h-4 w-4" />
-                  <span class="">{{ organization.doc.territory }}</span>
-                </div>
-              </Tooltip>
-              <div
-                v-if="organization.doc.territory"
-                class="flex items-center gap-1.5"
-              >
-                <TerritoryIcon class="h-4 w-4" />
-                <span class="">{{ organization.doc.territory }}</span>
-              </div>
-              <span
-                v-if="organization.doc.territory"
-                class="hidden text-3xl leading-[0] text-gray-600 sm:flex"
-              >
-                &middot;
-              </span>
-              <Tooltip text="Annual Revenue">
-                <div
-                  v-if="organization.doc.annual_revenue"
-                  class="flex items-center gap-1.5"
-                >
-                  <MoneyIcon class="size-4" />
-                  <span class="">{{
-                    customFormatNumberIntoCurrency(
-                      organization.doc.annual_revenue,
-                      organization.doc.currency,
-                    )
-                  }}</span>
-                </div>
-              </Tooltip>
-              <span
-                v-if="organization.doc.annual_revenue"
-                class="hidden text-3xl leading-[0] text-gray-600 sm:flex"
-              >
-                &middot;
-              </span>
-              <Button
-                v-if="
-                  organization.doc.website ||
-                  organization.doc.industry ||
-                  organization.doc.territory ||
-                  organization.doc.annual_revenue
-                "
-                variant="ghost"
-                :label="__('More')"
-                class="w-fit cursor-pointer hover:text-gray-900 sm:-ml-1"
-                @click="
-                  () => {
-                    detailMode = true
-                    showOrganizationModal = true
-                  }
-                "
-              />
+            
             </div>
-            <div class="mt-2 flex gap-1.5">
-              <Button
-                :label="__('Edit')"
-                size="sm"
-                @click="
-                  () => {
-                    detailMode = false
-                    showOrganizationModal = true
-                  }
-                "
-              >
-                <template #prefix>
-                  <EditIcon class="h-4 w-4" />
-                </template>
-              </Button>
-              <Button
-                :label="__('Delete')"
-                theme="red"
-                size="sm"
-                @click="deleteOrganization"
-              >
-                <template #prefix>
-                  <FeatherIcon name="trash-2" class="h-4 w-4" />
-                </template>
-              </Button>
-            </div>
-            <ErrorMessage class="mt-2" :message="__(error)" />
           </div>
         </div>
-      </template>
-    </FileUploader>
+
     <Tabs v-model="tabIndex" :tabs="tabs">
       <template #tab="{ tab, selected }">
         <button
@@ -213,30 +62,21 @@
         >
           <component v-if="tab.icon" :is="tab.icon" class="h-5" />
           {{ __(tab.label) }}
-          <Badge
-            class="group-hover:bg-gray-900"
-            :class="[selected ? 'bg-gray-900' : 'bg-gray-600']"
-            variant="solid"
-            theme="gray"
-            size="sm"
-          >
-            {{ tab.count }}
-          </Badge>
         </button>
       </template>
       <template #default="{ tab }">
-        <DealsListView
+        <LeadsListView
           class="mt-4"
-          v-if="tab.label === 'Deals' && rows.length"
-          :rows="rows"
-          :columns="columns"
+          v-if="tab.label === 'Leads' && rows.length && campaignData"
+          :rows="campaignData.campaign_participants[0]['CRM Lead']"
+          :columns="leadColumns"
           :options="{ selectable: false, showTooltip: true }"
         />
         <ContactsListView
           class="mt-4"
-          v-if="tab.label === 'Contacts' && rows.length"
-          :rows="rows"
-          :columns="columns"
+          v-if="tab.label === 'Contacts' && rows.length && campaignData"
+          :rows="campaignData.campaign_participants[1]['Contact']"
+          :columns="contactColumns"
           :options="{ selectable: false, showTooltip: true }"
         />
         <div
@@ -251,37 +91,16 @@
       </template>
     </Tabs>
   </div>
-  <OrganizationModal
-    v-model="showOrganizationModal"
-    v-model:quickEntry="showQuickEntryModal"
-    v-model:organization="organization"
-    :options="{ detailMode }"
-  />
-  <QuickEntryModal
-    v-if="showQuickEntryModal"
-    v-model="showQuickEntryModal"
-    doctype="CRM Organization"
-  />
 </template>
 
 <script setup>
-import Icon from '@/components/Icon.vue'
-import LayoutHeader from '@/components/LayoutHeader.vue'
-import OrganizationModal from '@/components/Modals/OrganizationModal.vue'
-import QuickEntryModal from '@/components/Modals/QuickEntryModal.vue'
-import DealsListView from '@/components/ListViews/DealsListView.vue'
+import LeadsListView from '@/components/ListViews/LeadsListView.vue'
 import ContactsListView from '@/components/ListViews/ContactsListView.vue'
-import WebsiteIcon from '@/components/Icons/WebsiteIcon.vue'
-import TerritoryIcon from '@/components/Icons/TerritoryIcon.vue'
-import MoneyIcon from '@/components/Icons/MoneyIcon.vue'
-import EditIcon from '@/components/Icons/EditIcon.vue'
-import CameraIcon from '@/components/Icons/CameraIcon.vue'
 import DealsIcon from '@/components/Icons/DealsIcon.vue'
 import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
 import { globalStore } from '@/stores/global'
 import { usersStore } from '@/stores/users'
 import { statusesStore } from '@/stores/statuses'
-import { getView } from '@/utils/view'
 import {
   dateFormat,
   dateTooltipFormat,
@@ -289,25 +108,18 @@ import {
   customFormatNumberIntoCurrency,
 } from '@/utils'
 import {
-  Breadcrumbs,
-  Avatar,
-  FileUploader,
-  Dropdown,
   Tabs,
   Tooltip,
-  call,
   createListResource,
   createDocumentResource,
   createResource,
-  usePageMeta,
 } from 'frappe-ui'
 import { h, computed, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import PartnerIcon from '@/components/Icons/PartnerIcon.vue'
 
 
 const props = defineProps({
-  organizationId: {
+  campaignId: {
     type: String,
     required: true,
   },
@@ -315,9 +127,7 @@ const props = defineProps({
 
 const { $dialog } = globalStore()
 const { getDealStatus } = statusesStore()
-const showOrganizationModal = ref(false)
-const showQuickEntryModal = ref(false)
-const detailMode = ref(false)
+const campaignData = ref(null)
 
 const route = useRoute()
 const router = useRouter()
@@ -333,109 +143,23 @@ const organization = createDocumentResource({
 
 onMounted(() => {
 
-  createResource({
-  auto: true,
-  params: {
-    campaign_name: props.campaignId,
-    },
+const campaign = createResource({
   url: 'crm.fcrm.doctype.crm_campaign.crm_campaign.get_doc_view_campaign_data',
-  transform: (data) => {
-    // Access the actual data from the proxy object
-    const actualData = unwrapProxy(data);
-
-   default_report_name.value = actualData
-    
+  params: { campaign_name: props.campaignId, },
+  onSuccess:  (data) => {
+    campaignData.value = data;
   },
+})
 
-});
+campaign.fetch();
 
 })
 
-const breadcrumbs = computed(() => {
-  let items = [{ label: __('Organizations'), route: { name: 'Organizations' } }]
-
-  if (route.query.view || route.query.viewType) {
-    let view = getView(
-      route.query.view,
-      route.query.viewType,
-      'CRM Organization',
-    )
-    if (view) {
-      items.push({
-        label: __(view.label),
-        icon: view.icon,
-        route: {
-          name: 'Organizations',
-          params: { viewType: route.query.viewType },
-          query: { view: route.query.view },
-        },
-      })
-    }
-  }
-
-  items.push({
-    label: props.organizationId,
-    route: {
-      name: 'Organization',
-      params: { organizationId: props.organizationId },
-    },
-  })
-  return items
-})
-
-usePageMeta(() => {
-  return {
-    title: props.organizationId,
-  }
-})
-
-function validateFile(file) {
-  let extn = file.name.split('.').pop().toLowerCase()
-  if (!['png', 'jpg', 'jpeg'].includes(extn)) {
-    return __('Only PNG and JPG images are allowed')
-  }
-}
-
-async function changeOrganizationImage(file) {
-  await call('frappe.client.set_value', {
-    doctype: 'CRM Organization',
-    name: props.organizationId,
-    fieldname: 'organization_logo',
-    value: file?.file_url || '',
-  })
-  organization.reload()
-}
-
-async function deleteOrganization() {
-  $dialog({
-    title: __('Delete organization'),
-    message: __('Are you sure you want to delete this organization?'),
-    actions: [
-      {
-        label: __('Delete'),
-        theme: 'red',
-        variant: 'solid',
-        async onClick(close) {
-          await call('frappe.client.delete', {
-            doctype: 'CRM Organization',
-            name: props.organizationId,
-          })
-          close()
-          router.push({ name: 'Organizations' })
-        },
-      },
-    ],
-  })
-}
-
-function website(url) {
-  return url && url.replace(/^(?:https?:\/\/)?(?:www\.)?/i, '')
-}
 
 const tabIndex = ref(0)
 const tabs = [
   {
-    label: 'Deals',
+    label: 'Leads',
     icon: h(DealsIcon, { class: 'h-4 w-4' }),
     count: computed(() => deals.data?.length),
   },
@@ -504,7 +228,7 @@ const rows = computed(() => {
 })
 
 const columns = computed(() => {
-  return tabIndex.value === 0 ? dealColumns : contactColumns
+  return tabIndex.value === 0 ? leadColumns : contactColumns
 })
 
 function getDealRowObject(deal) {
@@ -556,69 +280,59 @@ function getContactRowObject(contact) {
   }
 }
 
-const dealColumns = [
-  {
-    label: __('Organization'),
-    key: 'organization',
-    width: '11rem',
-  },
-  {
-    label: __('Amount'),
-    key: 'annual_revenue',
-    width: '9rem',
-  },
-  {
-    label: __('Status'),
-    key: 'status',
-    width: '10rem',
-  },
-  {
-    label: __('Email'),
-    key: 'email',
-    width: '12rem',
-  },
-  {
-    label: __('Mobile no'),
-    key: 'mobile_no',
-    width: '11rem',
-  },
-  {
-    label: __('Deal owner'),
-    key: 'deal_owner',
-    width: '10rem',
-  },
-  {
-    label: __('Last modified'),
-    key: 'modified',
-    width: '8rem',
-  },
-]
-
-const contactColumns = [
+const leadColumns = [
   {
     label: __('Name'),
     key: 'full_name',
-    width: '17rem',
+    width: '11rem',
+  },
+  {
+    label: __('Organization'),
+    key: 'organization',
+    width: '9rem',
   },
   {
     label: __('Email'),
     key: 'email',
+    width: '10rem',
+  },
+  {
+    label: __('Source'),
+    key: 'participant_source',
     width: '12rem',
   },
   {
-    label: __('Phone'),
-    key: 'mobile_no',
-    width: '12rem',
+    label: __('Reference Document'),
+    key: 'reference_docname',
+    width: '11rem',
+  }
+]
+
+const contactColumns = [
+{
+    label: __('Name'),
+    key: 'full_name',
+    width: '11rem',
   },
   {
     label: __('Organization'),
-    key: 'company_name',
+    key: 'organization',
+    width: '9rem',
+  },
+  {
+    label: __('Email'),
+    key: 'email',
+    width: '10rem',
+  },
+  {
+    label: __('Source'),
+    key: 'participant_source',
     width: '12rem',
   },
   {
-    label: __('Last modified'),
-    key: 'modified',
-    width: '8rem',
-  },
+    label: __('Reference Document'),
+    key: 'reference_docname',
+    width: '11rem',
+  }
 ]
 </script>

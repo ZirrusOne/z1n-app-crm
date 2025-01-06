@@ -68,25 +68,6 @@
     v-model:quickEntry="showQuickEntryModal"
     :defaults="defaults"
   />
-  <NoteModal
-    v-if="showNoteModal"
-    v-model="showNoteModal"
-    :note="note"
-    doctype="CRM Deal"
-    :doc="docname"
-  />
-  <TaskModal
-    v-if="showTaskModal"
-    v-model="showTaskModal"
-    :task="task"
-    doctype="CRM Deal"
-    :doc="docname"
-  />
-  <QuickEntryModal
-    v-if="showQuickEntryModal"
-    v-model="showQuickEntryModal"
-    doctype="CRM Deal"
-  />
 </template>
 
 <script setup>
@@ -98,23 +79,9 @@ import TaskIcon from '@/components/Icons/TaskIcon.vue'
 import DealsIcon from '@/components/Icons/DealsIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import CampaignModal from '@/components/Modals/CampaignModal.vue'
-import NoteModal from '@/components/Modals/NoteModal.vue'
-import TaskModal from '@/components/Modals/TaskModal.vue'
-import QuickEntryModal from '@/components/Modals/QuickEntryModal.vue'
 import ViewControls from '@/components/ViewControls.vue'
 import { globalStore } from '@/stores/global'
-import { usersStore } from '@/stores/users'
-import { organizationsStore } from '@/stores/organizations'
-import { statusesStore } from '@/stores/statuses'
 import { callEnabled } from '@/composables/settings'
-import {
-  dateFormat,
-  dateTooltipFormat,
-  timeAgo,
-  website,
-  customFormatNumberIntoCurrency,
-  formatTime,
-} from '@/utils'
 import { useRoute } from 'vue-router'
 import { ref, reactive, computed, h } from 'vue'
 import CampaignsListView from '../components/ListViews/CampaignsListView.vue'

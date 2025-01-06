@@ -10,6 +10,7 @@
           :placeholder="__('Campaign')"
         />
       </div>
+      <ErrorMessage class="mt-4" v-if="error" :message="__('Please select the campaign')" />
 
     </template>
     <template #actions>
@@ -30,6 +31,7 @@ import Autocomplete from '@/components/frappe-ui/Autocomplete.vue'
 import { capture } from '@/telemetry'
 import { FormControl, call, createResource, TextEditor, DatePicker } from 'frappe-ui'
 import { ref, computed, onMounted, h } from 'vue'
+import { createToast } from '@/utils'
 
 const typeCheck = ['Check']
 const typeLink = ['Link', 'Dynamic Link']
@@ -37,6 +39,7 @@ const typeNumber = ['Float', 'Int', 'Currency', 'Percent']
 const typeSelect = ['Select']
 const typeEditor = ['Text Editor']
 const typeDate = ['Date', 'Datetime']
+const error = ref(null)
 
 const props = defineProps({
   doctype: {
@@ -54,13 +57,9 @@ const show = defineModel()
 const emit = defineEmits(['reload'])
 
 const fields = createResource({
-  url: 'crm.api.doc.get_fields',
-  cache: ['fields', props.doctype],
-  params: {
-    doctype: props.doctype,
-  },
+  url: 'crm.fcrm.doctype.crm_campaign.crm_campaign.get_campaign',
   transform: (data) => {
-    return data.filter((f) => f.hidden == 0 && f.read_only == 0)
+    return data
   }
 })
 
@@ -82,20 +81,24 @@ const newValue = ref('')
 const loading = ref(false)
 
 function updateValues() {
-  let fieldVal = newValue.value
-  if (field.value.type == 'Check') {
-    fieldVal = fieldVal == 'Yes' ? 1 : 0
+  error.value = false
+  if(!field.value.value){
+    error.value = true;
+    return;
   }
+  const campaignParticipants = {
+  "campaign_participants": Array.from(props.selectedValues).map(reference => ({
+    "reference_docname": reference
+  }))
+};
   loading.value = true
   call(
-    'frappe.desk.doctype.bulk_update.bulk_update.submit_cancel_or_update_docs',
+    'crm.fcrm.doctype.crm_campaign.crm_campaign.update_campaign_participants',
     {
       doctype: props.doctype,
       docnames: Array.from(props.selectedValues),
-      action: 'update',
-      data: {
-        [field.value.value]: fieldVal || null,
-      },
+     ...campaignParticipants,
+     campaign_name:field.value.value
     }
   ).then(() => {
     field.value = {
@@ -107,6 +110,11 @@ function updateValues() {
     newValue.value = ''
     loading.value = false
     show.value = false
+    createToast({
+        title: __(`${recordCount.value} records have been added to Campaign ${field.value.value}`),
+        icon: 'check',
+        iconClasses: 'text-green-600',
+      })
     capture('bulk_update', { doctype: props.doctype })
     emit('reload')
   })

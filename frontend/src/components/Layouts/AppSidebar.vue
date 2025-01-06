@@ -165,7 +165,7 @@ const links = [
     to: 'Email Templates',
   },
   {
-    label: 'Email Campaigns',
+    label: 'Campaigns',
     icon: CampaignIcon,
     to: 'Email Campaigns',
   },

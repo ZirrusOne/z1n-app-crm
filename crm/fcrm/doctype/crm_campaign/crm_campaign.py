@@ -124,14 +124,9 @@ def create_or_update_campaign(args):
 @frappe.whitelist()
 def get_campaign():
     campaigns = frappe.db.sql(f"""SELECT cc.name
-                                FROM `tabCRM Campaign` cc
-                                JOIN `tabEmail Template` et 
-                                ON cc.email_template = et.name
-                                WHERE et.reference_doctype = 'CRM Campaign'
-                                AND et.enabled = 1
-                                AND cc.status != 'Closed'
-                                AND cc.campaign_type = 'Email'""", as_dict=True)
-    return [[c['name']] for c in campaigns]
+                                FROM `tabCRM Campaign` cc""", as_dict=True)
+    result = [{"label": c['name'], "type": "Data", "value" : c['name']} for c in campaigns]
+    return result
     
 def send_email_for_campaign():
     crm_campaigns = frappe.get_all(
@@ -185,7 +180,7 @@ def get_doc_view_campaign_data(campaign_name):
     return converted_data
    
 def get_campaign_participants(ref_doctype, campaign_name):
-    fields=('full_name','organization', 'email', 'participant_source', 'reference_docname')
+    fields=('name','organization', 'email', 'participant_source', 'reference_docname', 'full_name')
     filters={'parent':campaign_name , 'participant_source':ref_doctype}
     data = frappe.db.get_all("CRM Campaign Participants",filters=filters ,fields=fields)
     return data if len(data)>0 else []
