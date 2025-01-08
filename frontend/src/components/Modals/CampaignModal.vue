@@ -78,7 +78,7 @@ const sections = createResource({
 
 function createCampign() {
   createResource({
-    url: 'crm.fcrm.doctype.crm_campaign.crm_campaign.create_campaign',
+    url: 'crm.fcrm.doctype.crm_campaign.crm_campaign.create_or_update_campaign',
     params: { args: campaign },
     auto: true,
     validate() {
@@ -88,7 +88,7 @@ function createCampign() {
       capture('campign_created')
       isCampignCreating.value = false
       show.value = false
-      router.push({ name: 'Campign', params: { campaignId: name } })
+      router.push({ name: 'Campaign', params: { campaignId: name } })
     },
     onError(err) {
       isCampignCreating.value = false
