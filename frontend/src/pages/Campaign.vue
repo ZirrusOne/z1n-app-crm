@@ -1,3 +1,4 @@
+
 <template>
   <div v-if="campaignData" class="flex flex-1 flex-col overflow-hidden">
 
@@ -96,7 +97,7 @@
 <script setup>
 import LeadsListView from '@/components/ListViews/LeadsListView.vue'
 import ContactsListView from '@/components/ListViews/ContactsListView.vue'
-import DealsIcon from '@/components/Icons/DealsIcon.vue'
+import LeadsIcon from '@/components/Icons/LeadsIcon.vue'
 import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
 import { globalStore } from '@/stores/global'
 import { usersStore } from '@/stores/users'
@@ -126,7 +127,7 @@ const props = defineProps({
 })
 
 const { $dialog } = globalStore()
-const { getDealStatus } = statusesStore()
+const { getLeadStatus } = statusesStore()
 const campaignData = ref(null)
 
 const route = useRoute()
@@ -160,8 +161,8 @@ const tabIndex = ref(0)
 const tabs = [
   {
     label: 'Leads',
-    icon: h(DealsIcon, { class: 'h-4 w-4' }),
-    count: computed(() => deals.data?.length),
+    icon: h(LeadsIcon, { class: 'h-4 w-4' }),
+    count: computed(() => leads.data?.length),
   },
   {
     label: 'Contacts',
@@ -172,19 +173,16 @@ const tabs = [
 
 const { getUser } = usersStore()
 
-const deals = createListResource({
+const leads = createListResource({
   type: 'list',
-  doctype: 'CRM Deal',
-  cache: ['deals', props.organizationId],
+  doctype: 'CRM Lead',
+  cache: ['leads', props.organizationId],
   fields: [
     'name',
     'organization',
-    'currency',
-    'annual_revenue',
     'status',
     'email',
-    'mobile_no',
-    'deal_owner',
+    'lead_owner',
     'modified',
   ],
   filters: {
@@ -218,12 +216,12 @@ const contacts = createListResource({
 
 const rows = computed(() => {
   let list = []
-  list = !tabIndex.value ? deals : contacts
+  list = !tabIndex.value ? leads : contacts
 
   if (!list.data) return []
 
   return list.data.map((row) => {
-    return !tabIndex.value ? getDealRowObject(row) : getContactRowObject(row)
+    return !tabIndex.value ? getLeadRowObject(row) : getContactRowObject(row)
   })
 })
 
@@ -231,30 +229,25 @@ const columns = computed(() => {
   return tabIndex.value === 0 ? leadColumns : contactColumns
 })
 
-function getDealRowObject(deal) {
+function getLeadRowObject(lead) {
   return {
-    name: deal.name,
+    name: lead.name,
     organization: {
-      label: deal.organization,
+      label: lead.organization,
       logo: props.organization?.organization_logo,
     },
-    annual_revenue: customFormatNumberIntoCurrency(
-      deal.annual_revenue,
-      deal.currency,
-    ),
     status: {
-      label: deal.status,
-      color: getDealStatus(deal.status)?.iconColorClass,
+      label: lead.status,
+      color: getLeadStatus(lead.status)?.iconColorClass,
     },
-    email: deal.email,
-    mobile_no: deal.mobile_no,
-    deal_owner: {
-      label: deal.deal_owner && getUser(deal.deal_owner).full_name,
-      ...(deal.deal_owner && getUser(deal.deal_owner)),
+    email: lead.email,
+    lead_owner: {
+      label: lead.lead_owner && getUser(lead.lead_owner).full_name,
+      ...(lead.lead_owner && getUser(lead.lead_owner)),
     },
     modified: {
-      label: dateFormat(deal.modified, dateTooltipFormat),
-      timeAgo: __(timeAgo(deal.modified)),
+      label: dateFormat(lead.modified, dateTooltipFormat),
+      timeAgo: __(timeAgo(lead.modified)),
     },
   }
 }

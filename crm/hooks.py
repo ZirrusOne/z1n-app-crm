@@ -303,6 +303,10 @@ fixtures = [
     },
     {
         "dt": "CRM Fields Layout",
-        "filters": [["name", "in", ["CRM Organization-Quick Entry"]]]
-    }
+        "filters": [["name", "in", ["CRM Organization-Quick Entry", "CRM Campaign-Quick Entry"]]]
+    },
+    {
+        "dt": "CRM Campaign Type",
+        "filters": [["name", "in", ["Marketing", "Email"]]]
+    },
 ]

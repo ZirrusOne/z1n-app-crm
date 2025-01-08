@@ -79,7 +79,7 @@ def update_campaign_participants():
         if not frappe.db.exists("CRM Campaign Participants", {"parent": campaign.name, "participant_source": doctype, "reference_docname": reference_docname}):
             campaign.append("campaign_participants", {
                 "participant_source": doctype,
-                "reference_docname": reference_docname
+                "reference_docname": reference_docname,
             })
 
     # Save the campaign to apply changes
@@ -183,5 +183,7 @@ def get_campaign_participants(ref_doctype, campaign_name):
     fields=('name','organization', 'email', 'participant_source', 'reference_docname', 'full_name')
     filters={'parent':campaign_name , 'participant_source':ref_doctype}
     data = frappe.db.get_all("CRM Campaign Participants",filters=filters ,fields=fields)
+    for row in data:
+        row['name'] = frappe.db.get_value(row.participant_source, {'name':row.reference_docname}, 'name')
     return data if len(data)>0 else []
 
