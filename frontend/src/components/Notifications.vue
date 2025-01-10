@@ -146,6 +146,11 @@ function getRoute(notification) {
       dealId: notification.reference_name,
     }
   }
+  if (notification.route_name === 'Contact') {
+    params = {
+      contactId: notification.reference_name,
+    }
+  }
 
   return {
     name: notification.route_name,
