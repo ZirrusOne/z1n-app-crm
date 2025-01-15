@@ -45,7 +45,7 @@
           :key="n.comment"
           :to="getRoute(n)"
           class="flex cursor-pointer items-start gap-2.5 px-4 py-2.5 hover:bg-gray-100"
-          @click="markAsRead(n.comment || n.notification_type_doc)"
+          @click.prevent="markAsRead(n, n.comment || n.notification_type_doc)"
         >
           <div class="mt-1 flex items-center gap-2.5">
             <div
@@ -117,9 +117,11 @@ onClickOutside(
   },
 )
 
-function markAsRead(doc) {
+function markAsRead(notification,doc) {
   capture('notification_mark_as_read')
   mark_doc_as_read(doc)
+  window.location.href = `/crm/${notification.route_name}s/${notification.reference_name}`; // This will reload the page
+
 }
 
 function markAllAsRead() {
