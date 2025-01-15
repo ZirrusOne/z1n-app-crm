@@ -299,6 +299,6 @@ fixtures = [
     },
     {
         "dt": "CRM Fields Layout",
-        "filters": [["name", "in", ["CRM Organization-Quick Entry"]]]
+        "filters": [["name", "in", ["CRM Organization-Quick Entry", "Contact-Quick Entry"]]]
     }
 ]
