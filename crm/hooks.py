@@ -308,5 +308,5 @@ fixtures = [
     {
         "dt": "CRM Campaign Type",
         "filters": [["name", "in", ["Marketing", "Email"]]]
-    },
+    }
 ]
