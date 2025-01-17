@@ -13,7 +13,7 @@ def get_notifications():
     )
     notifications = query.run(as_dict=True)
 
-    _notifications = []
+    _notifications, reference_doctype, route_name = [], '', ''
     for notification in notifications:
         if notification.reference_doctype == "CRM Deal":
             reference_doctype = "deal"

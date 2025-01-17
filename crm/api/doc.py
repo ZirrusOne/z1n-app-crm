@@ -346,7 +346,12 @@ def get_data(
 
 		#hide personal contact for contact view.
 		if doctype == 'Contact':
-			filters = {'custom_is_personal' : 0}
+			assigned_contact =  [ac['reference_name'] for ac in frappe.db.get_list("ToDo", {'reference_type': "Contact",
+			 'status':'Open', 'allocated_to':frappe.session.user}, 'reference_name')]
+			global_contacts = [gc['name'] for gc in frappe.db.get_list("Contact", {'custom_is_personal' : 0},'name')]
+			if len(assigned_contact) > 0 :
+				global_contacts.extend(assigned_contact)
+			filters = {'name': ['in', global_contacts]}
 
 		# check if rows has group_by_field if not add it
 		if group_by_field and group_by_field not in rows:
@@ -931,17 +936,17 @@ def process_deal_elements_filters(input_dict):
 			output.append(["CRM Deal Elements", 'deal_elements', values[0], values[1]])
 
 
-    return output
+	return output
 
 @frappe.whitelist()
 def transform_filters(data):
-    if not data:  # Check if 'data' is None or an empty value
-        return {}  # or handle the case as required
+	if not data:  # Check if 'data' is None or an empty value
+		return {}  # or handle the case as required
 
-    for filter_item in data.get("filters", []):
-        if "fieldtype" in filter_item:
-            filter_item["type"] = filter_item.pop("fieldtype")
-        if "fieldname" in filter_item:
-            filter_item["name"] = filter_item.pop("fieldname")
-    return data
+	for filter_item in data.get("filters", []):
+		if "fieldtype" in filter_item:
+			filter_item["type"] = filter_item.pop("fieldtype")
+		if "fieldname" in filter_item:
+			filter_item["name"] = filter_item.pop("fieldname")
+	return data
 
