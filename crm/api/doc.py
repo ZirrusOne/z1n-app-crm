@@ -795,6 +795,10 @@ def get_reports_for_doctype(doctype):
         elif doctype == "CRM Deal":
             default_report_name = "My Deals"
             default_report_type = 'Script Report'
+        elif doctype == "CRM Campaign":
+            default_report_name = "CRM Campaign Efficiency"
+            default_report_type = 'Script Report'
+
  
     reports = frappe.get_list('Report', filters={'ref_doctype': doctype}, fields=['name','report_type','json'])
     for i in reports:
