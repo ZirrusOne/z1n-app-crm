@@ -38,14 +38,23 @@
       </div>
       <div
         v-if="notifications.data?.length"
+<<<<<<< HEAD
         class="divide-y divide-outline-gray-modals overflow-auto text-base"
+=======
+        class="divide-y overflow-auto text-base"
+>>>>>>> origin/Scrum-9-z1
       >
         <RouterLink
           v-for="n in notifications.data"
           :key="n.comment"
           :to="getRoute(n)"
+<<<<<<< HEAD
           class="flex cursor-pointer items-start gap-2.5 px-4 py-2.5 hover:bg-surface-gray-2"
           @click="markAsRead(n.comment || n.notification_type_doc)"
+=======
+          class="flex cursor-pointer items-start gap-2.5 px-4 py-2.5 hover:bg-gray-100"
+          @click.prevent="markAsRead(n, n.comment || n.notification_type_doc)"
+>>>>>>> origin/Scrum-9-z1
         >
           <div class="mt-1 flex items-center gap-2.5">
             <div
@@ -117,9 +126,17 @@ onClickOutside(
   },
 )
 
+<<<<<<< HEAD
 function markAsRead(doc) {
   capture('notification_mark_as_read')
   mark_doc_as_read(doc)
+=======
+function markAsRead(notification,doc) {
+  capture('notification_mark_as_read')
+  mark_doc_as_read(doc)
+  window.location.href = `/crm/${notification.route_name}s/${notification.reference_name}`; // This will reload the page
+
+>>>>>>> origin/Scrum-9-z1
 }
 
 function markAllAsRead() {
@@ -144,6 +161,11 @@ function getRoute(notification) {
   if (notification.route_name === 'Deal') {
     params = {
       dealId: notification.reference_name,
+    }
+  }
+  if (notification.route_name === 'Contact') {
+    params = {
+      contactId: notification.reference_name,
     }
   }
 

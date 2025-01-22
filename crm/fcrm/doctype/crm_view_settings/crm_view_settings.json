@@ -11,6 +11,7 @@
   "is_default",
   "column_break_zacm",
   "type",
+  "report_name",
   "dt",
   "route_name",
   "pinned",
@@ -128,7 +129,7 @@
    "fieldname": "type",
    "fieldtype": "Select",
    "label": "Type",
-   "options": "list\ngroup_by\nkanban"
+   "options": "list\ngroup_by\nkanban\nreport"
   },
   {
    "fieldname": "group_by_tab",
@@ -178,11 +179,17 @@
    "fieldname": "title_field",
    "fieldtype": "Data",
    "label": "Title Field"
+  },
+  {
+   "fieldname": "report_name",
+   "fieldtype": "Link",
+   "label": "Report Name",
+   "options": "Report"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-06-25 19:40:12.067788",
+ "modified": "2024-11-06 20:17:05.858189",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM View Settings",

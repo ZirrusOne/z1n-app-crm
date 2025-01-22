@@ -68,8 +68,13 @@ watch(
 )
 
 let showGroupedRows = computed(() => {
+<<<<<<< HEAD
   return props.rows.every(
     (row) => row.group && row.rows && Array.isArray(row.rows),
+=======
+  return props.rows?.every(
+    (row) => row.group && row.rows && Array.isArray(row.rows)
+>>>>>>> origin/Scrum-9-z1
   )
 })
 

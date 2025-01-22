@@ -57,6 +57,49 @@
             "
           />
         </div>
+        <div>
+          <FileUploader
+              @success="(file) => addAttachment(file)"
+            >
+            <template #default="{ openFileSelector }">
+              <Button @click="openFileSelector()">Attach File</Button>
+            </template>
+          </FileUploader>
+           </div>
+
+           <!-- <template>
+              <div>
+                <h3>Attach Files to Note</h3>
+                <input type="file" multiple @change="handleFileUpload" />
+                <button @click="uploadFiles">Upload</button>
+                <div v-if="uploadedFiles.length">
+                  <h4>Uploaded Files</h4>
+                  <ul>
+                    <li v-for="file in uploadedFiles" :key="file.name">{{ file.name }}</li>
+                  </ul>
+                </div>
+              </div>
+            </template> -->
+          <div class="flex flex-wrap gap-2 sm:px-10 px-4">
+            <AttachmentItem
+              v-for="a in attachments"
+              :key="a.file_name"
+              :label="a.file_name"
+               :url="a.file_name"
+            >
+              <template #suffix>
+                <FeatherIcon
+                  class="h-3.5"
+                  name="x"
+                  @click.stop="removeAttachment(a)"
+                />
+              </template>
+            </AttachmentItem>
+          </div>
+
+
+
+
       </div>
     </template>
   </Dialog>
@@ -65,9 +108,11 @@
 <script setup>
 import ArrowUpRightIcon from '@/components/Icons/ArrowUpRightIcon.vue'
 import { capture } from '@/telemetry'
-import { TextEditor, call } from 'frappe-ui'
-import { ref, nextTick, watch } from 'vue'
+import { TextEditor, call, FileUploader, createResource } from 'frappe-ui'
+import { ref, nextTick, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import AttachmentIcon from '@/components/Icons/AttachmentIcon.vue'
+import AttachmentItem from '@/components/AttachmentItem.vue'
 
 const props = defineProps({
   note: {
@@ -86,6 +131,7 @@ const props = defineProps({
 
 const show = defineModel()
 const notes = defineModel('reloadNotes')
+const attachments = ref([]);
 
 const emit = defineEmits(['after'])
 
@@ -96,11 +142,6 @@ const editMode = ref(false)
 let _note = ref({})
 
 async function updateNote() {
-  if (
-    props.note.title === _note.value.title &&
-    props.note.content === _note.value.content
-  )
-    return
 
   if (_note.value.name) {
     let d = await call('frappe.client.set_value', {
@@ -109,6 +150,7 @@ async function updateNote() {
       fieldname: _note.value,
     })
     if (d.name) {
+      mapped_attachments_on_note(d, attachments.value)
       notes.value?.reload()
       emit('after', d)
     }
@@ -123,12 +165,15 @@ async function updateNote() {
       },
     })
     if (d.name) {
+      mapped_attachments_on_note(d, attachments.value)
       capture('note_created')
       notes.value?.reload()
       emit('after', d, true)
     }
   }
   show.value = false
+  notes.value?.reload()
+
 }
 
 function redirect() {
@@ -147,7 +192,16 @@ watch(
     if (!value) return
     editMode.value = false
     nextTick(() => {
+<<<<<<< HEAD
       title.value?.el?.focus()
+=======
+      attachments.value = [];
+      if(props.note.name){
+        get_attachments_from_note(props.note.name)
+
+      }
+      title.value.el.focus()
+>>>>>>> origin/Scrum-9-z1
       _note.value = { ...props.note }
       if (_note.value.title || _note.value.content) {
         editMode.value = true
@@ -155,4 +209,50 @@ watch(
     })
   },
 )
+
+function addAttachment(file) {
+  if (!_note.attachments) {
+    _note.attachments = [];
+  }
+  _note.attachments.push(file);
+  attachments.value.push(file);
+
+}
+
+function removeAttachment(attachment) {
+  attachments.value = attachments.value.filter(a => a !== attachment);
+}
+
+function mapped_attachments_on_note(note, attachments){
+  createResource({
+    params: {
+      note: note,
+      attachments: attachments,
+    },
+    auto: true,
+    url: 'crm.fcrm.doctype.fcrm_note.api.add_attachments_on_note',
+    transform: (data) => {
+      notes.value?.reload()
+
+    },
+  });
+
+}
+
+function get_attachments_from_note(note_name){
+  attachments.value = [];
+  createResource({
+    params: {
+      note_name: note_name,
+    },
+    auto: true,
+    url: 'crm.fcrm.doctype.fcrm_note.api.get_attachments_from_note',
+    transform: (data) => {
+    data.forEach((item) => {
+      attachments.value.push(item);
+    });
+    },
+  });
+}
+
 </script>

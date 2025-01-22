@@ -126,6 +126,27 @@ export function secondsToDuration(seconds) {
   return `${hours}h ${minutes}m ${_seconds}s`
 }
 
+<<<<<<< HEAD
+=======
+export function formatNumberIntoCurrency(value, currency = 'INR') {
+  if (value) {
+    return value.toLocaleString('en-US', {
+      maximumFractionDigits: 0,
+      style: 'currency',
+      currency: currency ? currency : 'INR',
+    })
+  }
+  return ''
+}
+
+export function customFormatNumberIntoCurrency(value, currency) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+        currency: currency
+    }).format(value);
+}
+
+>>>>>>> origin/Scrum-9-z1
 export function startCase(str) {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }

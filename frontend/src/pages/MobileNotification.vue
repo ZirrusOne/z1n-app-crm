@@ -25,13 +25,21 @@
   <div class="flex flex-col overflow-hidden text-ink-gray-9">
     <div
       v-if="notifications.data?.length"
+<<<<<<< HEAD
       class="divide-y divide-outline-gray-1 overflow-y-auto text-base"
+=======
+      class="divide-y overflow-y-auto text-base"
+>>>>>>> origin/Scrum-9-z1
     >
       <RouterLink
         v-for="n in notifications.data"
         :key="n.comment"
         :to="getRoute(n)"
+<<<<<<< HEAD
         class="flex cursor-pointer items-start gap-3 px-2.5 py-3 hover:bg-surface-gray-2"
+=======
+        class="flex cursor-pointer items-start gap-3 px-2.5 py-3 hover:bg-gray-100"
+>>>>>>> origin/Scrum-9-z1
         @click="mark_doc_as_read(n.comment || n.notification_type_doc)"
       >
         <div class="mt-1 flex items-center gap-2.5">

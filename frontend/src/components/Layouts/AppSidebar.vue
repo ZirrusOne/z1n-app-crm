@@ -24,7 +24,11 @@
             />
             <div
               v-else-if="unreadNotificationsCount"
+<<<<<<< HEAD
               class="absolute -left-1.5 top-1 z-20 h-[5px] w-[5px] translate-x-6 translate-y-1 rounded-full bg-surface-gray-6 ring-1 ring-white"
+=======
+              class="absolute -left-1.5 top-1 z-20 h-[5px] w-[5px] translate-x-6 translate-y-1 rounded-full bg-gray-800 ring-1 ring-white"
+>>>>>>> origin/Scrum-9-z1
             />
           </template>
         </SidebarLink>
@@ -118,6 +122,7 @@ import {
 import { FeatherIcon } from 'frappe-ui'
 import { useStorage } from '@vueuse/core'
 import { computed, h } from 'vue'
+import CampaignIcon from '../Icons/CampaignIcon.vue'
 
 const { getPinnedViews, getPublicViews } = viewsStore()
 const { toggle: toggleNotificationPanel } = notificationsStore()
@@ -164,6 +169,11 @@ const links = [
     label: 'Email Templates',
     icon: Email2Icon,
     to: 'Email Templates',
+  },
+  {
+    label: 'Campaigns',
+    icon: CampaignIcon,
+    to: 'Email Campaigns',
   },
 ]
 

@@ -89,6 +89,7 @@
                 () => emit('likeDoc', { name: row.name, liked: isLiked(item) })
               "
             >
+<<<<<<< HEAD
               <HeartIcon class="h-4 w-4" />
             </Button>
           </div>
@@ -110,6 +111,55 @@
           </div>
         </template>
       </ListRowItem>
+=======
+              <Tooltip :text="item.label">
+                <div>{{ item.timeAgo }}</div>
+              </Tooltip>
+            </div>
+            <div v-else-if="column.key === 'is_partner'">
+              <PartnerIcon class="h-4 w-4" v-if="item == 1"/>
+            </div>
+            <div v-else-if="column.type === 'Check'">
+              <FormControl
+                type="checkbox"
+                :modelValue="item"
+                :disabled="true"
+                class="text-gray-900"
+              />
+            </div>
+            <div v-else-if="column.key === '_liked_by'">
+              <Button
+                v-if="column.key == '_liked_by'"
+                variant="ghosted"
+                :class="isLiked(item) ? 'fill-red-500' : 'fill-white'"
+                @click.stop.prevent="
+                  () =>
+                    emit('likeDoc', { name: row.name, liked: isLiked(item) })
+                "
+              >
+                <HeartIcon class="h-4 w-4" />
+              </Button>
+            </div>
+            <div
+              v-else
+              class="truncate text-base"
+              @click="
+                (event) =>
+                  emit('applyFilter', {
+                    event,
+                    idx,
+                    column,
+                    item,
+                    firstColumn: columns[0],
+                  })
+              "
+            >
+              {{ label }}
+            </div>
+          </template>
+        </ListRowItem>
+      </ListRow>
+>>>>>>> origin/Scrum-9-z1
     </ListRows>
     <ListSelectBanner>
       <template #actions="{ selections, unselectAll }">
@@ -141,6 +191,7 @@
 </template>
 <script setup>
 import HeartIcon from '@/components/Icons/HeartIcon.vue'
+import PartnerIcon from '@/components/Icons/PartnerIcon.vue'
 import ListBulkActions from '@/components/ListBulkActions.vue'
 import ListRows from '@/components/ListViews/ListRows.vue'
 import {

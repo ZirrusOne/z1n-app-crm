@@ -3,6 +3,7 @@ from frappe import _
 from crm.fcrm.doctype.crm_notification.crm_notification import notify_user
 
 
+<<<<<<< HEAD
 def after_insert(doc, method):
     if (
         doc.reference_type in ["CRM Lead", "CRM Deal"]
@@ -36,12 +37,22 @@ def on_update(doc, method):
     ):
         notify_assigned_user(doc, is_cancelled=True)
 
+=======
+	if doc.reference_type in ["CRM Lead", "CRM Deal", "CRM Task", "Contact"] and doc.reference_name and doc.allocated_to:
+		notify_assigned_user(doc)
 
+def on_update(doc, method):
+>>>>>>> origin/Scrum-9-z1
+
+	if doc.has_value_changed("status") and doc.status == "Cancelled" and doc.reference_type in ["CRM Lead", "CRM Deal", "CRM Task", "Contact"] and doc.reference_name and doc.allocated_to:
+		notify_assigned_user(doc, is_cancelled=True)
+	
 def notify_assigned_user(doc, is_cancelled=False):
     _doc = frappe.get_doc(doc.reference_type, doc.reference_name)
     owner = frappe.get_cached_value("User", frappe.session.user, "full_name")
     notification_text = get_notification_text(owner, doc, _doc, is_cancelled)
 
+<<<<<<< HEAD
     message = (
         _("Your assignment on {0} {1} has been removed by {2}").format(
             doc.reference_type, doc.reference_name, owner
@@ -51,6 +62,18 @@ def notify_assigned_user(doc, is_cancelled=False):
             owner, doc.reference_type, doc.reference_name
         )
     )
+=======
+
+	message = _("Your assignment on {0} {1} has been removed by {2}").format(
+		doc.reference_type,
+		doc.reference_name,
+		owner
+	) if is_cancelled else _("{0} assigned a {1} {2} to you").format(
+		owner,
+		doc.reference_type,
+		doc.reference_name
+	)
+>>>>>>> origin/Scrum-9-z1
 
     redirect_to_doctype, redirect_to_name = get_redirect_to_doc(doc)
 
@@ -73,6 +96,7 @@ def get_notification_text(owner, doc, reference_doc, is_cancelled=False):
     name = doc.reference_name
     doctype = doc.reference_type
 
+<<<<<<< HEAD
     if doctype.startswith("CRM "):
         doctype = doctype[4:].lower()
 
@@ -93,6 +117,31 @@ def get_notification_text(owner, doc, reference_doc, is_cancelled=False):
                     ) }</span>
                 </div>
             """
+=======
+	if doctype.startswith("CRM "):
+		doctype = doctype[4:].lower()
+	else:
+		doctype = doctype.lower()
+
+	if doctype in ["lead", "deal", "contact"]:
+		if doctype == "lead":
+			name = reference_doc.lead_name  
+		elif doctype == "deal":
+			name = reference_doc.organization or name
+		elif doctype == "contact":
+			name = reference_doc.name
+		
+		if is_cancelled:
+			return f"""
+				<div class="mb-2 leading-5 text-gray-600">
+					<span>{ _('Your assignment on {0} {1} has been removed by {2}').format(
+						doctype,
+						f'<span class="font-medium text-gray-900">{ name }</span>',
+						f'<span class="font-medium text-gray-900">{ owner }</span>'
+					) }</span>
+				</div>
+			"""
+>>>>>>> origin/Scrum-9-z1
 
         return f"""
             <div class="mb-2 leading-5 text-ink-gray-5">
@@ -125,8 +174,14 @@ def get_notification_text(owner, doc, reference_doc, is_cancelled=False):
 
 
 def get_redirect_to_doc(doc):
+<<<<<<< HEAD
     if doc.reference_type == "CRM Task":
         reference_doc = frappe.get_doc(doc.reference_type, doc.reference_name)
         return reference_doc.reference_doctype, reference_doc.reference_docname
+=======
+	if doc.reference_type in ["CRM Task"] :
+		reference_doc = frappe.get_doc(doc.reference_type, doc.reference_name)
+		return reference_doc.reference_doctype, reference_doc.reference_docname
+>>>>>>> origin/Scrum-9-z1
 
     return doc.reference_type, doc.reference_name

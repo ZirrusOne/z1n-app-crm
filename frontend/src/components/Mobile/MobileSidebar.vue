@@ -104,8 +104,12 @@ import NotificationsIcon from '@/components/Icons/NotificationsIcon.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
 import { viewsStore } from '@/stores/views'
 import { unreadNotificationsCount } from '@/stores/notifications'
+<<<<<<< HEAD
 import { TrialBanner, createResource } from 'frappe-ui'
 import { computed, h, provide } from 'vue'
+=======
+import { computed, h } from 'vue'
+>>>>>>> origin/Scrum-9-z1
 import { mobileSidebarOpened as sidebarOpened } from '@/composables/settings'
 
 const { getPinnedViews, getPublicViews } = viewsStore()

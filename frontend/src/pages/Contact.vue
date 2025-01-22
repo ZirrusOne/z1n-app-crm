@@ -88,6 +88,7 @@
                   <ErrorMessage :message="__(error)" />
                 </div>
               </div>
+<<<<<<< HEAD
               <div class="flex gap-1.5">
                 <Button
                   v-if="contact.data.actual_mobile_no"
@@ -112,6 +113,91 @@
                   </template>
                 </Button>
               </div>
+=======
+            </component>
+          </div>
+          <div class="flex flex-col gap-2 truncate sm:gap-0.5">
+            <div class="truncate text-3xl font-semibold">
+              <span v-if="contact.data.salutation">
+                {{ contact.data.salutation + '. ' }}
+              </span>
+              <span>{{ contact.data.full_name }}</span>
+            </div>
+            <div
+              class="flex flex-col flex-wrap gap-3 text-base text-gray-700 sm:flex-row sm:items-center sm:gap-2"
+            >
+              <Tooltip text="Email">
+                <div
+                  v-if="contact.data.email_id"
+                  class="flex items-center gap-1.5"
+                >
+                  <Email2Icon class="h-4 w-4" />
+                  <span class="">{{ contact.data.email_id }}</span>
+                </div>
+              </Tooltip>
+              <Tooltip text="Mobile No">
+                <component
+                  :is="callEnabled ? Tooltip : 'div'"
+                  :text="__('Make Call')"
+                  v-if="contact.data.actual_mobile_no"
+                >
+                  <div
+                    class="flex items-center gap-1.5"
+                    :class="callEnabled ? 'cursor-pointer' : ''"
+                    @click="
+                      callEnabled && makeCall(contact.data.actual_mobile_no)
+                    "
+                  >
+                    <PhoneIcon class="h-4 w-4" />
+                    <span class="">{{ contact.data.actual_mobile_no }}</span>
+                  </div>
+                </component>
+              </Tooltip>
+              <span
+                v-if="contact.data.actual_mobile_no"
+                class="hidden text-3xl leading-[0] text-gray-600 sm:flex"
+              >
+                &middot;
+              </span>
+              <Tooltip text="Organization">
+                <div
+                  v-if="contact.data.company_name"
+                  class="flex items-center gap-1.5"
+                >
+                  <Avatar
+                    size="xs"
+                    :label="contact.data.company_name"
+                    :image="
+                      getOrganization(contact.data.company_name)
+                        ?.organization_logo
+                    "
+                  />
+                  <span class="">{{ contact.data.company_name }}</span>
+                </div>
+              </Tooltip>
+              <span
+                v-if="contact.data.company_name"
+                class="hidden text-3xl leading-[0] text-gray-600 sm:flex"
+              >
+                &middot;
+              </span>
+              <Button
+                v-if="
+                  contact.data.email_id ||
+                  contact.data.mobile_no ||
+                  contact.data.company_name
+                "
+                variant="ghost"
+                :label="__('More')"
+                class="w-fit cursor-pointer hover:text-gray-900 sm:-ml-1"
+                @click="
+                  () => {
+                    detailMode = true
+                    showContactModal = true
+                  }
+                "
+              />
+>>>>>>> origin/Scrum-9-z1
             </div>
           </template>
         </FileUploader>

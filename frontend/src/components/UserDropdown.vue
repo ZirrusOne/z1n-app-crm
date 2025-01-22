@@ -53,11 +53,16 @@ import BrandLogo from '@/components/BrandLogo.vue'
 import Apps from '@/components/Apps.vue'
 import { sessionStore } from '@/stores/session'
 import { usersStore } from '@/stores/users'
+<<<<<<< HEAD
 import { getSettings } from '@/stores/settings'
 import { showSettings, isMobileView } from '@/composables/settings'
 import { Dropdown } from 'frappe-ui'
 import { theme, toggleTheme } from '@/stores/theme'
 import { computed, h, markRaw } from 'vue'
+=======
+import { Dropdown, createResource } from 'frappe-ui'
+import { computed, ref, markRaw, onMounted} from 'vue'
+>>>>>>> origin/Scrum-9-z1
 
 const props = defineProps({
   isCollapsed: {
@@ -72,8 +77,14 @@ const { getUser } = usersStore()
 
 const user = computed(() => getUser() || {})
 
+<<<<<<< HEAD
 const dropdownItems = computed(() => {
   if (!settings.value?.dropdown_items) return []
+=======
+const showSettingsModal = ref(false)
+const support_link = ref(null);
+const docs_link = ref(null);
+>>>>>>> origin/Scrum-9-z1
 
   let items = settings.value.dropdown_items
 
@@ -128,6 +139,7 @@ function getStandardItem(item) {
     case 'app_selector':
       return {
         component: markRaw(Apps),
+<<<<<<< HEAD
       }
     case 'support_link':
       return {
@@ -164,4 +176,47 @@ function getStandardItem(item) {
       }
   }
 }
+=======
+      },
+      {
+        icon: 'life-buoy',
+        label: computed(() => __('Support')),
+        onClick: () => window.open(support_link.value ? support_link.value : 'https://t.me/frappecrm', '_blank'),
+      },
+      {
+        icon: 'book-open',
+        label: computed(() => __('Docs')),
+        onClick: () => window.open(docs_link.value ? docs_link.value : 'https://docs.frappe.io/crm' , '_blank'),
+      },
+    ],
+  },
+  {
+    group: 'Others',
+    hideLabel: true,
+    items: [
+      {
+        icon: 'settings',
+        label: computed(() => __('Settings')),
+        onClick: () => (showSettingsModal.value = true),
+      },
+      {
+        icon: 'log-out',
+        label: computed(() => __('Log out')),
+        onClick: () => logout.submit(),
+      },
+    ],
+  },
+])
+onMounted(async () => {
+  const resource = createResource({
+    auto: true,
+    url: 'crm.fcrm.doctype.fcrm_settings.fcrm_settings.get_fcrm_settings',
+    transform: (data) => {
+      console.log(data);
+      support_link.value = data.support_link
+      docs_link.value = data.docs_link
+    },
+  });
+});
+>>>>>>> origin/Scrum-9-z1
 </script>

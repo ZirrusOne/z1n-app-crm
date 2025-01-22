@@ -63,14 +63,37 @@
       class="flex flex-1 items-center overflow-x-auto -ml-1"
       orientation="horizontal"
     >
+        <template v-if="route.params.viewType === 'report'">
+          <FormControl
+           class="form-control cursor-pointer [&_select]:cursor-pointer m-1 min-w-30 report-filter"
+          type="select"
+          v-model="selectedOption"
+          :options="reports_option"
+          :placeholder="'Report Name'"
+          @change.stop="updateReport($event.target.value, reports_custom_option)"
+          />
+        </template>
+
       <div
+        v-if="route.params.viewType !== 'report'"
         v-for="filter in quickFilterList"
         :key="filter.name"
         class="m-1 min-w-36"
       >
-        <QuickFilterField
+        <QuickFilterField 
           :filter="filter"
           @applyQuickFilter="(f, v) => applyQuickFilter(f, v)"
+        />
+      </div>
+      <div
+      v-if="route.params.viewType === 'report'"
+      v-for="filter in quickFilterListReport"
+        :key="filter.name"
+        class="m-1 min-w-36"
+      >
+        <QuickFilterFieldReport 
+          :filter="filter"
+          @applyQuickFilterReport="(f, v) => applyQuickFilterReport(f, v)"
         />
       </div>
     </FadedScrollableDiv>
@@ -96,13 +119,14 @@
           @update="updateGroupBy"
         />
         <Filter
+        v-if="route.params.viewType !== 'report'"
           v-model="list"
           :doctype="doctype"
           :default_filters="filters"
           @update="updateFilter"
         />
         <SortBy
-          v-if="route.params.viewType !== 'kanban'"
+          v-if="route.params.viewType !== 'kanban' && route.params.viewType !== 'report'"
           v-model="list"
           :doctype="doctype"
           @update="updateSort"
@@ -114,26 +138,36 @@
           @update="updateKanbanSettings"
         />
         <ColumnSettings
-          v-else-if="!options.hideColumnsButton"
+          v-else-if="!options.hideColumnsButton && route.params.viewType !== 'report'"
           v-model="list"
           :doctype="doctype"
           @update="(isDefault) => updateColumns(isDefault)"
         />
         <Dropdown
-          v-if="
-            !options.hideColumnsButton && route.params.viewType !== 'kanban'
-          "
+          v-if="!options.hideColumnsButton && route.params.viewType !== 'kanban'"
           :options="[
             {
               group: __('Options'),
               hideLabel: true,
               items: [
-                {
-                  label: __('Export'),
-                  icon: () =>
-                    h(FeatherIcon, { name: 'download', class: 'h-4 w-4' }),
-                  onClick: () => (showExportDialog = true),
-                },
+                ...(route.params.viewType !== 'report'
+                  ? [
+                      {
+                        label: __('Export'),
+                        icon: () => h(FeatherIcon, { name: 'download', class: 'h-4 w-4' }),
+                        onClick: () => (showExportDialog = true),
+                      },
+                    ]
+                  : []),
+                ...(route.params.viewType === 'report'
+                  ? [
+                      {
+                        label: __('Set As Default'),
+                        icon: () => h(DocumentIcon, { name: 'download', class: 'h-4 w-4' }),
+                        onClick: () => setDefaultReport(),
+                      },
+                    ]
+                  : []),
               ],
             },
           ]"
@@ -209,6 +243,7 @@
 </template>
 <script setup>
 import ListIcon from '@/components/Icons/ListIcon.vue'
+import DocumentIcon from '@/components/Icons/DocumentIcon.vue'
 import KanbanIcon from '@/components/Icons/KanbanIcon.vue'
 import GroupByIcon from '@/components/Icons/GroupByIcon.vue'
 import QuickFilterField from '@/components/QuickFilterField.vue'
@@ -235,14 +270,21 @@ import {
   call,
   FeatherIcon,
   usePageMeta,
+  FormControl
 } from 'frappe-ui'
 import { computed, ref, onMounted, watch, h, markRaw } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useDebounceFn } from '@vueuse/core'
 import { isMobileView } from '@/composables/settings'
 import _ from 'lodash'
+import Select from 'frappe-ui/src/components/Select.vue'
+import QuickFilterFieldReport from './QuickFilterFieldReport.vue'
 
 const props = defineProps({
+  report:{
+    type: String,
+    value:""
+  },
   doctype: {
     type: String,
     required: true,
@@ -275,9 +317,18 @@ const route = useRoute()
 const router = useRouter()
 
 const defaultParams = ref('')
+const filter_custom = ref('')
+const quickFilterListReport = ref('');
 
 const viewUpdated = ref(false)
 const showViewModal = ref(false)
+const reports_option = ref([]);
+const reports_custom_option = ref([]);
+const default_report_name = ref();
+const default_report_type = ref();
+const emit = defineEmits(['updateCrmCustomData'])
+
+
 
 function getViewType() {
   let viewType = route.params.viewType || 'list'
@@ -296,6 +347,11 @@ function getViewType() {
       name: 'kanban',
       label: __('Kanban'),
       icon: markRaw(KanbanIcon),
+    },
+    report: {
+      name: 'report',
+      label: __('Report'),
+      icon: markRaw(ListIcon),
     },
   }
 
@@ -348,6 +404,7 @@ const pageLength = computed(() => list.value?.data?.page_length)
 const pageLengthCount = computed(() => list.value?.data?.page_length_count)
 
 watch(loadMore, (value) => {
+
   if (!value) return
   updatePageLength(value, true)
 })
@@ -364,6 +421,7 @@ watch(updatedPageCount, (value) => {
 
 function getParams() {
   let _view = getView(route.query.view, route.params.viewType, props.doctype)
+
   const view_name = _view?.name || ''
   const view_type = _view?.type || route.params.viewType || 'list'
   const filters = (_view?.filters && JSON.parse(_view.filters)) || {}
@@ -375,6 +433,7 @@ function getParams() {
   const title_field = _view?.title_field || ''
   const kanban_columns = _view?.kanban_columns || ''
   const kanban_fields = _view?.kanban_fields || ''
+  const report_name = _view?.report_name || default_report_name
 
   view.value = {
     name: view_name,
@@ -388,6 +447,8 @@ function getParams() {
     title_field: title_field,
     kanban_columns: kanban_columns,
     kanban_fields: kanban_fields,
+    report_name: report_name,
+
     columns: columns,
     rows: rows,
     route_name: _view?.route_name || route.name,
@@ -410,6 +471,7 @@ function getParams() {
     title_field: title_field,
     kanban_columns: kanban_columns,
     kanban_fields: kanban_fields,
+    report_name: report_name,
     columns: columns,
     rows: rows,
     page_length: pageLength.value,
@@ -424,6 +486,36 @@ list.value = createResource({
   onSuccess(data) {
     let cv = getView(route.query.view, route.params.viewType, props.doctype)
     let params = list.value.params ? list.value.params : getParams()
+    filter_custom.value = { ...data.report_filter_structure }; // Spread to trigger reactivity
+    const filters = [];
+    if (filter_custom.value?.filters) {
+      filters.push(...filter_custom.value['filters']);
+    }
+
+    filters.forEach((filter) => {
+      filter['value'] = filter.type === 'Check' ? false : '';
+      if (params.filters?.[filter.name]) {
+        let value = params.filters[filter.name];
+        if (Array.isArray(value)) {
+          if (
+            (['Check', 'Select', 'Link', 'Date', 'Datetime'].includes(
+              filter.type,
+            ) &&
+              value[0]?.toLowerCase() === 'like') ||
+            value[0]?.toLowerCase() !== 'like'
+          )
+            return;
+          filter['value'] = value[1]?.replace(/%/g, '');
+        } else {
+          filter['value'] = value.replace(/%/g, '');
+        }
+      }
+    });
+    if(quickFilterListReport.value.length < 1){
+      quickFilterListReport.value = filters; // Update ref value
+    }
+
+
     defaultParams.value = {
       doctype: props.doctype,
       filters: params.filters,
@@ -438,6 +530,7 @@ list.value = createResource({
       title_field: data.title_field,
       kanban_columns: data.kanban_columns,
       kanban_fields: data.kanban_fields,
+      report_name: defaultParams.value.report_name,
       columns: data.columns,
       rows: data.rows,
       page_length: params.page_length,
@@ -446,7 +539,61 @@ list.value = createResource({
   },
 })
 
-onMounted(() => useDebounceFn(reload, 100)())
+onMounted(async () => {
+  const resource = createResource({
+    params: {
+      doctype: props.doctype,
+    },
+    auto: true,
+    url: 'crm.api.doc.get_reports_for_doctype',
+    transform: (data) => {
+
+
+      const actualData = unwrapProxy(data);
+      reports_custom_option.value = actualData.reports_list
+
+        if(actualData.default_report.default_report_type == 'Report Builder'){
+          const report = actualData.reports_list.find((item) => item.name === actualData.default_report.default_report_name);
+          crm_report_type.value = report.report_type
+          createResource({
+          url: 'frappe.desk.reportview.get',
+          params: report.builder_report_filter,
+          auto: true,
+          transform: (data) => {
+           emit('updateCrmCustomData',data)
+          },
+          })
+        }
+
+      if (!actualData.reports_list || !Array.isArray(actualData.reports_list)) {
+        return []; 
+      }
+
+      const namesArray = actualData.reports_list.map((item) => item.name);
+
+      reports_option.value = namesArray;
+      return namesArray;
+    },
+  });
+
+
+  createResource({
+  auto: true,
+  params: {
+      doctype: props.doctype,
+    },
+  url: 'crm.api.doc.get_default_report',
+  transform: (data) => {
+    // Access the actual data from the proxy object
+    const actualData = unwrapProxy(data);
+
+   default_report_name.value = actualData
+    
+  },
+
+});
+  useDebounceFn(reload, 100)();
+});
 
 const isLoading = computed(() => list.value?.loading)
 
@@ -458,6 +605,11 @@ function reload() {
 const showExportDialog = ref(false)
 const export_type = ref('Excel')
 const export_all = ref(false)
+
+const selectedOption = ref(default_report_name)
+
+const crm_report_type = ref()
+
 
 async function exportRows() {
   let fields = JSON.stringify(list.value.data.columns.map((f) => f.key))
@@ -507,6 +659,18 @@ if (allowedViews.includes('group_by')) {
     onClick() {
       viewUpdated.value = false
       router.push({ name: route.name, params: { viewType: 'group_by' } })
+    },
+  })
+}
+
+if (allowedViews.includes('report')) {
+  defaultViews.push({
+    name: 'report',
+    label: __(props.options?.defaultViewName) || __('Report'),
+    icon: markRaw(GroupByIcon),
+    onClick() {
+      viewUpdated.value = false
+      router.push({ name: route.name, params: { viewType: 'report' } })
     },
   })
 }
@@ -624,6 +788,23 @@ const quickFilters = createResource({
   auto: true,
 })
 
+function applyQuickFilterReport(filter, value) {
+  let filters = { ...list.value.params.report_filters }
+  let field = filter.name
+  if (value) {
+    if (['Check', 'Select', 'Link', 'Date', 'Datetime'].includes(filter.type)) {
+      filters[field] = value
+    } else {
+      filters[field] = ['LIKE', `%${value}%`]
+    }
+    filter['value'] = value
+  } else {
+    delete filters[field]
+    filter['value'] = ''
+  }
+  updateFilterReport(filters)
+}
+
 function applyQuickFilter(filter, value) {
   let filters = { ...list.value.params.filters }
   let field = filter.name
@@ -641,6 +822,50 @@ function applyQuickFilter(filter, value) {
   updateFilter(filters)
 }
 
+function updateReport(value, reports_custom_option) {
+  quickFilterListReport.value = '';
+  const reports = unwrapProxy(reports_option);
+
+  const report = reports_custom_option.find((item) => item.name === value);
+
+  if(report.report_type == 'Report Builder'){
+      crm_report_type.value = report.report_type
+
+      createResource({
+        url: 'frappe.desk.reportview.get',
+        params: report.builder_report_filter,
+        auto: true,
+        transform: (data) => {
+          emit('updateCrmCustomData',data)
+        
+        },
+      })
+      crm_report_type.value = report.report_type
+    viewUpdated.value = true
+    if (!defaultParams.value) {
+      defaultParams.value = getParams()
+    }
+      list.value.params = defaultParams.value
+      list.value.params.report_name = value
+      view.value.report_name = value
+      list.value.reload()
+  }
+  else{
+    emit('updateCrmCustomData','')
+
+    crm_report_type.value = report.report_type
+    viewUpdated.value = true
+    if (!defaultParams.value) {
+      defaultParams.value = getParams()
+    }
+    list.value.params = defaultParams.value
+    list.value.params.report_name = value
+    view.value.report_name = value
+    list.value.reload()
+  }
+
+}
+
 function updateFilter(filters) {
   viewUpdated.value = true
   if (!defaultParams.value) {
@@ -653,6 +878,22 @@ function updateFilter(filters) {
 
   if (!route.query.view) {
     create_or_update_default_view()
+  }
+}
+
+
+function updateFilterReport(filters) {
+  viewUpdated.value = true
+  if (!defaultParams.value) {
+    defaultParams.value = getParams()
+  }
+  list.value.params = defaultParams.value
+  list.value.params.report_filters = filters
+  view.value.report_filters = filters
+  list.value.reload()
+
+  if (!route.query.view) {
+    // create_or_update_default_view()
   }
 }
 
@@ -822,6 +1063,7 @@ function create_or_update_default_view() {
       column_field: defaultParams.value.column_field,
       title_field: defaultParams.value.title_field,
       kanban_columns: defaultParams.value.kanban_columns,
+      report_name: defaultParams.value.report_name,
       kanban_fields: defaultParams.value.kanban_fields,
       columns: defaultParams.value.columns,
       rows: defaultParams.value.rows,
@@ -847,6 +1089,7 @@ function update_custom_view() {
     title_field: defaultParams.value.title_field,
     kanban_columns: defaultParams.value.kanban_columns,
     kanban_fields: defaultParams.value.kanban_fields,
+    report_name: defaultParams.value.report_name,
     columns: defaultParams.value.columns,
     rows: defaultParams.value.rows,
     route_name: route.name,
@@ -1027,6 +1270,7 @@ function saveView() {
     title_field: defaultParams.value.title_field,
     kanban_columns: defaultParams.value.kanban_columns,
     kanban_fields: defaultParams.value.kanban_fields,
+    report_name: defaultParams.value.report_name,
     columns: defaultParams.value.columns,
     rows: defaultParams.value.rows,
     route_name: route.name,
@@ -1079,6 +1323,18 @@ function applyLikeFilter() {
   updateFilter(filters)
 }
 
+function applyDefaultStatusFilter(value) {
+    let filters = { ...list.value.params?.filters }
+  filters['status'] = ['not in', `Closed`]
+  updateFilter(filters)
+}
+
+function applyDefaultDoctypeFilter(value) {
+    let filters = { ...list.value.params?.filters }
+  filters['reference_doctype'] = ['in', `CRM Deal, CRM Lead`]
+  updateFilter(filters)
+}
+
 function likeDoc({ name, liked }) {
   createResource({
     url: 'frappe.desk.like.toggle_like',
@@ -1088,9 +1344,28 @@ function likeDoc({ name, liked }) {
   })
 }
 
+/**
+ *  Convert proxy object into array
+ * @param proxyData 
+ */
+ function unwrapProxy(proxyData) {
+  if (Array.isArray(proxyData)) {
+    return proxyData.map((item) => unwrapProxy(item));
+  } 
+  else if (proxyData !== null && typeof proxyData === 'object') {
+    return Object.keys(proxyData).reduce((acc, key) => {
+      acc[key] = unwrapProxy(proxyData[key]);
+      return acc;
+    }, {});
+  }
+  return proxyData;
+}
+
 defineExpose({
   applyFilter,
   applyLikeFilter,
+  applyDefaultStatusFilter,
+  applyDefaultDoctypeFilter,
   likeDoc,
   updateKanbanSettings,
   loadMoreKanban,
@@ -1113,4 +1388,18 @@ watch([() => route, () => route.params.viewType], (value, old_value) => {
   if (value[0] === old_value[0] && value[1] === value[0]) return
   reload()
 })
+function setDefaultReport(){
+  createResource({
+  auto: true,
+  params: {
+      doctype: props.doctype,
+      report_name: list.value.params.report_name,
+    },
+  url: 'crm.api.doc.set_default_report',
+  transform: (data) => {
+    return true;
+  },
+});
+}
+
 </script>

@@ -1,6 +1,6 @@
 <template>
   <ListView
-    :class="$attrs.class"
+    :class="[$attrs.class, 'deal-chip']"
     :columns="columns"
     :rows="rows"
     :options="{
@@ -82,6 +82,9 @@
           </div>
           <div v-else-if="column.key === 'mobile_no'">
             <PhoneIcon class="h-4 w-4" />
+          </div>
+          <div v-else-if="column.key === 'deal_elements'">
+            <DealElement :deals="item.data" />
           </div>
           <div v-else-if="column.key === '_liked_by'">
             <Button
@@ -172,6 +175,12 @@
         </template>
       </ListRowItem>
     </ListRows>
+    <div class="bg-gray-100 p-4 text-base">
+      <span class="font-medium">Total Amount:</span>
+      <span class="font-bold ml-2">{{ formattedAmountTotal }}</span>
+      <span class="font-medium ml-2">(Weighted:</span>
+      <span class="ml-2">{{ formattedWeightedAmountTotal }})</span>
+    </div>
     <ListSelectBanner>
       <template #actions="{ selections, unselectAll }">
         <Dropdown
@@ -213,9 +222,11 @@ import {
   Dropdown,
   Tooltip,
 } from 'frappe-ui'
+import { customFormatNumberIntoCurrency } from '@/utils'
 import { sessionStore } from '@/stores/session'
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import DealElement from '../frappe-ui/DealElement.vue'
 
 const props = defineProps({
   rows: {
@@ -252,6 +263,12 @@ const route = useRoute()
 const pageLengthCount = defineModel()
 const list = defineModel('list')
 
+
+onMounted(() => {
+    // Apply the default filter when the component is mounted
+    emit('applyDefaultStatusFilter');
+});
+
 const isLikeFilterApplied = computed(() => {
   return list.value.params?.filters?._liked_by ? true : false
 })
@@ -277,4 +294,29 @@ defineExpose({
     () => listBulkActionsRef.value?.customListActions,
   ),
 })
+
+const computedAmountTotal = computed(() => {
+  return props.rows.reduce((total, row) => {
+    const revenue = parseFloat(row.annual_revenue?.replace(/[^0-9.-]+/g, '') || 0);
+    return total + revenue;
+  }, 0);
+});
+
+const formattedAmountTotal = computed(() => {
+  return customFormatNumberIntoCurrency(computedAmountTotal.value, 'USD');
+});
+
+const computedWeightedAmountTotal = computed(() => {
+  return props.rows.reduce((total, row) => {
+    const annualRevenue = parseFloat(row.annual_revenue?.replace(/[^0-9.-]+/g, '') || 0);
+    const probability = parseFloat(row.probability || 0) / 100;
+    const weightedRevenue = annualRevenue * probability;
+    return total + weightedRevenue;
+  }, 0);
+});
+
+const formattedWeightedAmountTotal = computed(() => {
+  return customFormatNumberIntoCurrency(computedWeightedAmountTotal.value, 'USD');
+});
+
 </script>

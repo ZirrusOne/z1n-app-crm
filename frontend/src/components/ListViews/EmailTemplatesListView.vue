@@ -157,10 +157,10 @@ import {
   ListRowItem,
   ListFooter,
   Dropdown,
-  Tooltip,
+  Tooltip
 } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 
 const props = defineProps({
   rows: {
@@ -192,7 +192,10 @@ const emit = defineEmits([
   'applyLikeFilter',
   'likeDoc',
 ])
-
+onMounted(() => {
+    // Apply the default filter when the component is mounted
+    emit('applyDefaultDoctypeFilter');
+});
 const pageLengthCount = defineModel()
 const list = defineModel('list')
 
