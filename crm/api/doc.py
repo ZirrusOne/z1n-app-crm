@@ -9,7 +9,13 @@ from pypika import Criterion
 
 from crm.api.views import get_views
 from crm.fcrm.doctype.crm_form_script.crm_form_script import get_form_script
-
+# for report
+import json
+import os
+import re
+from frappe.modules import get_module_path, scrub
+from frappe.desk.query_report import get_script,get_report_doc,run
+from frappe.utils import cint, cstr, flt, format_duration, get_html_format, sbool
 
 @frappe.whitelist()
 def sort_options(doctype: str):
@@ -217,6 +223,8 @@ def get_data(
 	kanban_fields=[],
 	view=None,
 	default_filters=None,
+	report_name=None,
+	report_filters=None,
 ):
 	custom_view = False
 	filters = frappe._dict(filters)
@@ -225,9 +233,46 @@ def get_data(
 	kanban_fields = frappe.parse_json(kanban_fields or "[]")
 	kanban_columns = frappe.parse_json(kanban_columns or "[]")
 
-	custom_view_name = view.get("custom_view_name") if view else None
-	view_type = view.get("view_type") if view else None
-	group_by_field = view.get("group_by_field") if view else None
+	custom_view_name = view.get('custom_view_name') if view else None
+	view_type = view.get('view_type') if view else None
+	group_by_field = view.get('group_by_field') if view else None
+ 
+	report_filters = frappe.parse_json(report_filters or {})
+	report_filter_structure = {}
+	report_type = ''
+	builder_report_filter = {} 
+	report_data = []
+
+	if view_type == "report" and report_name:
+
+		report = get_report_doc(report_name)
+
+		report_type = report.report_type
+  
+		module = report.module or frappe.db.get_value("DocType", report.ref_doctype, "module")
+		is_custom_module = frappe.get_cached_value("Module Def", module, "custom")
+		module_path = "" if is_custom_module else get_module_path(module)
+		report_folder = module_path and os.path.join(module_path, "report", scrub(report.name))
+		script_path = report_folder and os.path.join(report_folder, scrub(report.name) + ".js")
+		print_path = report_folder and os.path.join(report_folder, scrub(report.name) + ".html")
+		script = None
+		if os.path.exists(script_path):
+			with open(script_path) as f:
+				script = f.read()
+				script += f"\n\n//# sourceURL={scrub(report.name)}.js"
+		html_format = get_html_format(print_path)
+		if not script and report.javascript:
+			script = report.javascript
+			script += f"\n\n//# sourceURL={scrub(report.name)}__custom"
+		if not script:
+			script = "frappe.query_reports['%s']={}" % report_name
+
+		report_filter_structure = transform_filters(parse_js_to_dict(script))
+		if report.report_type == 'Report Builder':
+			builder_report_filter  =  convert_json_data(doctype,json.loads(report.json))
+		else:
+			report_data = run(report_name,report_filters)
+
 
 	for key in filters:
 		value = filters[key]
@@ -244,6 +289,10 @@ def get_data(
 	if default_filters:
 		default_filters = frappe.parse_json(default_filters)
 		filters.update(default_filters)
+
+
+	if doctype == 'CRM Deal' and "deal_element" in filters:
+		filters= process_deal_elements_filters(filters)
 
 	is_default = True
 	data = []
@@ -284,6 +333,7 @@ def get_data(
 			rows = default_rows
 			columns = _list.default_list_data().get("columns")
 
+		
 		# check if rows has all keys from columns if not add them
 		for column in columns:
 			if column.get("key") not in rows:
@@ -292,6 +342,18 @@ def get_data(
 
 			if column.get("key") == "_liked_by" and column.get("width") == "10rem":
 				column["width"] = "50px"
+
+			if doctype == 'Contact' and column.get("key") == 'custom_is_personal':
+				column['label'] = 'Personal Contact'
+
+		#hide personal contact for contact view.
+		if doctype == 'Contact':
+			assigned_contact =  [ac['reference_name'] for ac in frappe.db.get_list("ToDo", {'reference_type': "Contact",
+			 'status':'Open', 'allocated_to':frappe.session.user}, 'reference_name')]
+			global_contacts = [gc['name'] for gc in frappe.db.get_list("Contact", {'custom_is_personal' : 0},'name')]
+			if len(assigned_contact) > 0 :
+				global_contacts.extend(assigned_contact)
+			filters = {'name': ['in', global_contacts]}
 
 		# check if rows has group_by_field if not add it
 		if group_by_field and group_by_field not in rows:
@@ -308,6 +370,25 @@ def get_data(
 			or []
 		)
 		data = parse_list_data(data, doctype)
+
+
+		include_child_tables = frappe.get_all('CRM Child Data Mapping', fields=['name'])
+		include_child_tables_list = [entry['name'] for entry in include_child_tables]
+
+		if doctype in include_child_tables_list:
+			meta = frappe.get_meta(doctype)
+			child_tables = [df for df in meta.fields if df.fieldtype in ["Table","Table MultiSelect" ] ]
+
+			for record in data:
+				record['child_tables'] = {}
+				for child_table in child_tables:
+					child_doctype = child_table.options
+					child_records = frappe.get_all(
+						child_doctype,
+						fields="*",
+						filters={"parent": record['name']}
+					)
+					record['child_tables'][child_table.fieldname] = child_records
 
 	if view_type == "kanban":
 		if not rows:
@@ -459,6 +540,11 @@ def get_data(
 					"options": get_options(field.get("type"), field.get("options")),
 				}
 
+	default_report = ''
+	if frappe.db.exists("CRM View Settings", {'dt':doctype}):
+		default_report = frappe.db.get_value("CRM View Settings", {'dt':doctype},['report_name'])
+
+ 
 	return {
 		"data": data,
 		"columns": columns,
@@ -478,6 +564,11 @@ def get_data(
 		"form_script": get_form_script(doctype),
 		"list_script": get_form_script(doctype, "List"),
 		"view_type": view_type,
+		"default_report":default_report,
+		"report_data":report_data,
+		"report_type":report_type,
+		"builder_report_filter":builder_report_filter,
+		"report_filter_structure":report_filter_structure,
 	}
 
 
@@ -612,33 +703,168 @@ def get_fields(doctype: str, allow_all_fieldtypes: bool = False):
 
 
 def getCounts(d, doctype):
-	d["_email_count"] = (
-		frappe.db.count(
-			"Communication",
-			filters={
-				"reference_doctype": doctype,
-				"reference_name": d.get("name"),
-				"communication_type": "Communication",
-			},
-		)
-		or 0
-	)
-	d["_email_count"] = d["_email_count"] + frappe.db.count(
-		"Communication",
-		filters={
-			"reference_doctype": doctype,
-			"reference_name": d.get("name"),
-			"communication_type": "Automated Message",
-		},
-	)
-	d["_comment_count"] = frappe.db.count(
-		"Comment",
-		filters={"reference_doctype": doctype, "reference_name": d.get("name"), "comment_type": "Comment"},
-	)
-	d["_task_count"] = frappe.db.count(
-		"CRM Task", filters={"reference_doctype": doctype, "reference_docname": d.get("name")}
-	)
-	d["_note_count"] = frappe.db.count(
-		"FCRM Note", filters={"reference_doctype": doctype, "reference_docname": d.get("name")}
-	)
+	d["_email_count"] = frappe.db.count("Communication", filters={"reference_doctype": doctype, "reference_name": d.get("name"), "communication_type": "Communication"}) or 0
+	d["_email_count"] = d["_email_count"] + frappe.db.count("Communication", filters={"reference_doctype": doctype, "reference_name": d.get("name"), "communication_type": "Automated Message"})
+	d["_comment_count"] = frappe.db.count("Comment", filters={"reference_doctype": doctype, "reference_name": d.get("name"), "comment_type": "Comment"})
+	d["_task_count"] = frappe.db.count("CRM Task", filters={"reference_doctype": doctype, "reference_docname": d.get("name")})
+	d["_note_count"] = frappe.db.count("FCRM Note", filters={"reference_doctype": doctype, "reference_docname": d.get("name")})
 	return d
+
+
+
+@frappe.whitelist()
+def get_reports_for_doctype(doctype):
+	default_report_name = frappe.db.get_value("CRM View Settings", {'dt': doctype}, ['report_name'])
+	default_report_type = None
+	if default_report_name:
+		default_report_type = frappe.db.get_value("Report", {'name': default_report_name}, ['report_type'])
+ 
+	if not default_report_name:
+		# Default reports if not found in CRM View Settings
+		if doctype == "CRM Lead":
+			default_report_name =  "My Leads"
+			default_report_type = 'Script Report'
+		elif doctype == "CRM Deal":
+			default_report_name = "My Deals"
+			default_report_type = 'Script Report'
+ 
+	reports = frappe.get_list('Report', filters={'ref_doctype': doctype}, fields=['name','report_type','json'])
+	for i in reports:
+		if i.report_type =='Report Builder':
+			i['builder_report_filter'] = convert_json_data(doctype,json.loads(i.json))
+		else:
+			i['builder_report_filter'] = {}
+	return {'reports_list':reports,'default_report':{'default_report_name':default_report_name,'default_report_type':default_report_type}}
+ 
+
+def parse_js_to_dict(js_code):
+	# Extract the JSON-like part of the JavaScript code using regex
+	match = re.search(r'\{.*\}', js_code, re.DOTALL)
+	if not match:
+		return None
+
+	# Replace JavaScript-specific elements with Python-compatible JSON
+	json_str = match.group(0)
+	json_str = json_str.replace("frappe.session.user", "\"frappe.session.user\"")  # Handle frappe session user
+	json_str = json_str.replace(";", "")  # Remove trailing semicolon if present
+	# Convert to JSON (or Python dict)
+	try:
+		parsed_dict = json.loads(json_str)
+	except json.JSONDecodeError as e:
+		print("Error parsing JSON:", e)
+		return None
+
+	return parsed_dict
+
+
+@frappe.whitelist()
+def get_crm_deal_status_for_status(status):
+	doc_list = frappe.get_list('CRM Deal Status Detail', filters={'crm_deal_status': status}, fields=['detail_name','description'])
+	return doc_list
+
+
+@frappe.whitelist()
+def set_default_report(doctype, report_name):
+	try:
+		frappe.db.set_value("CRM View Settings", {'dt': doctype}, {'report_name': report_name})
+		frappe.db.commit()
+		return {"status": "success", "message": "Default report set successfully."}
+	except Exception as e:
+		frappe.db.rollback()
+		return {"status": "failed", "message": f"An error occurred: {str(e)}"}
+	
+@frappe.whitelist()
+
+def get_default_report(doctype):
+	report_name = frappe.db.get_value("CRM View Settings", {'dt': doctype}, 'report_name')
+	# Check if a report is found in CRM View Settings
+	if report_name:
+		return report_name
+	else:
+		# Default reports if not found in CRM View Settings
+		if doctype == "CRM Lead":
+			return "My Leads"
+		elif doctype == "CRM Deal":
+			return "My Deals"
+		else:
+			return None  # Or a default value for other doctypes if needed
+ 
+
+
+
+
+@frappe.whitelist()
+def convert_json_data(doctype, data):
+	converted_data = {}
+	
+	# Add fields if present in the input data
+	if "fields" in data:
+		# Filter out _aggregate_column from fields
+		converted_data["fields"] = [
+			f"`tab{field[1]}`.`{field[0]}`" 
+			for field in data["fields"] 
+			if field[0] != "_aggregate_column"
+		]
+	
+	# Add filters if present in the input data
+	if "filters" in data:
+		converted_data["filters"] = [
+			filter[:4]  # Take only the first 4 elements of each filter
+			for filter in data["filters"]
+		]
+	
+	# Add static fields or fields with default values
+	converted_data["doctype"] = str(doctype)
+	# converted_data["order_by"] = "_aggregate_column desc"  # Override with default sorting
+	converted_data["start"] = 0
+	converted_data["view"] = "Report"
+	converted_data["with_comment_count"] = False
+	
+	# Add page_length if present, otherwise use the provided value
+	converted_data["page_length"] = data.get("page_lengths", 999999999)
+	
+	# Handle group_by data
+	group_by_data = data.get("group_by")
+	if group_by_data and isinstance(group_by_data, dict):
+		# Extract aggregate_on_field from the full path
+		if group_by_data.get("aggregate_on"):
+			aggregate_on_field = group_by_data["aggregate_on"].split("`")[-2]
+		else:
+			aggregate_on_field = "name"
+		
+		converted_data["aggregate_on_field"] = aggregate_on_field
+		converted_data["aggregate_on_doctype"] = str(doctype)
+		converted_data["aggregate_function"] = group_by_data.get("aggregate_function", "count")
+		
+		# Extract group_by field
+		if group_by_data.get("group_by"):
+			converted_data["group_by"] = group_by_data["group_by"]
+	
+	return converted_data
+
+
+def process_deal_elements_filters(input_dict):
+	output = []
+
+	# Process status and deal_elements
+	for key, values in input_dict.items():
+		if key == "status":
+			output.append([key, *values])
+		elif key == "deal_element":
+			output.append(["CRM Deal Elements", 'deal_elements', values[0], values[1]])
+
+
+	return output
+
+@frappe.whitelist()
+def transform_filters(data):
+	if not data:  # Check if 'data' is None or an empty value
+		return {}  # or handle the case as required
+
+	for filter_item in data.get("filters", []):
+		if "fieldtype" in filter_item:
+			filter_item["type"] = filter_item.pop("fieldtype")
+		if "fieldname" in filter_item:
+			filter_item["name"] = filter_item.pop("fieldname")
+	return data
+

@@ -113,6 +113,40 @@ export function htmlToText(html) {
   return div.textContent || div.innerText || ''
 }
 
+<<<<<<< HEAD
+=======
+export function secondsToDuration(seconds) {
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const _seconds = Math.floor((seconds % 3600) % 60)
+
+  if (hours == 0 && minutes == 0) {
+    return `${_seconds}s`
+  } else if (hours == 0) {
+    return `${minutes}m ${_seconds}s`
+  }
+  return `${hours}h ${minutes}m ${_seconds}s`
+}
+
+export function formatNumberIntoCurrency(value, currency = 'INR') {
+  if (value) {
+    return value.toLocaleString('en-US', {
+      maximumFractionDigits: 0,
+      style: 'currency',
+      currency: currency ? currency : 'INR',
+    })
+  }
+  return ''
+}
+
+export function customFormatNumberIntoCurrency(value, currency) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+        currency: currency
+    }).format(value);
+}
+
+>>>>>>> origin/Scrum-9-z1
 export function startCase(str) {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }

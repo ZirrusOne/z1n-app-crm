@@ -11,12 +11,16 @@
   "no_of_employees",
   "currency",
   "annual_revenue",
+  "referral_source",
+  "is_partner",
   "organization_logo",
   "column_break_pnpp",
   "website",
   "territory",
   "industry",
-  "address"
+  "government_affiliation",
+  "address",
+  "merge_deals_org"
  ],
  "fields": [
   {
@@ -74,12 +78,37 @@
    "fieldtype": "Link",
    "label": "Address",
    "options": "Address"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_partner",
+   "fieldtype": "Check",
+   "label": "Partner"
+  },
+  {
+   "fieldname": "government_affiliation",
+   "fieldtype": "Link",
+   "label": "Government Affiliation",
+   "options": "CRM Government Affiliation"
+  },
+  {
+   "fieldname": "referral_source",
+   "fieldtype": "Link",
+   "label": "Referral Source",
+   "link_filters": "[[\"CRM Organization\",\"is_partner\",\"=\",1]]",
+   "options": "CRM Organization"
+  },
+  {
+   "default": "1",
+   "fieldname": "merge_deals_org",
+   "fieldtype": "Check",
+   "label": "Convert all Leads from same Organization"
   }
  ],
  "image_field": "organization_logo",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-17 18:37:10.341062",
+ "modified": "2024-11-14 09:28:24.032939",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Organization",

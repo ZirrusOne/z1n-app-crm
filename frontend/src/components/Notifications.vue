@@ -38,7 +38,7 @@
       </div>
       <div
         v-if="notifications.data?.length"
-        class="divide-y divide-outline-gray-modals overflow-auto text-base"
+        class="divide-y overflow-auto text-base"
       >
         <RouterLink
           v-for="n in notifications.data"
@@ -117,9 +117,11 @@ onClickOutside(
   },
 )
 
-function markAsRead(doc) {
+function markAsRead(notification,doc) {
   capture('notification_mark_as_read')
   mark_doc_as_read(doc)
+  window.location.href = `/crm/${notification.route_name}s/${notification.reference_name}`; // This will reload the page
+
 }
 
 function markAllAsRead() {
@@ -144,6 +146,11 @@ function getRoute(notification) {
   if (notification.route_name === 'Deal') {
     params = {
       dealId: notification.reference_name,
+    }
+  }
+  if (notification.route_name === 'Contact') {
+    params = {
+      contactId: notification.reference_name,
     }
   }
 

@@ -8,6 +8,7 @@
       </Breadcrumbs>
     </template>
     <template #right-header>
+<<<<<<< HEAD
       <CustomActions
         v-if="deal.data._customActions?.length"
         :actions="deal.data._customActions"
@@ -20,6 +21,16 @@
       <Dropdown
         :options="statusOptions('deal', updateField, deal.data._customStatuses)"
       >
+=======
+      <CustomActions v-if="customActions" :actions="customActions" />
+      <component :is="deal.data._assignedTo?.length == 1 ? 'Button' : 'div'">
+        <MultipleAvatar
+          :avatars="deal.data._assignedTo"
+          @click="showAssignmentModal = true"
+        />
+      </component>
+      <Dropdown :options="statusOptions('deal', updateField, customStatuses)" class="status-option">
+>>>>>>> origin/Scrum-9-z1
         <template #default="{ open }">
           <Button :label="deal.data.status">
             <template #prefix>
@@ -34,7 +45,20 @@
           </Button>
         </template>
       </Dropdown>
+      <select v-model="deal.data.status_detail" class="rounded h-7 text-base px-2 border border-gray-100 bg-gray-100 hover:border-gray-200 hover:bg-gray-200 focus:border-gray-500 focus:ring-0 focus-visible:ring-2 focus-visible:ring-gray-400 text-gray-800 transition-colors w-full py-0 status-option-detail" 
+      @change.stop="updateStatusDetail($event.target.value)"
+      >
+          <option 
+          v-for="(option, index) in staus_detail_option" 
+          :key="index" 
+          :title="option.dec" 
+          :value="option.name"
+          >
+          {{ option.name }}
+          </option>
+      </select>
     </template>
+
   </LayoutHeader>
   <div v-if="deal.data" class="flex h-full overflow-hidden">
     <Tabs as="div" v-model="tabIndex" :tabs="tabs">
@@ -116,10 +140,12 @@
         v-model="deal.data"
         @updateField="updateField"
       />
+
       <div
         v-if="sections.data"
         class="flex flex-1 flex-col justify-between overflow-hidden"
       >
+<<<<<<< HEAD
         <SidePanelLayout
           v-model="deal.data"
           :sections="sections.data"
@@ -148,6 +174,173 @@
                     <div
                       class="flex cursor-pointer items-center justify-between gap-2 pr-1 text-base leading-5 text-ink-gray-7"
                     >
+=======
+        <div class="flex flex-col overflow-y-auto">
+          <div  class="section flex flex-col p-3">
+
+            <!-- Manage custom deal elements-->
+            <Section :label="'Deal Details'">
+              <div class="px-8 pb-3 flex flex-wrap items-start text-sm text-gray-600">Deal element : </div>
+              <div class="px-8 flex flex-wrap items-start gap-3 text-sm text-gray-600">
+                <MultiSelectDealElement
+                class="flex-1"
+                v-model="dealElementNames"
+                :deal-name="deal.data.name"
+                />
+              </div>
+            </Section>
+           <div
+            v-for="(section, i) in fieldsLayout.data"
+            :key="section.label"
+            class="section flex flex-col p-3"
+            :class="{ '': i !== fieldsLayout.data.length - 1 }"
+          >
+            <SectionDeal :is-opened="section.opened" :label="section.label" v-if=" section.label  == 'Organization Details'">
+              <template #actions>
+                <div v-if="section.organization" class="pr-2">
+                 
+                </div>
+              
+              </template>
+              <SectionFieldsDetails
+                v-if="section.fields"
+                :fields="section.fields"
+                :crm_deal_probability="crm_deal_probability"
+                :crm_deal_annual_revenue="crm_deal_annual_revenue"
+                :crm_deal_weighted_amount="crm_deal_weighted_amount"
+                :isLastSection="i == fieldsLayout.data.length - 1"
+                v-model="deal.data"
+                @update="updateField"
+              />
+            </SectionDeal>
+          </div>
+          </div>
+          <div
+            v-for="(section, i) in fieldsLayout.data"
+            :key="section.label"
+            class="section flex flex-col p-3"
+            :class="{ 'border-b': i !== fieldsLayout.data.length - 1 }"
+          >
+            <Section :is-opened="section.opened" :label="section.label">
+              <template #actions>
+                <div v-if="section.contacts" class="pr-2">
+                  <Link
+                    value=""
+                    doctype="Contact"
+                    @change="(e) => addContact(e)"
+                    :onCreate="
+                      (value, close) => {
+                        _contact = {
+                          first_name: value,
+                          company_name: deal.data.organization,
+                        }
+                        showContactModal = true
+                        close()
+                      }
+                    "
+                  >
+                    <template #target="{ togglePopover }">
+                      <Button
+                        class="h-7 px-3"
+                        variant="ghost"
+                        icon="plus"
+                        @click="togglePopover()"
+                      />
+                    </template>
+                  </Link>
+                </div>
+                <Button
+                  v-else-if="
+                    ((!section.contacts && i == 1) || i == 0) && isManager()
+                  "
+                  variant="ghost"
+                  class="w-7 mr-2"
+                  @click="showSidePanelModal = true"
+                >
+                  <EditIcon class="h-4 w-4" />
+                </Button>
+              </template>
+              <SectionFieldsDeal
+                v-if="section.fields"
+                :fields="section.fields"
+                :isLastSection="i == fieldsLayout.data.length - 1"
+                v-model="deal.data"
+                @update="updateField"
+              />
+              <div v-else>
+                <div
+                  v-if="
+                    dealContacts?.loading && dealContacts?.data?.length == 0
+                  "
+                  class="flex min-h-20 flex-1 items-center justify-center gap-3 text-base text-gray-500"
+                >
+                  <LoadingIndicator class="h-4 w-4" />
+                  <span>{{ __('Loading...') }}</span>
+                </div>
+                <div
+                  v-else-if="dealContacts?.data?.length"
+                  v-for="(contact, i) in dealContacts.data"
+                  :key="contact.name"
+                >
+                  <div
+                    class="px-2 pb-2.5"
+                    :class="[i == 0 ? 'pt-5' : 'pt-2.5']"
+                  >
+                    <Section :is-opened="contact.opened">
+                      <template #header="{ opened, toggle }">
+                        <div
+                          class="flex cursor-pointer items-center justify-between gap-2 pr-1 text-base leading-5 text-gray-700"
+                        >
+                          <div
+                            class="flex h-7 items-center gap-2 truncate"
+                            @click="toggle()"
+                          >
+                            <Avatar
+                              :label="contact.full_name"
+                              :image="contact.image"
+                              size="md"
+                            />
+                            <div class="truncate">
+                              {{ contact.full_name }}
+                            </div>
+                            <Badge
+                              v-if="contact.is_primary"
+                              class="ml-2"
+                              variant="outline"
+                              :label="__('Primary')"
+                              theme="green"
+                            />
+                          </div>
+                          <div class="flex items-center">
+                            <Dropdown :options="contactOptions(contact)">
+                              <Button
+                                icon="more-horizontal"
+                                class="text-gray-600"
+                                variant="ghost"
+                              />
+                            </Dropdown>
+                            <Button
+                              variant="ghost"
+                              @click="
+                                router.push({
+                                  name: 'Contact',
+                                  params: { contactId: contact.name },
+                                })
+                              "
+                            >
+                              <ArrowUpRightIcon class="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" @click="toggle()">
+                              <FeatherIcon
+                                name="chevron-right"
+                                class="h-4 w-4 text-gray-900 transition-all duration-300 ease-in-out"
+                                :class="{ 'rotate-90': opened }"
+                              />
+                            </Button>
+                          </div>
+                        </div>
+                      </template>
+>>>>>>> origin/Scrum-9-z1
                       <div
                         class="flex h-7 items-center gap-2 truncate"
                         @click="toggle()"
@@ -160,6 +353,7 @@
                         <div class="truncate">
                           {{ contact.full_name }}
                         </div>
+<<<<<<< HEAD
                         <Badge
                           v-if="contact.is_primary"
                           class="ml-2"
@@ -167,6 +361,12 @@
                           :label="__('Primary')"
                           theme="green"
                         />
+=======
+                        <div  class="flex items-center gap-3 p-1 py-1.5">
+                          <PriceTagIcon class="h-4 w-4 pricetag" />
+                          {{ contact.custom_buying_role }}
+                        </div>
+>>>>>>> origin/Scrum-9-z1
                       </div>
                       <div class="flex items-center">
                         <Dropdown :options="contactOptions(contact)">
@@ -279,7 +479,14 @@ import AssignTo from '@/components/AssignTo.vue'
 import FilesUploader from '@/components/FilesUploader/FilesUploader.vue'
 import ContactModal from '@/components/Modals/ContactModal.vue'
 import Section from '@/components/Section.vue'
+<<<<<<< HEAD
 import SidePanelLayout from '@/components/SidePanelLayout.vue'
+=======
+import SectionDeal from '@/components/SectionDeal.vue'
+import SectionFieldsDeal from '@/components/SectionFieldsDeal.vue'
+import SectionFieldsDetails from '@/components/SectionFieldsDetail.vue'
+
+>>>>>>> origin/Scrum-9-z1
 import SLASection from '@/components/SLASection.vue'
 import CustomActions from '@/components/CustomActions.vue'
 import {
@@ -289,6 +496,7 @@ import {
   setupCustomizations,
   errorMessage,
   copyToClipboard,
+  customFormatNumberIntoCurrency
 } from '@/utils'
 import { getView } from '@/utils/view'
 import { getSettings } from '@/stores/settings'
@@ -304,16 +512,22 @@ import {
   Breadcrumbs,
   call,
   usePageMeta,
+  FormControl
 } from 'frappe-ui'
 import { ref, computed, h, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useActiveTabManager } from '@/composables/useActiveTabManager'
+import PriceTagIcon from '@/components/Icons/PriceTagIcon.vue'
+import MultiSelectDealElement from '../components/Controls/MultiSelectDealElement.vue'  
+ 
 
 const { brand } = getSettings()
 const { $dialog, $socket, makeCall } = globalStore()
 const { statusOptions, getDealStatus } = statusesStore()
 const route = useRoute()
 const router = useRouter()
+const dealElements = ref([]); // Array to store deal elements
+const dealElementNames = ref([]); // Array to store only names of deal elements
 
 const props = defineProps({
   dealId: {
@@ -322,11 +536,41 @@ const props = defineProps({
   },
 })
 
+<<<<<<< HEAD
 const deal = createResource({
   url: 'crm.fcrm.doctype.crm_deal.api.get_deal',
   params: { name: props.dealId },
   cache: ['deal', props.dealId],
   onSuccess: (data) => {
+=======
+const customActions = ref([])
+const customStatuses = ref([])
+const staus_detail_option = ref([]);
+const crm_deal_annual_revenue = ref();
+const crm_deal_probability = ref();
+const crm_deal_weighted_amount = ref();
+
+
+
+const deal = createResource({
+  url: 'crm.fcrm.doctype.crm_deal.api.get_deal',
+  params: { name: props.dealId },
+  onSuccess: async (data) => {
+    crm_deal_probability.value = data.probability
+    crm_deal_annual_revenue.value = data.annual_revenue;
+    crm_deal_weighted_amount.value = data.weighted_amount;
+
+
+    if (data.probability || data.probability === 0) {
+      data.probability = data.probability + '%'; 
+    }
+   if (data.annual_revenue ) {
+      data.annual_revenue = customFormatNumberIntoCurrency(data.annual_revenue, data.currency); 
+    }
+    if (data.weighted_amount ) {
+      data.weighted_amount = customFormatNumberIntoCurrency(data.weighted_amount, data.currency); 
+    }
+>>>>>>> origin/Scrum-9-z1
     if (data.organization) {
       organization.update({
         params: { doctype: 'CRM Organization', name: data.organization },
@@ -349,7 +593,18 @@ const deal = createResource({
         sections,
       },
       call,
+<<<<<<< HEAD
     })
+=======
+    }
+    setupAssignees(data)
+    let customization = await setupCustomizations(data, obj)
+    dealElements.value = data.child_tables.deal_elements || [];
+    dealElementNames.value = dealElements.value.map(element => element.deal_elements);
+
+    customActions.value = customization.actions || []
+    customStatuses.value = customization.statuses || []
+>>>>>>> origin/Scrum-9-z1
   },
 })
 
@@ -371,12 +626,63 @@ onMounted(() => {
     organization.data = deal.data._organizationObj
     return
   }
-  deal.fetch()
+  deal.fetch().then(() => {
+      getStatusDetail(deal.data.status)
+    })
+
 })
 
 onBeforeUnmount(() => {
   $socket.off('crm_customer_created')
 })
+
+function getStatusDetail(status) {
+  createResource({
+  auto: true,
+  params: {
+      status: status,
+    },
+  url: 'crm.api.doc.get_crm_deal_status_for_status',
+  transform: (data) => {
+    const actualData = unwrapProxy(data);
+
+    if (!actualData || !Array.isArray(actualData)) {
+    staus_detail_option.value = [];
+    }
+    // const status_array = actualData.map((item) => item.detail_name);
+    // staus_detail_option.value = status_array;
+    const status_array = actualData.map((item) => ({
+        name: item.detail_name, // Adjust if `detail_name` is not the correct key
+        dec: item.description || '' // Adjust if `detail_description` is not the correct key or needs a default
+      }));
+
+      staus_detail_option.value = status_array;
+  },
+
+});
+}
+function updateStatusDetail(value){
+updateDeal('status_detail', value, () => {
+    deal.data['status_detail'] = value
+  })
+}
+
+/**
+ *  Convert proxy object into array
+ * @param proxyData 
+ */
+ function unwrapProxy(proxyData) {
+  if (Array.isArray(proxyData)) {
+    return proxyData.map((item) => unwrapProxy(item));
+  } 
+  else if (proxyData !== null && typeof proxyData === 'object') {
+    return Object.keys(proxyData).reduce((acc, key) => {
+      acc[key] = unwrapProxy(proxyData[key]);
+      return acc;
+    }, {});
+  }
+  return proxyData;
+}
 
 const reload = ref(false)
 const showOrganizationModal = ref(false)
@@ -646,12 +952,49 @@ function triggerCall() {
 }
 
 function updateField(name, value, callback) {
-  updateDeal(name, value, () => {
-    deal.data[name] = value
-    callback?.()
-  })
-}
+  let annual_revenue_value = 0;
+  let probability_value = 0;
 
+  // Ensure 'annual_revenue' and 'probability' fields are processed correctly
+  if (name === 'annual_revenue' || name === 'probability') {
+    if (name === 'annual_revenue') {
+      // When updating 'annual_revenue', parse the value and use the current probability
+      annual_revenue_value = value ? parseFloat(value.replace(/[^0-9.-]+/g, '')) : 0;
+      probability_value = deal.data.probability ? parseFloat(deal.data.probability.replace(/[^0-9.-]+/g, '')) : 0;
+    } else {
+      // When updating 'probability', parse the value and use the current annual revenue
+      annual_revenue_value = deal.data.annual_revenue ? parseFloat(deal.data.annual_revenue.replace(/[^0-9.-]+/g, '')) : 0;
+      probability_value = value ? parseFloat(value.replace(/[^0-9.-]+/g, '')) : 0;
+    }
+
+    // Calculate the weighted amount
+    const weighted_amount_value = annual_revenue_value * (probability_value / 100);
+
+    // Update the weighted amount first
+    updateDeal('weighted_amount', weighted_amount_value, () => {
+      deal.data['weighted_amount'] = weighted_amount_value;
+
+      // Update the specified field
+      updateDeal(name, value, () => {
+        deal.data[name] = value;
+
+        // Execute the callback if provided
+        if (callback) callback();
+      });
+    });
+  } else {
+    // Update the specified field when not 'annual_revenue' or 'probability'
+    updateDeal(name, value, () => {
+      deal.data[name] = value;
+
+      // Execute the callback if provided
+      if (callback) callback();
+    });
+  }
+
+  // Call getStatusDetail with the new value
+  getStatusDetail(value);
+}
 async function deleteDeal(name) {
   await call('frappe.client.delete', {
     doctype: 'CRM Deal',
@@ -666,3 +1009,16 @@ function openEmailBox() {
   activities.value.emailBox.show = true
 }
 </script>
+<<<<<<< HEAD
+=======
+
+<style scoped>
+:deep(.section:has(.section-field.hidden)) {
+  display: none;
+}
+:deep(.section:has(.section-field:not(.hidden))) {
+  display: flex;
+}
+</style>
+
+>>>>>>> origin/Scrum-9-z1

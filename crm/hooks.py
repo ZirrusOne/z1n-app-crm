@@ -132,7 +132,7 @@ before_uninstall = "crm.uninstall.before_uninstall"
 override_doctype_class = {
 	"Contact": "crm.overrides.contact.CustomContact",
 	"Email Template": "crm.overrides.email_template.CustomEmailTemplate",
-	"User": "crm.overrides.user.CustomUser",
+	"User": "crm.overrides.user.CustomUser"
 }
 
 # Document Events
@@ -160,30 +160,51 @@ doc_events = {
 		],
 	},
 	"User": {
-		"before_validate": ["crm.api.demo.validate_user"],
+		"before_validate": ["crm.api.demo.validate_user"]
 	},
+	"CRM Task": {
+        "after_insert": "crm.api.activities.update_last_activity",
+        "validate": "crm.api.activities.update_last_activity"
+    },
+    "Communication": {
+        "after_insert": "crm.api.activities.update_last_activity",
+        "validate": "crm.api.activities.update_last_activity"
+    },
+    "FCRM Note": {
+        "after_insert": "crm.api.activities.update_last_activity",
+        "validate": "crm.api.activities.update_last_activity"
+    }
 }
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# "all": [
-# "crm.tasks.all"
-# ],
-# "daily": [
-# "crm.tasks.daily"
-# ],
-# "hourly": [
-# "crm.tasks.hourly"
-# ],
-# "weekly": [
-# "crm.tasks.weekly"
-# ],
-# "monthly": [
-# "crm.tasks.monthly"
-# ],
-# }
+scheduler_events = {
+    "cron": {
+        "*/1 * * * *": [
+            "crm.api.crm_task.schedule_task_notifications"
+        ],
+        "0 */1 * * *": [
+            "crm.fcrm.doctype.crm_campaign.crm_campaign.send_email_for_campaign"
+        ]
+
+    }
+#	"all": [
+#		"crm.tasks.all"
+#	],
+#	"daily": [
+#		"crm.tasks.daily"
+#	],
+#	"hourly": [
+#		"crm.tasks.hourly"
+#	],
+#	"weekly": [
+#		"crm.tasks.weekly"
+#	],
+#	"monthly": [
+#		"crm.tasks.monthly"
+#	],
+}
 
 # Testing
 # -------
@@ -193,6 +214,10 @@ doc_events = {
 # Overriding Methods
 # ------------------------------
 #
+override_whitelisted_methods = {
+    "frappe.desk.form.assign_to.add": "crm.api.assign_to.add"
+}
+
 # override_whitelisted_methods = {
 # "frappe.desk.doctype.event.event.get_events": "crm.event.get_events"
 # }
@@ -310,4 +335,51 @@ standard_dropdown_items = [
   		"route": "#",
 		"is_standard": 1,
 	},
+]
+
+ 
+"""Apply the monkey patch to override send_notification_email. because send_notification_email is not @frappe.whitlisted  """
+from frappe.desk.doctype.notification_log import notification_log
+from crm.overrides.notification_log import send_notification_email, custom_get_email_header
+
+notification_log.send_notification_email = send_notification_email
+notification_log.get_email_header = custom_get_email_header
+
+fixtures = [ 
+    "CRM Deal Status",
+    "CRM Deal Status Detail",     
+    {
+        "dt": "Custom Field",
+        "filters": [
+            ["name", "in", ["Contact-custom_business_unit", "Contact-custom_buying_role", "Contact-custom_is_personal"]],
+        ]
+    },
+	{
+        "dt": "CRM Deal Element",
+        "filters": [["name", "in", ["Hardware", "Software", "Support", "Professional Services"]]]
+    },
+	{
+        "dt": "CRM Government Affiliation",
+        "filters": [["name", "in", ["Federal", "State", "County", "City", "Tribal", "Other"]]]
+	},
+	{
+        "dt": "CRM Child Data Mapping",
+        "filters": [["name", "in", ["CRM Deal", "FCRM Note"]]]
+    },
+    {
+        "dt": "CRM Lead Source",
+        "filters": [["name", "=", "Partner"]]
+    },
+    {
+        "dt": "CRM Sales Channel",
+        "filters": [["name", "in", ["Direct", "Reseller", "Distributor", "Retail", "E-commerce", "Other"]]]
+    },
+    {
+        "dt": "CRM Fields Layout",
+        "filters": [["name", "in", ["CRM Organization-Quick Entry", "CRM Campaign-Quick Entry", "Contact-Quick Entry"]]]
+    },
+    {
+        "dt": "CRM Campaign Type",
+        "filters": [["name", "in", ["Marketing", "Email"]]]
+    }
 ]

@@ -98,6 +98,7 @@
                 </Tooltip>
               </div>
             </div>
+<<<<<<< HEAD
           </template>
         </FileUploader>
       </div>
@@ -116,6 +117,154 @@
     </Resizer>
     <Tabs as="div" v-model="tabIndex" :tabs="tabs">
       <template #tab-item="{ tab, selected }">
+=======
+            <div
+              class="flex flex-col flex-wrap gap-3 text-base text-gray-700 sm:flex-row sm:items-center sm:gap-2"
+            >
+            <div class="flex items-center gap-2" v-if="organization.doc.is_partner == 1">
+              <PartnerIcon class="h-4 w-4" />
+                  <div>Partner</div>
+            </div>
+              
+              <Tooltip text="Website">
+                <div
+                  v-if="organization.doc.website"
+                  class="flex items-center gap-1.5"
+                >
+                  <WebsiteIcon class="h-4 w-4" />
+                  <span class="">{{ website(organization.doc.website) }}</span>
+                </div>
+              </Tooltip>
+              <span
+                v-if="organization.doc.website"
+                class="hidden text-3xl leading-[0] text-gray-600 sm:flex"
+              >
+                &middot;
+              </span>
+              <Tooltip text="Government Affiliation">
+                <div
+                  v-if="organization.doc.government_affiliation"
+                  class="flex items-center gap-1.5"
+                >
+                  <FeatherIcon name="crosshair" class="h-4 w-4" />
+                  <span class="">{{ organization.doc.government_affiliation }}</span>
+                </div>
+              </Tooltip>
+              <span
+                v-if="organization.doc.government_affiliation"
+                class="hidden text-3xl leading-[0] text-gray-600 sm:flex"
+              >
+                &middot;
+              </span>
+              <Tooltip text="Industry">
+                <div
+                  v-if="organization.doc.industry"
+                  class="flex items-center gap-1.5"
+                >
+                  <FeatherIcon name="briefcase" class="h-4 w-4" />
+                  <span class="">{{ organization.doc.industry }}</span>
+                </div>
+              </Tooltip>
+              <span
+                v-if="organization.doc.industry"
+                class="hidden text-3xl leading-[0] text-gray-600 sm:flex"
+              >
+                &middot;
+              </span>
+              <Tooltip text="Territory">
+                <div
+                  v-if="organization.doc.territory"
+                  class="flex items-center gap-1.5"
+                >
+                  <TerritoryIcon class="h-4 w-4" />
+                  <span class="">{{ organization.doc.territory }}</span>
+                </div>
+              </Tooltip>
+              <div
+                v-if="organization.doc.territory"
+                class="flex items-center gap-1.5"
+              >
+                <TerritoryIcon class="h-4 w-4" />
+                <span class="">{{ organization.doc.territory }}</span>
+              </div>
+              <span
+                v-if="organization.doc.territory"
+                class="hidden text-3xl leading-[0] text-gray-600 sm:flex"
+              >
+                &middot;
+              </span>
+              <Tooltip text="Annual Revenue">
+                <div
+                  v-if="organization.doc.annual_revenue"
+                  class="flex items-center gap-1.5"
+                >
+                  <MoneyIcon class="size-4" />
+                  <span class="">{{
+                    customFormatNumberIntoCurrency(
+                      organization.doc.annual_revenue,
+                      organization.doc.currency,
+                    )
+                  }}</span>
+                </div>
+              </Tooltip>
+              <span
+                v-if="organization.doc.annual_revenue"
+                class="hidden text-3xl leading-[0] text-gray-600 sm:flex"
+              >
+                &middot;
+              </span>
+              <Button
+                v-if="
+                  organization.doc.website ||
+                  organization.doc.industry ||
+                  organization.doc.territory ||
+                  organization.doc.annual_revenue
+                "
+                variant="ghost"
+                :label="__('More')"
+                class="w-fit cursor-pointer hover:text-gray-900 sm:-ml-1"
+                @click="
+                  () => {
+                    detailMode = true
+                    showOrganizationModal = true
+                  }
+                "
+              />
+            </div>
+            <div class="mt-2 flex gap-1.5">
+              <Button
+                :label="__('Edit')"
+                size="sm"
+                @click="
+                  () => {
+                    detailMode = false
+                    showOrganizationModal = true
+                  }
+                "
+              >
+                <template #prefix>
+                  <EditIcon class="h-4 w-4" />
+                </template>
+              </Button>
+              <Button
+                :label="__('Delete')"
+                theme="red"
+                size="sm"
+                @click="deleteOrganization"
+              >
+                <template #prefix>
+                  <FeatherIcon name="trash-2" class="h-4 w-4" />
+                </template>
+              </Button>
+            </div>
+            <ErrorMessage class="mt-2" :message="__(error)" />
+          </div>
+        </div>
+      </template>
+    </FileUploader>
+    <Tabs v-model="tabIndex" :tabs="tabs">
+      <template #tab="{ tab, selected }">
+>>>>>>> origin/Scrum-9-z1
         <button
           class="group flex items-center gap-2 border-b border-transparent py-2.5 text-base text-ink-gray-5 duration-300 ease-in-out hover:border-outline-gray-3 hover:text-ink-gray-9"
           :class="{ 'text-ink-gray-9': selected }"
@@ -139,14 +288,14 @@
           v-if="tab.label === 'Deals' && rows.length"
           :rows="rows"
           :columns="columns"
-          :options="{ selectable: false, showTooltip: false }"
+          :options="{ selectable: false, showTooltip: true }"
         />
         <ContactsListView
           class="mt-4"
           v-if="tab.label === 'Contacts' && rows.length"
           :rows="rows"
           :columns="columns"
-          :options="{ selectable: false, showTooltip: false }"
+          :options="{ selectable: false, showTooltip: true }"
         />
         <div
           v-if="!rows.length"
@@ -189,12 +338,22 @@ import { statusesStore } from '@/stores/statuses'
 import { getView } from '@/utils/view'
 import { formatDate, timeAgo, createToast } from '@/utils'
 import {
+<<<<<<< HEAD
   Tooltip,
+=======
+  dateFormat,
+  dateTooltipFormat,
+  timeAgo,
+  customFormatNumberIntoCurrency,
+} from '@/utils'
+import {
+>>>>>>> origin/Scrum-9-z1
   Breadcrumbs,
   Avatar,
   FileUploader,
   Dropdown,
   Tabs,
+  Tooltip,
   call,
   createListResource,
   createDocumentResource,
@@ -203,6 +362,8 @@ import {
 } from 'frappe-ui'
 import { h, computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import PartnerIcon from '@/components/Icons/PartnerIcon.vue'
+
 
 const props = defineProps({
   organizationId: {
@@ -456,7 +617,14 @@ function getDealRowObject(deal) {
       label: deal.organization,
       logo: organization.doc?.organization_logo,
     },
+<<<<<<< HEAD
     annual_revenue: getFormattedCurrency('annual_revenue', deal),
+=======
+    annual_revenue: customFormatNumberIntoCurrency(
+      deal.annual_revenue,
+      deal.currency,
+    ),
+>>>>>>> origin/Scrum-9-z1
     status: {
       label: deal.status,
       color: getDealStatus(deal.status)?.color,

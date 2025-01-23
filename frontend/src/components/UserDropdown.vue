@@ -55,9 +55,9 @@ import { sessionStore } from '@/stores/session'
 import { usersStore } from '@/stores/users'
 import { getSettings } from '@/stores/settings'
 import { showSettings, isMobileView } from '@/composables/settings'
-import { Dropdown } from 'frappe-ui'
+import { Dropdown,createResource } from 'frappe-ui'
 import { theme, toggleTheme } from '@/stores/theme'
-import { computed, h, markRaw } from 'vue'
+import { computed, h, markRaw,onMounted } from 'vue'
 
 const props = defineProps({
   isCollapsed: {
@@ -74,6 +74,9 @@ const user = computed(() => getUser() || {})
 
 const dropdownItems = computed(() => {
   if (!settings.value?.dropdown_items) return []
+const showSettingsModal = ref(false)
+const support_link = ref(null);
+const docs_link = ref(null);
 
   let items = settings.value.dropdown_items
 
@@ -123,6 +126,10 @@ function dropdownItemObj(item) {
   }
 }
 
+
+
+
+
 function getStandardItem(item) {
   switch (item.name1) {
     case 'app_selector':
@@ -164,4 +171,54 @@ function getStandardItem(item) {
       }
   }
 }
+
+let dropdownOptions = ref([
+  {
+    group: 'Manage',
+    hideLabel: true,
+    items: [
+      {
+        component: markRaw(Apps),
+      },
+      {
+        icon: 'life-buoy',
+        label: computed(() => __('Support')),
+        onClick: () => window.open(support_link.value ? support_link.value : 'https://t.me/frappecrm', '_blank'),
+      },
+      {
+        icon: 'book-open',
+        label: computed(() => __('Docs')),
+        onClick: () => window.open(docs_link.value ? docs_link.value : 'https://docs.frappe.io/crm' , '_blank'),
+      },
+    ],
+  },
+  {
+    group: 'Others',
+    hideLabel: true,
+    items: [
+      {
+        icon: 'settings',
+        label: computed(() => __('Settings')),
+        onClick: () => (showSettingsModal.value = true),
+      },
+      {
+        icon: 'log-out',
+        label: computed(() => __('Log out')),
+        onClick: () => logout.submit(),
+      },
+    ],
+  },
+])
+
+onMounted(async () => {
+  const resource = createResource({
+    auto: true,
+    url: 'crm.fcrm.doctype.fcrm_settings.fcrm_settings.get_fcrm_settings',
+    transform: (data) => {
+      console.log(data);
+      support_link.value = data.support_link
+      docs_link.value = data.docs_link
+    },
+  });
+});
 </script>

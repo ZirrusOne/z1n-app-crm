@@ -7,15 +7,22 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "organization_tab",
-  "naming_series",
-  "organization",
-  "next_step",
+  "tab_6_tab",
+  "details_section",
+  "deal_elements",
   "probability",
-  "column_break_ijan",
-  "status",
   "close_date",
+  "naming_series",
+  "weighted_amount",
+  "column_break_tukx",
+  "next_step",
+  "status",
+  "status_detail",
+  "sales_channel",
   "deal_owner",
+  "organization_tab",
+  "organization",
+  "referral_source",
   "contacts_tab",
   "contacts",
   "contact",
@@ -55,7 +62,9 @@
   "first_response_time",
   "first_responded_on",
   "log_tab",
-  "status_change_log"
+  "status_change_log",
+  "partner_leads",
+  "amended_from"
  ],
  "fields": [
   {
@@ -260,10 +269,6 @@
    "label": "Lead Name"
   },
   {
-   "fieldname": "column_break_ijan",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "lead_details_tab",
    "fieldtype": "Tab Break",
    "label": "Lead Details"
@@ -334,9 +339,74 @@
    "fieldtype": "Link",
    "label": "Currency",
    "options": "Currency"
+  },
+  {
+   "fieldname": "tab_6_tab",
+   "fieldtype": "Tab Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "details_section",
+   "fieldtype": "Section Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "deal_elements",
+   "fieldtype": "Table MultiSelect",
+   "label": "Deal Elements",
+   "options": "CRM Deal Elements"
+  },
+  {
+   "fieldname": "column_break_tukx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sales_channel",
+   "fieldtype": "Link",
+   "label": "Sales Channel",
+   "options": "CRM Sales Channel"
+  },
+  {
+   "depends_on": "eval:doc.status",
+   "fieldname": "status_detail",
+   "fieldtype": "Link",
+   "label": "Status Detail",
+   "options": "CRM Deal Status Detail"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "CRM Deal",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "weighted_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Weighted Amount"
+  },
+  {
+   "fieldname": "referral_source",
+   "fieldtype": "Link",
+   "label": "Referral Source",
+   "link_filters": "[[\"CRM Organization\",\"is_partner\",\"=\",1]]",
+   "options": "CRM Organization"
+  },
+  {
+   "fieldname": "partner_leads",
+   "fieldtype": "Table",
+   "label": "Partner Leads",
+   "options": "CRM Partner Lead log",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [],
  "modified": "2024-12-11 14:31:41.058895",
  "modified_by": "Administrator",

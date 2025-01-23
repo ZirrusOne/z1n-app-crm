@@ -157,6 +157,37 @@ class CRMDeal(Document):
 				"width": "10rem",
 			},
 			{
+				'label': 'Deal Elements',
+				'type': 'Table MultiSelect',
+				'key': 'deal_elements',
+				'options': 'CRM Deal Elements',
+				'width': '12rem',
+			},
+			{
+				'label': 'Amount',
+				'type': 'Currency',
+				'key': 'annual_revenue',
+				'width': '9rem',
+			},
+			{
+				'label': 'Probability',
+				'type': 'Percent',
+				'key': 'probability',
+				'width': '6rem',
+			},
+			{
+				'label': 'Weighted Amount',
+				'type': 'Currency',
+				'key': 'weighted_amount',
+				'width': '9rem',
+			},
+			{
+				'label': 'Status',
+				'type': 'Select',
+				'key': 'status',
+				'width': '10rem',
+			},
+			{
 				"label": "Email",
 				"type": "Data",
 				"key": "email",
@@ -184,7 +215,10 @@ class CRMDeal(Document):
 		rows = [
 			"name",
 			"organization",
+			"deal_elements",
 			"annual_revenue",
+			"probability",
+			"weighted_amount",
 			"status",
 			"email",
 			"currency",
@@ -325,6 +359,11 @@ def create_deal(args):
 	args.pop("organization", None)
 
 	deal.update(args)
+
+	dealElementNames =  args.get("dealElementNames")
+	if dealElementNames:
+		for dealElement in dealElementNames:
+			deal.append("deal_elements", {'deal_elements':dealElement})
 
 	deal.insert(ignore_permissions=True)
 	return deal.name

@@ -12,9 +12,11 @@
  "field_order": [
   "details",
   "organization",
+  "referral_source",
   "website",
   "territory",
   "industry",
+  "government_affiliation",
   "job_title",
   "source",
   "lead_owner",
@@ -24,6 +26,8 @@
   "last_name",
   "email",
   "mobile_no",
+  "buying_role",
+  "business_unit",
   "organization_tab",
   "section_break_uixv",
   "naming_series",
@@ -285,6 +289,30 @@
    "fieldtype": "Table",
    "label": "Status Change Log",
    "options": "CRM Status Change Log"
+  },
+  {
+   "fieldname": "buying_role",
+   "fieldtype": "Link",
+   "label": "Buying Role",
+   "options": "CRM Buying Role"
+  },
+  {
+   "fieldname": "business_unit",
+   "fieldtype": "Data",
+   "label": "Business Unit"
+  },
+  {
+   "fieldname": "government_affiliation",
+   "fieldtype": "Link",
+   "label": "Government Affiliation",
+   "options": "CRM Government Affiliation"
+  },
+  {
+   "fieldname": "referral_source",
+   "fieldtype": "Link",
+   "label": "Referral Source",
+   "link_filters": "[[\"CRM Organization\",\"is_partner\",\"=\",1]]",
+   "options": "CRM Organization"
   }
  ],
  "image_field": "image",
