@@ -49,7 +49,7 @@
   />
   <CampaignsListView
     ref="campaignsListView"
-    v-if="campigns.data && rows.length && route.params.viewType != 'report'"
+    v-else-if="campigns.data && rows.length && route.params.viewType != 'report'"
     v-model="campigns.data.page_length_count"
     v-model:list="campigns"
     :rows="rows"
