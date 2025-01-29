@@ -858,6 +858,8 @@ def get_default_report(doctype):
             return "My Leads"
         elif doctype == "CRM Deal":
             return "My Deals"
+        elif doctype == "CRM Campaign":
+            return "CRM Campaign Efficiency"
         else:
             return None  # Or a default value for other doctypes if needed
  
