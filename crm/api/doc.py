@@ -236,7 +236,6 @@ def get_data(
 	kanban_fields = frappe.parse_json(kanban_fields or "[]")
 	kanban_columns = frappe.parse_json(kanban_columns or "[]")
 
-<<<<<<< HEAD
 	custom_view_name = view.get('custom_view_name') if view else None
 	view_type = view.get('view_type') if view else None
 	group_by_field = view.get('group_by_field') if view else None
@@ -277,11 +276,6 @@ def get_data(
 		else:
 			report_data = run(report_name,report_filters)
 
-=======
-	custom_view_name = view.get("custom_view_name") if view else None
-	view_type = view.get("view_type") if view else None
-	group_by_field = view.get("group_by_field") if view else None
->>>>>>> SCRUM-9-Frappe
 
 	for key in filters:
 		value = filters[key]
@@ -712,7 +706,6 @@ def get_fields(doctype: str, allow_all_fieldtypes: bool = False):
 
 
 def getCounts(d, doctype):
-<<<<<<< HEAD
 	d["_email_count"] = frappe.db.count("Communication", filters={"reference_doctype": doctype, "reference_name": d.get("name"), "communication_type": "Communication"}) or 0
 	d["_email_count"] = d["_email_count"] + frappe.db.count("Communication", filters={"reference_doctype": doctype, "reference_name": d.get("name"), "communication_type": "Automated Message"})
 	d["_comment_count"] = frappe.db.count("Comment", filters={"reference_doctype": doctype, "reference_name": d.get("name"), "comment_type": "Comment"})
@@ -878,35 +871,3 @@ def transform_filters(data):
 			filter_item["name"] = filter_item.pop("fieldname")
 	return data
 
-=======
-	d["_email_count"] = (
-		frappe.db.count(
-			"Communication",
-			filters={
-				"reference_doctype": doctype,
-				"reference_name": d.get("name"),
-				"communication_type": "Communication",
-			},
-		)
-		or 0
-	)
-	d["_email_count"] = d["_email_count"] + frappe.db.count(
-		"Communication",
-		filters={
-			"reference_doctype": doctype,
-			"reference_name": d.get("name"),
-			"communication_type": "Automated Message",
-		},
-	)
-	d["_comment_count"] = frappe.db.count(
-		"Comment",
-		filters={"reference_doctype": doctype, "reference_name": d.get("name"), "comment_type": "Comment"},
-	)
-	d["_task_count"] = frappe.db.count(
-		"CRM Task", filters={"reference_doctype": doctype, "reference_docname": d.get("name")}
-	)
-	d["_note_count"] = frappe.db.count(
-		"FCRM Note", filters={"reference_doctype": doctype, "reference_docname": d.get("name")}
-	)
-	return d
->>>>>>> SCRUM-9-Frappe

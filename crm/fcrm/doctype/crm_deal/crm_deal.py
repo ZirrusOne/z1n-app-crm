@@ -144,7 +144,6 @@ class CRMDeal(Document):
 				"width": "11rem",
 			},
 			{
-<<<<<<< HEAD
 				'label': 'Deal Elements',
 				'type': 'Table MultiSelect',
 				'key': 'deal_elements',
@@ -174,7 +173,8 @@ class CRMDeal(Document):
 				'type': 'Select',
 				'key': 'status',
 				'width': '10rem',
-=======
+			},
+			{
 				"label": "Annual Revenue",
 				"type": "Currency",
 				"key": "annual_revenue",
@@ -186,7 +186,6 @@ class CRMDeal(Document):
 				"type": "Select",
 				"key": "status",
 				"width": "10rem",
->>>>>>> SCRUM-9-Frappe
 			},
 			{
 				"label": "Email",
@@ -206,15 +205,12 @@ class CRMDeal(Document):
 				"key": "_assign",
 				"width": "10rem",
 			},
-<<<<<<< HEAD
-=======
 			{
 				"label": "Last Modified",
 				"type": "Datetime",
 				"key": "modified",
 				"width": "8rem",
 			},
->>>>>>> SCRUM-9-Frappe
 		]
 		rows = [
 			"name",

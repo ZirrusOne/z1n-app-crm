@@ -336,23 +336,10 @@ class CRMLead(Document):
 				"width": "10rem",
 			},
 			{
-<<<<<<< HEAD
-				'label': 'Buying Role',
-				'type': 'Data',
-				'key': 'buying_role',
-				'width': '8rem',
-			},
-			{
-				'label': 'Status',
-				'type': 'Select',
-				'key': 'status',
-				'width': '8rem',
-=======
 				"label": "Status",
 				"type": "Select",
 				"key": "status",
 				"width": "8rem",
->>>>>>> SCRUM-9-Frappe
 			},
 			{
 				"label": "Email",
@@ -372,15 +359,12 @@ class CRMLead(Document):
 				"key": "_assign",
 				"width": "10rem",
 			},
-<<<<<<< HEAD
-=======
 			{
 				"label": "Last Modified",
 				"type": "Datetime",
 				"key": "modified",
 				"width": "8rem",
 			},
->>>>>>> SCRUM-9-Frappe
 		]
 		rows = [
 			"name",

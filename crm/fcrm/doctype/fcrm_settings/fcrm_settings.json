@@ -5,20 +5,16 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-<<<<<<< HEAD
   "restore_defaults",
   "docs_link",
-  "support_link"
-=======
+  "support_link",
   "defaults_tab",
-  "restore_defaults",
   "branding_tab",
   "brand_name",
   "brand_logo",
   "favicon",
   "dropdown_items_tab",
   "dropdown_items"
->>>>>>> SCRUM-9-Frappe
  ],
  "fields": [
   {
@@ -27,7 +23,6 @@
    "label": "Restore Defaults"
   },
   {
-<<<<<<< HEAD
    "description": "Destination for the Docs link in the main navigation menu",
    "fieldname": "docs_link",
    "fieldtype": "Data",
@@ -38,7 +33,8 @@
    "fieldname": "support_link",
    "fieldtype": "Data",
    "label": "Support Link"
-=======
+  },
+  {
    "fieldname": "dropdown_items",
    "fieldtype": "Table",
    "options": "CRM Dropdown Item"
@@ -74,17 +70,12 @@
    "fieldname": "favicon",
    "fieldtype": "Attach",
    "label": "Favicon"
->>>>>>> SCRUM-9-Frappe
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
-<<<<<<< HEAD
- "modified": "2024-11-15 01:06:02.064709",
-=======
  "modified": "2025-01-19 14:23:05.981355",
->>>>>>> SCRUM-9-Frappe
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "FCRM Settings",

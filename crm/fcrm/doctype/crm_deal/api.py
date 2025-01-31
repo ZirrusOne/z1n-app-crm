@@ -6,9 +6,8 @@ from crm.fcrm.doctype.crm_form_script.crm_form_script import get_form_script
 
 @frappe.whitelist()
 def get_deal(name):
-	deal = frappe.get_doc("CRM Deal", name).as_dict()
+	Deal = frappe.qb.DocType("CRM Deal")
 
-<<<<<<< HEAD
 	query = (
 		frappe.qb.from_(Deal)
 		.select("*")
@@ -46,13 +45,7 @@ def get_deal(name):
 	deal["fields_meta"] = get_fields_meta("CRM Deal") 
 	deal["_form_script"] = get_form_script('CRM Deal')
 	deal["_assign"] = get_assigned_users("CRM Deal", deal.name, deal.owner)
-=======
-	deal["fields_meta"] = get_fields_meta("CRM Deal")
-	deal["_form_script"] = get_form_script("CRM Deal")
-	deal["_assign"] = get_assigned_users("CRM Deal", deal.name)
->>>>>>> SCRUM-9-Frappe
 	return deal
-
 
 @frappe.whitelist()
 def get_deal_contacts(name):
@@ -89,7 +82,6 @@ def get_deal_contacts(name):
 		}
 		deal_contacts.append(_contact)
 	return deal_contacts
-<<<<<<< HEAD
 
 @frappe.whitelist()
 def update_crm_deal_elements(name, deal_elements):
@@ -121,5 +113,3 @@ def get_deal_elements():
 	# Fetch all CRM Deal Elements
 	deal_elements = frappe.get_all("CRM Deal Element", fields=["name"])
 	return deal_elements
-=======
->>>>>>> SCRUM-9-Frappe

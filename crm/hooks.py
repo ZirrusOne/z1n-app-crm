@@ -160,7 +160,6 @@ doc_events = {
 		],
 	},
 	"User": {
-<<<<<<< HEAD
 		"before_validate": ["crm.api.demo.validate_user"]
 	},
 	"CRM Task": {
@@ -175,16 +174,11 @@ doc_events = {
         "after_insert": "crm.api.activities.update_last_activity",
         "validate": "crm.api.activities.update_last_activity"
     }
-=======
-		"before_validate": ["crm.api.demo.validate_user"],
-	},
->>>>>>> SCRUM-9-Frappe
 }
 
 # Scheduled Tasks
 # ---------------
 
-<<<<<<< HEAD
 scheduler_events = {
     "cron": {
         "*/1 * * * *": [
@@ -211,25 +205,6 @@ scheduler_events = {
 #		"crm.tasks.monthly"
 #	],
 }
-=======
-# scheduler_events = {
-# "all": [
-# "crm.tasks.all"
-# ],
-# "daily": [
-# "crm.tasks.daily"
-# ],
-# "hourly": [
-# "crm.tasks.hourly"
-# ],
-# "weekly": [
-# "crm.tasks.weekly"
-# ],
-# "monthly": [
-# "crm.tasks.monthly"
-# ],
-# }
->>>>>>> SCRUM-9-Frappe
 
 # Testing
 # -------
@@ -303,53 +278,6 @@ override_whitelisted_methods = {
 # auth_hooks = [
 # "crm.auth.validate"
 # ]
-
-<<<<<<< HEAD
-"""Apply the monkey patch to override send_notification_email. because send_notification_email is not @frappe.whitlisted  """
-from frappe.desk.doctype.notification_log import notification_log
-from crm.overrides.notification_log import send_notification_email, custom_get_email_header
-
-notification_log.send_notification_email = send_notification_email
-notification_log.get_email_header = custom_get_email_header
-
-fixtures = [ 
-    "CRM Deal Status",
-    "CRM Deal Status Detail",     
-    {
-        "dt": "Custom Field",
-        "filters": [
-            ["name", "in", ["Contact-custom_business_unit", "Contact-custom_buying_role", "Contact-custom_is_personal"]],
-        ]
-    },
-	{
-        "dt": "CRM Deal Element",
-        "filters": [["name", "in", ["Hardware", "Software", "Support", "Professional Services"]]]
-    },
-	{
-        "dt": "CRM Government Affiliation",
-        "filters": [["name", "in", ["Federal", "State", "County", "City", "Tribal", "Other"]]]
-	},
-	{
-        "dt": "CRM Child Data Mapping",
-        "filters": [["name", "in", ["CRM Deal", "FCRM Note"]]]
-    },
-    {
-        "dt": "CRM Lead Source",
-        "filters": [["name", "=", "Partner"]]
-    },
-    {
-        "dt": "CRM Sales Channel",
-        "filters": [["name", "in", ["Direct", "Reseller", "Distributor", "Retail", "E-commerce", "Other"]]]
-    },
-    {
-        "dt": "CRM Fields Layout",
-        "filters": [["name", "in", ["CRM Organization-Quick Entry", "CRM Campaign-Quick Entry", "Contact-Quick Entry"]]]
-    },
-    {
-        "dt": "CRM Campaign Type",
-        "filters": [["name", "in", ["Marketing", "Email"]]]
-    }
-=======
 after_migrate = ["crm.fcrm.doctype.fcrm_settings.fcrm_settings.after_migrate"]
 
 standard_dropdown_items = [
@@ -406,5 +334,50 @@ standard_dropdown_items = [
   		"route": "#",
 		"is_standard": 1,
 	},
->>>>>>> SCRUM-9-Frappe
+]
+
+"""Apply the monkey patch to override send_notification_email. because send_notification_email is not @frappe.whitlisted  """
+from frappe.desk.doctype.notification_log import notification_log
+from crm.overrides.notification_log import send_notification_email, custom_get_email_header
+
+notification_log.send_notification_email = send_notification_email
+notification_log.get_email_header = custom_get_email_header
+
+fixtures = [ 
+    "CRM Deal Status",
+    "CRM Deal Status Detail",     
+    {
+        "dt": "Custom Field",
+        "filters": [
+            ["name", "in", ["Contact-custom_business_unit", "Contact-custom_buying_role", "Contact-custom_is_personal"]],
+        ]
+    },
+	{
+        "dt": "CRM Deal Element",
+        "filters": [["name", "in", ["Hardware", "Software", "Support", "Professional Services"]]]
+    },
+	{
+        "dt": "CRM Government Affiliation",
+        "filters": [["name", "in", ["Federal", "State", "County", "City", "Tribal", "Other"]]]
+	},
+	{
+        "dt": "CRM Child Data Mapping",
+        "filters": [["name", "in", ["CRM Deal", "FCRM Note"]]]
+    },
+    {
+        "dt": "CRM Lead Source",
+        "filters": [["name", "=", "Partner"]]
+    },
+    {
+        "dt": "CRM Sales Channel",
+        "filters": [["name", "in", ["Direct", "Reseller", "Distributor", "Retail", "E-commerce", "Other"]]]
+    },
+    {
+        "dt": "CRM Fields Layout",
+        "filters": [["name", "in", ["CRM Organization-Quick Entry", "CRM Campaign-Quick Entry", "Contact-Quick Entry"]]]
+    },
+    {
+        "dt": "CRM Campaign Type",
+        "filters": [["name", "in", ["Marketing", "Email"]]]
+    }
 ]

@@ -318,11 +318,7 @@
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
-<<<<<<< HEAD
- "modified": "2024-11-14 08:56:55.806003",
-=======
  "modified": "2025-01-02 22:14:01.991054",
->>>>>>> SCRUM-9-Frappe
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Lead",
