@@ -54,12 +54,10 @@ import Apps from '@/components/Apps.vue'
 import { sessionStore } from '@/stores/session'
 import { usersStore } from '@/stores/users'
 import { Dropdown, createResource } from 'frappe-ui'
-import { computed, ref, markRaw, onMounted} from 'vue'
+import { computed, ref, h, markRaw, onMounted} from 'vue'
 import { getSettings } from '@/stores/settings'
 import { showSettings, isMobileView } from '@/composables/settings'
-import { Dropdown } from 'frappe-ui'
 import { theme, toggleTheme } from '@/stores/theme'
-import { computed, h, markRaw } from 'vue'
 
 const props = defineProps({
   isCollapsed: {
