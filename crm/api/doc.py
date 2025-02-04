@@ -203,6 +203,13 @@ def get_quick_filters(doctype: str):
 
 	if doctype == "CRM Lead":
 		quick_filters = [filter for filter in quick_filters if filter.get("name") != "converted"]
+	if doctype == "Contact":
+		quick_filters.append({
+			"label": _("Organization"),
+			"name": "organization",
+			"type": "Link",
+			"options": "CRM Organization"
+		})
 
 	return quick_filters
 
@@ -284,6 +291,7 @@ def get_data(
 		elif value == "@me":
 			filters[key] = frappe.session.user
 
+
 	if default_filters:
 		default_filters = frappe.parse_json(default_filters)
 		filters.update(default_filters)
@@ -291,6 +299,7 @@ def get_data(
 
 	if doctype == 'CRM Deal' and "deal_element" in filters:
 		filters= process_deal_elements_filters(filters)
+
 
 	is_default = True
 	data = []
@@ -343,15 +352,32 @@ def get_data(
 
 			if doctype == 'Contact' and column.get("key") == 'custom_is_personal':
 				column['label'] = 'Personal Contact'
-
+		
 		#hide personal contact for contact view.
 		if doctype == 'Contact':
-			assigned_contact =  [ac['reference_name'] for ac in frappe.db.get_list("ToDo", {'reference_type': "Contact",
-			 'status':'Open', 'allocated_to':frappe.session.user}, 'reference_name')]
-			global_contacts = [gc['name'] for gc in frappe.db.get_list("Contact", {'custom_is_personal' : 0},'name')]
-			if len(assigned_contact) > 0 :
-				global_contacts.extend(assigned_contact)
-			filters = {'name': ['in', global_contacts]}
+			condition = '' 
+			# apply filter on contact if organization is set on linked deals
+			if filters.get('organization'):
+				contact_list = [deal['contact'] for deal in frappe.db.sql(f"""
+						SELECT C.contact
+						FROM  `tabCRM Deal` as D 
+						inner join `tabCRM Contacts` as C 
+						ON D.name = C.parent
+						WHERE D.organization = '{filters.get("organization")}'""", as_dict=1)]
+				if len(contact_list) > 0 :
+					filters = {'name': ['in', contact_list]}
+
+			else:
+				assigned_contact =  [ac['reference_name'] for ac in frappe.db.get_list("ToDo", 
+					{'reference_type': "Contact",
+				 'status':'Open', 'allocated_to':frappe.session.user}, 'reference_name')]
+				global_contacts = [gc['name'] for gc in frappe.db.get_list("Contact", 
+					{'custom_is_personal' : 0},'name')]
+				if len(assigned_contact) > 0 :
+					global_contacts.extend(assigned_contact)
+
+				filters = {'name': ['in', global_contacts]}
+
 
 		# check if rows has group_by_field if not add it
 		if group_by_field and group_by_field not in rows:
