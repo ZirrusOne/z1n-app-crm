@@ -795,32 +795,32 @@ def getCounts(d, doctype):
 
 
 @frappe.whitelist()
+
 def get_reports_for_doctype(doctype):
 	default_report_name = frappe.db.get_value("CRM View Settings", {'dt': doctype}, ['report_name'])
 	default_report_type = None
 	if default_report_name:
 		default_report_type = frappe.db.get_value("Report", {'name': default_report_name}, ['report_type'])
- 
-    if not default_report_name:
-        # Default reports if not found in CRM View Settings
-        if doctype == "CRM Lead":
-            default_report_name =  "My Leads"
-            default_report_type = 'Script Report'
-        elif doctype == "CRM Deal":
-            default_report_name = "My Deals"
-            default_report_type = 'Script Report'
-        elif doctype == "CRM Campaign":
-            default_report_name = "CRM Campaign Efficiency"
-            default_report_type = 'Script Report'
- 
+
+	if not default_report_name:
+		# Default reports if not found in CRM View Settings
+		if doctype == "CRM Lead":
+			default_report_name = "My Leads"
+			default_report_type = 'Script Report'
+		elif doctype == "CRM Deal":
+			default_report_name = "My Deals"
+			default_report_type = 'Script Report'
+		elif doctype == "CRM Campaign":
+			default_report_name = "CRM Campaign Efficiency"
+			default_report_type = 'Script Report'
+
 	reports = frappe.get_list('Report', filters={'ref_doctype': doctype}, fields=['name','report_type','json'])
 	for i in reports:
-		if i.report_type =='Report Builder':
-			i['builder_report_filter'] = convert_json_data(doctype,json.loads(i.json))
+		if i.report_type == 'Report Builder':
+			i['builder_report_filter'] = convert_json_data(doctype, json.loads(i.json))
 		else:
 			i['builder_report_filter'] = {}
-	return {'reports_list':reports,'default_report':{'default_report_name':default_report_name,'default_report_type':default_report_type}}
- 
+	return {'reports_list': reports, 'default_report': {'default_report_name': default_report_name, 'default_report_type': default_report_type}}
 
 def parse_js_to_dict(js_code):
 	# Extract the JSON-like part of the JavaScript code using regex
