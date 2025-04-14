@@ -49,15 +49,17 @@
 
   </LayoutHeader>
   <div v-if="deal.data" class="flex h-full overflow-hidden">
-    <Tabs v-model="tabIndex" :tabs="tabs">
-      <Activities
-        ref="activities"
-        doctype="CRM Deal"
-        :tabs="tabs"
-        v-model:reload="reload"
-        v-model:tabIndex="tabIndex"
-        v-model="deal"
-      />
+    <Tabs as="div" v-model="tabIndex" :tabs="tabs">
+      <template #tab-panel>
+        <Activities
+          ref="activities"
+          doctype="CRM Deal"
+          :tabs="tabs"
+          v-model:reload="reload"
+          v-model:tabIndex="tabIndex"
+          v-model="deal"
+        />
+      </template>
     </Tabs>
     <Resizer side="right" class="flex flex-col justify-between border-l">
       <div
@@ -710,10 +712,12 @@ const fieldsLayout = createResource({
 })
 
 function getParsedFields(sections) {
+  if (!Array.isArray(sections)) return []
+
   sections.forEach((section) => {
-    if (section.name == 'contacts_section') return
-    section.fields.forEach((field) => {
-      if (field.name == 'organization') {
+    if (section.name === 'contacts_section') return
+    section.fields?.forEach((field) => {
+      if (field.name === 'organization') {
         field.create = (value, close) => {
           _organization.value.organization_name = value
           showOrganizationModal.value = true
@@ -729,6 +733,7 @@ function getParsedFields(sections) {
   })
   return sections
 }
+
 
 const showContactModal = ref(false)
 const _contact = ref({})
