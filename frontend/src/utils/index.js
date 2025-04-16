@@ -281,3 +281,72 @@ export function evaluate_depends_on_value(expression, doc) {
 
   return out
 }
+
+
+export function formatDate(date, format, onlyDate = false, onlyTime = false) {
+  if (!date) return ''
+  format = getFormat(date, format, onlyDate, onlyTime, false)
+  return dayjsLocal(date).format(format)
+}
+
+export function getFormat(
+  date,
+  format,
+  onlyDate = false,
+  onlyTime = false,
+  withDate = true,
+) {
+  if (!date) return ''
+  let dateFormat = 'YYYY-MM-DD'
+  let timeFormat = 'HH:mm:ss'
+  format = format || 'ddd, MMM D, YYYY h:mm a'
+
+  if (onlyDate) format = dateFormat
+  if (onlyTime) format = timeFormat
+  if (onlyTime && onlyDate) format = `${dateFormat} ${timeFormat}`
+
+  // if (withDate) {
+  //   return dayjs(date).format(format)
+  // }
+  return format
+}
+
+
+export function evaluateDependsOnValue(expression, doc) {
+  if (!expression) return true
+  if (!doc) return true
+
+  let out = null
+
+  if (typeof expression === 'boolean') {
+    out = expression
+  } else if (typeof expression === 'function') {
+    out = expression(doc)
+  } else if (expression.substr(0, 5) == 'eval:') {
+    try {
+      out = _eval(expression.substr(5), { doc })
+    } catch (e) {
+      out = true
+    }
+  } else {
+    let value = doc[expression]
+    if (Array.isArray(value)) {
+      out = !!value.length
+    } else {
+      out = !!value
+    }
+  }
+
+  return out
+}
+
+export function getRandom(len = 4) {
+  let text = ''
+  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+
+  Array.from({ length: len }).forEach(() => {
+    text += possible.charAt(Math.floor(Math.random() * possible.length))
+  })
+
+  return text
+}

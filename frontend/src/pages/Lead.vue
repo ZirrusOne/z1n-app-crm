@@ -164,35 +164,16 @@
         @updateField="updateField"
       />
       <div
-        v-if="fieldsLayout.data"
+        v-if="sections.data"
         class="flex flex-1 flex-col justify-between overflow-hidden"
       >
-        <div class="flex flex-col overflow-y-auto">
-          <div
-            v-for="(section, i) in fieldsLayout.data"
-            :key="section.label"
-            class="flex flex-col p-3"
-            :class="{ 'border-b': i !== fieldsLayout.data.length - 1 }"
-          >
-            <Section :is-opened="section.opened" :label="section.label">
-              <SectionFields
-                :fields="section.fields"
-                :isLastSection="i == fieldsLayout.data.length - 1"
-                v-model="lead.data"
-                @update="updateField"
-              />
-              <template v-if="i == 0 && isManager()" #actions>
-                <Button
-                  variant="ghost"
-                  class="w-7 mr-2"
-                  @click="showSidePanelModal = true"
-                >
-                  <EditIcon class="h-4 w-4" />
-                </Button>
-              </template>
-            </Section>
-          </div>
-        </div>
+        <SidePanelLayout
+          v-model="lead.data"
+          :sections="sections.data"
+          doctype="CRM Lead"
+          @update="updateField"
+          @reload="sections.reload"
+        />
       </div>
     </Resizer>
   </div>
@@ -541,6 +522,14 @@ function validateFile(file) {
     return __('Only PNG and JPG images are allowed')
   }
 }
+
+
+const sections = createResource({
+  url: 'crm.fcrm.doctype.crm_fields_layout.crm_fields_layout.get_sidepanel_sections',
+  cache: ['sidePanelSections', 'CRM Lead'],
+  params: { doctype: 'CRM Lead' },
+  auto: true,
+})
 
 const fieldsLayout = createResource({
   url: 'crm.api.doc.get_sidebar_fields',
