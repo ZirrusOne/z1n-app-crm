@@ -14,7 +14,11 @@
           :class="{ 'my-4 sm:my-5': hasTabs }"
         >
           <template v-for="section in tab.sections" :key="section.name">
-            <Section :section="section" :data-name="section.name" />
+            <Section 
+              :section="section" 
+              :data-name="section.name"
+              :tableMultiSelectConfig="tableMultiSelectConfig" 
+            />
           </template>
         </div>
       </TabPanel>
@@ -38,6 +42,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  tableMultiSelectConfig: {
+    type: Object,
+    default: () => ({})
+  }
 })
 
 const tabIndex = ref(0)
@@ -55,6 +63,7 @@ provide(
 provide('hasTabs', hasTabs)
 provide('doctype', props.doctype)
 provide('preview', props.preview)
+provide('tableMultiSelectConfig', computed(() => props.tableMultiSelectConfig))
 </script>
 <style scoped>
 .section:not(:has(.field)) {

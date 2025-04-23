@@ -14,8 +14,24 @@ def get_deal(name):
 	deal["fields_meta"] = get_fields_meta("CRM Deal")
 	deal["_form_script"] = get_form_script("CRM Deal")
 	deal["_assign"] = get_assigned_users("CRM Deal", deal.name)
-	return deal
 
+
+	# Get all child table doctypes linked to CRM Deal
+	meta = frappe.get_meta("CRM Deal")
+	child_tables = [df for df in meta.fields if df.fieldtype in ["Table","Table MultiSelect" ] ]
+
+	deal['child_tables'] = {}
+
+	for child_table in child_tables:
+		child_doctype = child_table.options
+		child_records = frappe.get_all(
+			child_doctype,
+			fields="*",
+			filters={"parent": deal['name']}
+		)
+		deal['child_tables'][child_table.fieldname] = child_records
+
+	return deal
 
 @frappe.whitelist()
 def get_deal_contacts(name):

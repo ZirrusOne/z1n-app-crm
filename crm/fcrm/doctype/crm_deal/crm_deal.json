@@ -7,23 +7,12 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "tab_6_tab",
-  "details_section",
-  "deal_elements",
-  "probability",
-  "close_date",
-  "naming_series",
-  "column_break_tukx",
-  "next_step",
-  "status",
-  "status_detail",
-  "sales_channel",
-  "deal_owner",
   "organization_tab",
   "naming_series",
   "organization",
   "next_step",
   "probability",
+  "deal_elements",
   "column_break_ijan",
   "status",
   "status_detail",
@@ -350,17 +339,34 @@
    "options": "Currency"
   },
   {
-    "depends_on": "eval:doc.status",
-    "fieldname": "status_detail",
-    "fieldtype": "Link",
-    "label": "Status Detail",
-    "options": "CRM Deal Status Detail"
-   }
+   "depends_on": "eval:doc.status",
+   "fieldname": "status_detail",
+   "fieldtype": "Link",
+   "label": "Status Detail",
+   "options": "CRM Deal Status Detail"
+  },
+  {
+   "fieldname": "deal_elements",
+   "fieldtype": "Table MultiSelect",
+   "label": "Deal Elements",
+   "options": "CRM Deal Elements"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "CRM Deal",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-11-05 11:05:30.671900",
+ "modified": "2025-04-23 11:20:00.805883",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Deal",
@@ -392,6 +398,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",

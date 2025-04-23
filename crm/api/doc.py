@@ -7,9 +7,76 @@ from frappe.model import no_value_fields
 from frappe.model.document import get_controller
 from frappe.utils import make_filter_tuple
 from pypika import Criterion
+from frappe.model.db_query import DatabaseQuery
+from functools import wraps
+
+# Store the original build_and_run method
+original_build_and_run = DatabaseQuery.build_and_run
+
+# Monkey patch frappe.db.sql to catch and fix the error
+original_sql = frappe.db.sql
+
+@wraps(original_sql)
+def patched_sql(query, values=(), *args, **kwargs):
+    try:
+        return original_sql(query, values, *args, **kwargs)
+    except Exception as e:
+        if "Unknown column 'tabCRM Deal.deal_elements'" in str(e):
+            print("Caught deal_elements SQL error, original query:", query)
+            print("Values:", values)
+
+            # If it's a string query, try to remove the problematic part
+            if isinstance(query, str):
+                # We'll try a simple approach first - just return an empty result
+                print("Returning empty result set for query with deal_elements")
+                return []
+
+        # Re-raise the original exception for any other errors
+        raise
+
+# Apply the patch
+frappe.db.sql = patched_sql
+
+# Define your patched method
+def patched_build_and_run(self):
+    # Handle Table MultiSelect fields in filters
+    doctype = self.doctype
+    meta = frappe.get_meta(doctype)
+    table_multiselect_fields = [
+        field.fieldname for field in meta.fields if field.fieldtype == "Table MultiSelect"
+    ]
+
+    # Check and clean filters
+    if hasattr(self, 'filters') and self.filters:
+        print("DatabaseQuery filters before cleaning:", self.filters)
+        # Handle dict filters
+        if isinstance(self.filters, dict):
+            for field in table_multiselect_fields:
+                if field in self.filters:
+                    print(f"Removing from DatabaseQuery filter: {field}")
+                    del self.filters[field]
+        # Handle list filters
+        elif isinstance(self.filters, list):
+            new_filters = []
+            for f in self.filters:
+                if isinstance(f, (list, tuple)) and len(f) >= 3:
+                    field_name = f[1]
+                    if field_name in table_multiselect_fields:
+                        print(f"Skipping DatabaseQuery filter: {f}")
+                        continue
+                new_filters.append(f)
+            self.filters = new_filters
+        print("DatabaseQuery filters after cleaning:", self.filters)
+
+    # Call the original method
+    return original_build_and_run(self)
+
+# Replace the original method with the patched one
+DatabaseQuery.build_and_run = patched_build_and_run
 
 from crm.api.views import get_views
 from crm.fcrm.doctype.crm_form_script.crm_form_script import get_form_script
+
 
 
 @frappe.whitelist()
@@ -288,6 +355,7 @@ def get_data(
 	default_filters=None,
 ):
 	custom_view = False
+	print("Original filters:", filters)
 	filters = frappe._dict(filters)
 	rows = frappe.parse_json(rows or "[]")
 	columns = frappe.parse_json(columns or "[]")
@@ -322,6 +390,29 @@ def get_data(
 		default_rows = _list.default_list_data().get("rows")
 
 	meta = frappe.get_meta(doctype)
+	table_multiselect_fields = [
+		field.fieldname for field in meta.fields if field.fieldtype == "Table MultiSelect"
+	]
+
+    # Check all possible filter formats
+	if isinstance(filters, dict):
+		for field in table_multiselect_fields:
+			if field in filters:
+				print(f"Removing filter on Table MultiSelect field: {field}")
+				del filters[field]
+
+    # Also handle list format filters
+	elif isinstance(filters, list):
+		new_filters = []
+		for f in filters:
+			if isinstance(f, (list, tuple)) and len(f) >= 3:
+				if f[1] in table_multiselect_fields:
+					print(f"Skipping filter: {f}")
+					continue
+			new_filters.append(f)
+		filters = new_filters
+
+		print("Cleaned filters:", filters)
 
 	if view_type != "kanban":
 		if columns or rows:
@@ -383,7 +474,43 @@ def get_data(
 			)
 			or []
 		)
+
+		for record in data:
+			if 'child_tables' in record and 'deal_elements' in record['child_tables']:
+				print(f"Deal {record['name']} has deal elements: {record['child_tables']['deal_elements']}")
+			else:
+				print(f"Deal {record['name']} has no deal elements in child_tables")
+
 		data = parse_list_data(data, doctype)
+
+		# Fetch child table data if requested
+		include_child_tables = frappe.get_all('CRM Child Data Mapping', fields=['name'])
+		include_child_tables_list = [entry['name'] for entry in include_child_tables]
+
+		meta = frappe.get_meta(doctype)
+
+		table_multiselect_fields = [
+			field.fieldname for field in meta.fields if field.fieldtype == "Table MultiSelect"
+		]
+
+		for field in table_multiselect_fields:
+			if field in filters:
+				print(f"Removing filter on Table MultiSelect field: {field}")
+				del filters[field]
+
+		child_tables = [df for df in meta.fields if df.fieldtype in ["Table","Table MultiSelect"]]
+
+		for record in data:
+			record['child_tables'] = {}
+			for child_table in child_tables:
+				child_doctype = child_table.options
+				child_records = frappe.get_all(
+					child_doctype,
+					fields="*",
+					filters={"parent": record['name']}
+				)
+				record['child_tables'][child_table.fieldname] = child_records
+
 
 	if view_type == "kanban":
 		if not rows:

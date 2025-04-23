@@ -163,6 +163,7 @@
           :sections="sections.data"
           :addContact="addContact"
           doctype="CRM Deal"
+          :tableMultiSelectConfig="tableMultiSelectConfig"
           @update="updateField"
           @reload="sections.reload"
         >
@@ -460,6 +461,26 @@ const organization = createResource({
   url: 'frappe.client.get',
   onSuccess: (data) => (deal.data._organizationObj = data),
 })
+
+const tableMultiSelectConfig = ref({
+  // Configuration for deal_elements field
+  deal_elements: {
+    labelField: 'element',               // From tabCRM Deal Element, this is displayed in dropdown
+    displayField: 'deal_elements',       // From tabCRM Deal Elements, this is displayed for selected items
+    valueField: 'element',               // This is the value to save
+    emptyMessage: 'No Deal Elements selected', // Custom empty message
+    addButtonLabel: 'Add Deal Element',  // Custom button label
+    source: 'CRM Deal Element',          // The doctype to fetch options from
+
+    // Define the structure for new items
+    itemStructure: {
+      doctype: 'CRM Deal Elements',      // From the DB schema: tabCRM Deal Elements
+      parent: deal.data?.name,           // The parent document name
+      parenttype: 'CRM Deal',            // The parent doctype
+      parentfield: 'deal_elements',      // The field name in the parent doctype
+    }
+  }
+});
 
 onMounted(() => {
   $socket.on('crm_customer_created', () => {
@@ -822,11 +843,69 @@ function updateField(name, value, callback) {
     updateOnboardingStep('change_deal_status')
   }
 
+  // Handle Table MultiSelect fields
+  if (Array.isArray(value) && name === 'deal_elements') {
+
+    // Filter out items with null deal_elements and only keep valid items
+    const validItems = value.filter(item => {
+      // Keep only items that have a valid deal_elements value
+      if (item.deal_elements) {
+        return true;
+      }
+
+      return false;
+    });
+
+    // Special handling for child table updates
+    createResource({
+      url: 'frappe.client.set_value',
+      params: {
+        doctype: 'CRM Deal',
+        name: props.dealId,
+        fieldname: name,
+        value: validItems.map(item => {
+          // Create a new object for the API with the correct structure
+          return {
+            doctype: 'CRM Deal Elements',  // The child table doctype
+            parent: props.dealId,          // The parent document name
+            parenttype: 'CRM Deal',        // The parent doctype
+            parentfield: 'deal_elements',  // The field name in the parent doctype
+            deal_elements: item.deal_elements  // The field in the child table that stores the value
+          };
+        })
+      },
+      auto: true,
+      onSuccess: () => {
+        deal.reload()
+        reload.value = true
+        createToast({
+          title: __('Deal updated'),
+          icon: 'check',
+          iconClasses: 'text-ink-green-3',
+        })
+        callback?.()
+      },
+      onError: (err) => {
+        createToast({
+          title: __('Error updating deal'),
+          text: __(err.messages?.[0]),
+          icon: 'x',
+          iconClasses: 'text-ink-red-4',
+        })
+      },
+    })
+    return
+  }
+
+  // Regular field update
   updateDeal(name, value, () => {
     deal.data[name] = value
     callback?.()
   })
-  getStatusDetail(value);
+
+  if (name === 'status') {
+    getStatusDetail(value)
+  }
 }
 
 async function deleteDeal(name) {

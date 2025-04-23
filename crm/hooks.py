@@ -320,6 +320,7 @@ standard_dropdown_items = [
 ]
 
 fixtures = [ 
+    "CRM Deal Element",
     "CRM Deal Status",
     "CRM Deal Status Detail",
     { "doctype": "Custom Field", 
