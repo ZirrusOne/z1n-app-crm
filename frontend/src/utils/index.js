@@ -131,8 +131,6 @@ export function htmlToText(html) {
   return div.textContent || div.innerText || ''
 }
 
-<<<<<<< HEAD
-=======
 export function secondsToDuration(seconds) {
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
@@ -157,7 +155,6 @@ export function formatNumberIntoCurrency(value, currency = 'INR') {
   return ''
 }
 
->>>>>>> temp-branch
 export function startCase(str) {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
