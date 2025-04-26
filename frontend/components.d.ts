@@ -209,7 +209,6 @@ declare module 'vue' {
     StepsIcon: typeof import('./src/components/Icons/StepsIcon.vue')['default']
     SuccessIcon: typeof import('./src/components/Icons/SuccessIcon.vue')['default']
     TableMultiselectInput: typeof import('./src/components/Controls/TableMultiselectInput.vue')['default']
-    TableMultiSelectModal: typeof import('./src/components/Modals/TableMultiSelectModal.vue')['default']
     TaskArea: typeof import('./src/components/Activities/TaskArea.vue')['default']
     TaskIcon: typeof import('./src/components/Icons/TaskIcon.vue')['default']
     TaskModal: typeof import('./src/components/Modals/TaskModal.vue')['default']

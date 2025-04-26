@@ -483,11 +483,20 @@ def get_data(
 
 		data = parse_list_data(data, doctype)
 
-		# Fetch child table data if requested
-		include_child_tables = frappe.get_all('CRM Child Data Mapping', fields=['name'])
-		include_child_tables_list = [entry['name'] for entry in include_child_tables]
-
-		meta = frappe.get_meta(doctype)
+		child_tables = [df for df in meta.fields if df.fieldtype in ["Table", "Table MultiSelect"]]
+        
+    # Fetch child tables for all records
+		for record in data:
+			record['child_tables'] = {}
+			for child_table in child_tables:
+				child_doctype = child_table.options
+				child_records = frappe.get_all(
+					child_doctype,
+					fields="*",
+					filters={"parent": record['name']}
+				)
+				record['child_tables'][child_table.fieldname] = child_records
+				print(f"Fetched {len(child_records)} {child_table.fieldname} records for {record['name']}")
 
 		table_multiselect_fields = [
 			field.fieldname for field in meta.fields if field.fieldtype == "Table MultiSelect"
