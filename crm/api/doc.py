@@ -483,6 +483,9 @@ def get_data(
 
 		data = parse_list_data(data, doctype)
 
+		# Get all child tables for the doctype
+		# This was implemented for Deal Elements, specifically for the deal_elements field
+		# If this impacts performance, we can optimize it later
 		child_tables = [df for df in meta.fields if df.fieldtype in ["Table", "Table MultiSelect"]]
         
     # Fetch child tables for all records
