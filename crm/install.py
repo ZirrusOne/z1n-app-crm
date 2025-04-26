@@ -19,7 +19,6 @@ def after_install(force=False):
 	add_default_industries()
 	add_default_lead_sources()
 	add_standard_dropdown_items()
-	# add_child_data_mappings()
 	frappe.db.commit()
 
 
@@ -354,9 +353,3 @@ def add_standard_dropdown_items():
 		crm_settings.append("dropdown_items", item)
 
 	crm_settings.save()
-
-def add_child_data_mappings():
-    if not frappe.db.exists("CRM Child Data Mapping", "CRM Deal"):
-        doc = frappe.new_doc("CRM Child Data Mapping")
-        doc.name = "CRM Deal"
-        doc.insert(ignore_permissions=True)
