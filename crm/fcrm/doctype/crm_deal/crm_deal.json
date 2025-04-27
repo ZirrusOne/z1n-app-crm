@@ -12,8 +12,10 @@
   "organization",
   "next_step",
   "probability",
+  "deal_elements",
   "column_break_ijan",
   "status",
+  "status_detail",
   "close_date",
   "deal_owner",
   "contacts_tab",
@@ -55,7 +57,8 @@
   "first_response_time",
   "first_responded_on",
   "log_tab",
-  "status_change_log"
+  "status_change_log",
+  "amended_from"
  ],
  "fields": [
   {
@@ -334,11 +337,38 @@
    "fieldtype": "Link",
    "label": "Currency",
    "options": "Currency"
+  },
+  {
+   "depends_on": "eval:doc.status",
+   "fieldname": "status_detail",
+   "fieldtype": "Link",
+   "label": "Status Detail",
+   "options": "CRM Deal Status Detail"
+  },
+  {
+   "fieldname": "deal_elements",
+   "fieldtype": "Table MultiSelect",
+   "in_filter": 1,
+   "in_standard_filter": 1,
+   "label": "Deal Elements",
+   "options": "CRM Deal Elements"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "CRM Deal",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [],
- "modified": "2024-12-11 14:31:41.058895",
+ "modified": "2025-04-26 10:15:25.948632",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Deal",
@@ -370,6 +400,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",

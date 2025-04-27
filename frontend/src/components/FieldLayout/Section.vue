@@ -23,6 +23,7 @@
           :class="{ 'mt-6': section.label && !section.hideLabel }"
           :column="column"
           :data-name="column.name"
+          :tableMultiSelectConfig="tableMultiSelectConfig"
         />
       </template>
     </Section>
@@ -35,6 +36,11 @@ import { inject } from 'vue'
 
 const props = defineProps({
   section: Object,
+  'data-name': String,
+  tableMultiSelectConfig: {
+    type: Object,
+    default: () => ({})
+  }
 })
 
 const hasTabs = inject('hasTabs')

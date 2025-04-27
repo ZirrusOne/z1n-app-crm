@@ -18,7 +18,7 @@
         doctype="CRM Deal"
       />
       <Dropdown
-        :options="statusOptions('deal', updateField, deal.data._customStatuses)"
+        :options="statusOptions('deal', updateField, deal.data._customStatuses)" class="status-option"
       >
         <template #default="{ open }">
           <Button :label="deal.data.status">
@@ -34,7 +34,37 @@
           </Button>
         </template>
       </Dropdown>
+      <Dropdown
+        v-model="deal.data.status_detail"
+        :options="status_detail_option.map(option => ({
+          label: option.name,
+          value: option.name,
+          title: option.dec,
+          onClick: () => updateStatusDetail(option.name)
+        }))"
+        class="status-option-detail"
+      >
+        <template #default="{ open }">
+          <Button :label="deal.data.status_detail || 'Select Status Detail'">
+            <template #suffix>
+              <FeatherIcon
+                :name="open ? 'chevron-up' : 'chevron-down'"
+                class="h-4"
+              />
+            </template>
+          </Button>
+        </template>
+      </Dropdown>
+      <Tooltip :text="__('Delete')">
+        <Button
+          variant="ghost"
+          icon="trash-2"
+          class="text-ink-gray-5"
+          @click="deleteDeal(deal.data.name)"
+        />
+      </Tooltip>
     </template>
+
   </LayoutHeader>
   <div v-if="deal.data" class="flex h-full overflow-hidden">
     <Tabs as="div" v-model="tabIndex" :tabs="tabs">
@@ -133,6 +163,7 @@
           :sections="sections.data"
           :addContact="addContact"
           doctype="CRM Deal"
+          :tableMultiSelectConfig="tableMultiSelectConfig"
           @update="updateField"
           @reload="sections.reload"
         >
@@ -354,6 +385,7 @@ import {
   Breadcrumbs,
   call,
   usePageMeta,
+  FormControl
 } from 'frappe-ui'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { ref, computed, h, onMounted, onBeforeUnmount } from 'vue'
@@ -380,6 +412,8 @@ const props = defineProps({
 
 const errorTitle = ref('')
 const errorMessage = ref('')
+
+const status_detail_option = ref([]);
 
 const deal = createResource({
   url: 'crm.fcrm.doctype.crm_deal.api.get_deal',
@@ -428,6 +462,26 @@ const organization = createResource({
   onSuccess: (data) => (deal.data._organizationObj = data),
 })
 
+const tableMultiSelectConfig = ref({
+  // Configuration for deal_elements field
+  deal_elements: {
+    labelField: 'element',               // From tabCRM Deal Element, this is displayed in dropdown
+    displayField: 'deal_elements',       // From tabCRM Deal Elements, this is displayed for selected items
+    valueField: 'element',               // This is the value to save
+    emptyMessage: 'No Deal Elements selected', // Custom empty message
+    addButtonLabel: 'Add Deal Element',  // Custom button label
+    source: 'CRM Deal Element',          // The doctype to fetch options from
+
+    // Define the structure for new items
+    itemStructure: {
+      doctype: 'CRM Deal Elements',      // From the DB schema: tabCRM Deal Elements
+      parent: deal.data?.name,           // The parent document name
+      parenttype: 'CRM Deal',            // The parent doctype
+      parentfield: 'deal_elements',      // The field name in the parent doctype
+    }
+  }
+});
+
 onMounted(() => {
   $socket.on('crm_customer_created', () => {
     createToast({
@@ -439,14 +493,68 @@ onMounted(() => {
 
   if (deal.data) {
     organization.data = deal.data._organizationObj
+    getStatusDetail(deal.data.status)
     return
   }
-  deal.fetch()
+
+  deal.fetch().then(() => {
+      getStatusDetail(deal.data.status)
+    })
+
 })
 
 onBeforeUnmount(() => {
   $socket.off('crm_customer_created')
 })
+
+function getStatusDetail(status) {
+  createResource({
+  auto: true,
+  params: {
+      status: status,
+    },
+  url: 'crm.api.doc.get_crm_deal_status_for_status',
+  transform: (data) => {
+    const actualData = unwrapProxy(data);
+
+    if (!actualData || !Array.isArray(actualData)) {
+    status_detail_option.value = [];
+    }
+    // const status_array = actualData.map((item) => item.detail_name);
+    // status_detail_option.value = status_array;
+    const status_array = actualData.map((item) => ({
+        name: item.detail_name, // Adjust if `detail_name` is not the correct key
+        dec: item.description || '' // Adjust if `detail_description` is not the correct key or needs a default
+      }));
+
+      status_detail_option.value = status_array;
+  },
+
+});
+}
+
+function updateStatusDetail(value){
+updateDeal('status_detail', value, () => {
+    deal.data['status_detail'] = value
+  })
+}
+
+/**
+ *  Convert proxy object into array
+ * @param proxyData 
+ */
+ function unwrapProxy(proxyData) {
+  if (Array.isArray(proxyData)) {
+    return proxyData.map((item) => unwrapProxy(item));
+  } 
+  else if (proxyData !== null && typeof proxyData === 'object') {
+    return Object.keys(proxyData).reduce((acc, key) => {
+      acc[key] = unwrapProxy(proxyData[key]);
+      return acc;
+    }, {});
+  }
+  return proxyData;
+}
 
 const reload = ref(false)
 const showOrganizationModal = ref(false)
@@ -735,10 +843,69 @@ function updateField(name, value, callback) {
     updateOnboardingStep('change_deal_status')
   }
 
+  // Handle Table MultiSelect fields
+  if (Array.isArray(value) && name === 'deal_elements') {
+
+    // Filter out items with null deal_elements and only keep valid items
+    const validItems = value.filter(item => {
+      // Keep only items that have a valid deal_elements value
+      if (item.deal_elements) {
+        return true;
+      }
+
+      return false;
+    });
+
+    // Special handling for child table updates
+    createResource({
+      url: 'frappe.client.set_value',
+      params: {
+        doctype: 'CRM Deal',
+        name: props.dealId,
+        fieldname: name,
+        value: validItems.map(item => {
+          // Create a new object for the API with the correct structure
+          return {
+            doctype: 'CRM Deal Elements',  // The child table doctype
+            parent: props.dealId,          // The parent document name
+            parenttype: 'CRM Deal',        // The parent doctype
+            parentfield: 'deal_elements',  // The field name in the parent doctype
+            deal_elements: item.deal_elements  // The field in the child table that stores the value
+          };
+        })
+      },
+      auto: true,
+      onSuccess: () => {
+        deal.reload()
+        reload.value = true
+        createToast({
+          title: __('Deal updated'),
+          icon: 'check',
+          iconClasses: 'text-ink-green-3',
+        })
+        callback?.()
+      },
+      onError: (err) => {
+        createToast({
+          title: __('Error updating deal'),
+          text: __(err.messages?.[0]),
+          icon: 'x',
+          iconClasses: 'text-ink-red-4',
+        })
+      },
+    })
+    return
+  }
+
+  // Regular field update
   updateDeal(name, value, () => {
     deal.data[name] = value
     callback?.()
   })
+
+  if (name === 'status') {
+    getStatusDetail(value)
+  }
 }
 
 async function deleteDeal(name) {

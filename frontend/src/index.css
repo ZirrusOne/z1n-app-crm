@@ -23,3 +23,127 @@
 			prose-th:relative;
 	}
 }
+
+/* Table MultiSelect styles */
+.table-multiselect-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.25rem;
+	font-size: 0.75rem;
+	background-color: #f3f4f6;
+	color: #374151;
+	margin-right: 0.25rem;
+	margin-bottom: 0.25rem;
+}
+
+.table-multiselect-tag button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1rem;
+	height: 1rem;
+	border-radius: 9999px;
+	background-color: #e5e7eb;
+	color: #6b7280;
+	transition: all 100ms;
+}
+
+.table-multiselect-tag button:hover {
+	background-color: #d1d5db;
+	color: #374151;
+}
+
+.table-multiselect-tag button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-left: 4px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.table-multiselect-tag button:hover {
+  background-color: #d1d5db;
+  color: #374151;
+}
+
+.table-multiselect-tag button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+/* Override default form-control styles for multiselect */
+:deep(.form-control.table-multiselect input) {
+	width: 100%;
+	min-height: 2rem;
+	padding: 0.25rem 0.5rem;
+	border: 1px solid #e5e7eb;
+	border-radius: 0.25rem;
+	background-color: #f9fafb;
+}
+
+:deep(.form-control.table-multiselect input:focus) {
+	outline: none;
+	border-color: #a1a1aa;
+	box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.2);
+}
+
+.deal-chip .grid.items-center.space-x-4.rounded.px-2.hover\:bg-gray-50 {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    height: initial !important;
+    min-height: 40px;
+} 
+
+.chip-data{
+    display: grid;
+}
+
+.chip {
+  width: fit-content;
+  padding: 4px;
+  pointer-events: none;
+  border: none;
+  background-color: #f3f3f3 !important;
+  color: #000000 !important;
+  text-align: center;
+  text-decoration: none;
+  margin-bottom: 6px !important; /* Add vertical spacing between chips */
+  margin-right: 6px !important; /* Keep some horizontal spacing too */
+  display: inline-block !important; /* Ensure proper block layout */
+}
+
+.grid.items-center.space-x-4.rounded.px-2 {
+  height: auto !important;
+  min-height: 40px !important;
+  padding-top: 12px !important;  /* Increased from default */
+  padding-bottom: 12px !important;  /* Increased from default */
+}
+
+/* Ensure the deal elements column can wrap properly */
+  [data-v-7b9c0a48].flex.gap-2.flex-wrap {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  overflow: visible !important;
+}
+
+.report-filter select {
+	min-width: 260px !important;
+}
+
+.status-option-detail {
+	min-width: 200px;
+}
+
+.status-option {
+	min-width: 200px;
+}
+
+.status-option button {
+	min-width: 200px;
+}

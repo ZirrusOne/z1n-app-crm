@@ -7,7 +7,11 @@
       {{ column.label }}
     </div>
     <template v-for="field in column.fields" :key="field.fieldname">
-      <Field :field="field" :data-name="field.fieldname" />
+      <Field 
+        :field="field" 
+        :data-name="field.fieldname" 
+        :tableMultiSelectConfig="tableMultiSelectConfig"
+      />
     </template>
   </div>
 </template>
@@ -16,5 +20,10 @@ import Field from '@/components/FieldLayout/Field.vue'
 
 const props = defineProps({
   column: Object,
+  'data-name': String,
+  tableMultiSelectConfig: {
+    type: Object,
+    default: () => ({})
+  }
 })
 </script>

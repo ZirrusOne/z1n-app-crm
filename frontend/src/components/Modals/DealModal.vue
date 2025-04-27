@@ -52,6 +52,7 @@
             :tabs="tabs.data"
             :data="deal"
             doctype="CRM Deal"
+            :tableMultiSelectConfig="tableMultiSelectConfig"
           />
           <ErrorMessage class="mt-4" v-if="error" :message="__(error)" />
         </div>
@@ -109,6 +110,7 @@ const deal = reactive({
   gender: '',
   status: '',
   deal_owner: '',
+  deal_elements: [],
 })
 
 const hasOrganizationSections = ref(true)
@@ -118,6 +120,17 @@ const isDealCreating = ref(false)
 const chooseExistingContact = ref(false)
 const chooseExistingOrganization = ref(false)
 const fieldLayoutRef = ref(null)
+
+const tableMultiSelectConfig = ref({
+  // Configuration for deal_elements field
+  deal_elements: {
+    labelField: 'element',               // From tabCRM Deal Element, this is displayed in dropdown
+    displayField: 'deal_elements',       // From tabCRM Deal Elements, this is displayed for selected items
+    valueField: 'element',               // This is the value to save
+    addButtonLabel: 'Add Deal Element',  // Custom button label
+    source: 'CRM Deal Element',          // The doctype to fetch options from
+  }
+});
 
 watch(
   [chooseExistingOrganization, chooseExistingContact],
@@ -168,7 +181,7 @@ const tabs = createResource({
               field.prefix = getDealStatus(deal.status).color
             }
 
-            if (field.fieldtype === 'Table') {
+            if (['Table', 'Table MultiSelect'].includes(field.fieldtype)) {
               deal[field.fieldname] = []
             }
           })

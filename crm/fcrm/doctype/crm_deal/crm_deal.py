@@ -144,6 +144,13 @@ class CRMDeal(Document):
 				"width": "11rem",
 			},
 			{
+				'label': 'Deal Elements',
+				'type': 'Table MultiSelect',
+				'key': 'deal_elements',
+				'options': 'CRM Deal Elements',
+				'width': '12rem',
+			},
+			{
 				"label": "Annual Revenue",
 				"type": "Currency",
 				"key": "annual_revenue",
@@ -184,6 +191,7 @@ class CRMDeal(Document):
 		rows = [
 			"name",
 			"organization",
+			"deal_elements",
 			"annual_revenue",
 			"status",
 			"email",

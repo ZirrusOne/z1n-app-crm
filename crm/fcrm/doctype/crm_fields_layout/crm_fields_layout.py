@@ -15,84 +15,126 @@ class CRMFieldsLayout(Document):
 
 @frappe.whitelist()
 def get_fields_layout(doctype: str, type: str, parent_doctype: str | None = None):
-	tabs = []
-	layout = None
+    tabs = []
+    layout = None
 
-	if frappe.db.exists("CRM Fields Layout", {"dt": doctype, "type": type}):
-		layout = frappe.get_doc("CRM Fields Layout", {"dt": doctype, "type": type})
+    if frappe.db.exists("CRM Fields Layout", {"dt": doctype, "type": type}):
+        layout = frappe.get_doc("CRM Fields Layout", {"dt": doctype, "type": type})
 
-	if layout and layout.layout:
-		tabs = json.loads(layout.layout)
+    if layout and layout.layout:
+        tabs = json.loads(layout.layout)
 
-	if not tabs and type != "Required Fields":
-		tabs = get_default_layout(doctype)
+    if not tabs and type != "Required Fields":
+        tabs = get_default_layout(doctype)
 
-	has_tabs = tabs[0].get("sections") if tabs and tabs[0] else False
+    has_tabs = tabs[0].get("sections") if tabs and tabs[0] else False
 
-	if not has_tabs:
-		tabs = [{"name": "first_tab", "sections": tabs}]
+    if not has_tabs:
+        tabs = [{"name": "first_tab", "sections": tabs}]
 
-	allowed_fields = []
-	for tab in tabs:
-		for section in tab.get("sections"):
-			if "columns" not in section:
-				continue
-			for column in section.get("columns"):
-				if not column.get("fields"):
-					continue
-				allowed_fields.extend(column.get("fields"))
+    allowed_fields = []
+    for tab in tabs:
+        for section in tab.get("sections", []):
+            if "columns" not in section:
+                continue
 
-	fields = frappe.get_meta(doctype).fields
-	fields = [field for field in fields if field.fieldname in allowed_fields]
+            # Handle the columns property properly
+            columns = section.get("columns")
 
-	for tab in tabs:
-		for section in tab.get("sections"):
-			for column in section.get("columns") if section.get("columns") else []:
-				for field in column.get("fields") if column.get("fields") else []:
-					field = next((f for f in fields if f.fieldname == field), None)
-					if field:
-						field = field.as_dict()
-						handle_perm_level_restrictions(field, doctype, parent_doctype)
-						column["fields"][column.get("fields").index(field["fieldname"])] = field
+            # Fix for the 'int' is not iterable error
+            if isinstance(columns, int):
+                # Convert to a list with a single item
+                columns = [{"name": f"column_{random_string(4)}", "fields": []}]
+                section["columns"] = columns
 
-	return tabs or []
+            for column in columns:
+                if not column.get("fields"):
+                    continue
+                allowed_fields.extend(column.get("fields"))
+
+    fields = frappe.get_meta(doctype).fields
+    print("Allowed fields:", allowed_fields)
+    print("Meta fields (before filtering):", [f.fieldname for f in frappe.get_meta(doctype).fields])
+    fields = [field for field in fields if field.fieldname in allowed_fields]
+
+    for tab in tabs:
+        for section in tab.get("sections", []):
+            # Skip if no columns
+            if "columns" not in section:
+                continue
+
+            # Handle the columns property again
+            columns = section.get("columns")
+            if isinstance(columns, int):
+                columns = [{"name": f"column_{random_string(4)}", "fields": []}]
+                section["columns"] = columns
+
+            for column in columns:
+                if not column.get("fields"):
+                    continue
+
+                for i, field_name in enumerate(column.get("fields")):
+                    field = next((f for f in fields if f.fieldname == field_name), None)
+                    if field:
+                        field = field.as_dict()
+                        handle_perm_level_restrictions(field, doctype, parent_doctype)
+                        column["fields"][i] = field
+
+    return tabs or []
 
 
 @frappe.whitelist()
+@frappe.whitelist()
 def get_sidepanel_sections(doctype):
-	if not frappe.db.exists("CRM Fields Layout", {"dt": doctype, "type": "Side Panel"}):
-		return []
-	layout = frappe.get_doc("CRM Fields Layout", {"dt": doctype, "type": "Side Panel"}).layout
+    if not frappe.db.exists("CRM Fields Layout", {"dt": doctype, "type": "Side Panel"}):
+        return []
+    layout = frappe.get_doc("CRM Fields Layout", {"dt": doctype, "type": "Side Panel"}).layout
 
-	if not layout:
-		return []
+    if not layout:
+        return []
 
-	layout = json.loads(layout)
+    layout = json.loads(layout)
 
-	not_allowed_fieldtypes = [
-		"Tab Break",
-		"Section Break",
-		"Column Break",
-	]
+    not_allowed_fieldtypes = [
+        "Tab Break",
+        "Section Break",
+        "Column Break",
+    ]
 
-	fields = frappe.get_meta(doctype).fields
-	fields = [field for field in fields if field.fieldtype not in not_allowed_fieldtypes]
+    fields = frappe.get_meta(doctype).fields
+    fields = [field for field in fields if field.fieldtype not in not_allowed_fieldtypes]
 
-	for section in layout:
-		section["name"] = section.get("name") or section.get("label")
-		for column in section.get("columns") if section.get("columns") else []:
-			for field in column.get("fields") if column.get("fields") else []:
-				field_obj = next((f for f in fields if f.fieldname == field), None)
-				if field_obj:
-					field_obj = field_obj.as_dict()
-					handle_perm_level_restrictions(field_obj, doctype)
-					column["fields"][column.get("fields").index(field)] = get_field_obj(field_obj)
+    for section in layout:
+        section["name"] = section.get("name") or section.get("label")
 
-	fields_meta = {}
-	for field in fields:
-		fields_meta[field.fieldname] = field
+        # Handle the columns property more robustly
+        columns = section.get("columns")
 
-	return layout
+        # Fix for the 'int' is not iterable error
+        if columns is None:
+            # If columns is completely missing, initialize as empty list
+            columns = []
+            section["columns"] = columns
+        elif isinstance(columns, int):
+            # If columns is an integer, convert to a proper column structure
+            columns = [{"name": f"column_{random_string(4)}", "fields": []}]
+            section["columns"] = columns
+
+        # Now iterate through the columns safely
+        for column in section.get("columns", []):
+            column_fields = column.get("fields", [])
+            for i, field in enumerate(column_fields):
+                field_obj = next((f for f in fields if f.fieldname == field), None)
+                if field_obj:
+                    field_obj = field_obj.as_dict()
+                    handle_perm_level_restrictions(field_obj, doctype)
+                    column["fields"][i] = get_field_obj(field_obj)
+
+    fields_meta = {}
+    for field in fields:
+        fields_meta[field.fieldname] = field
+
+    return layout
 
 
 def handle_perm_level_restrictions(field, doctype, parent_doctype=None):

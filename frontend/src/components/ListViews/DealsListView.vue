@@ -1,6 +1,6 @@
 <template>
   <ListView
-    :class="$attrs.class"
+    :class="[$attrs.class, 'deal-chip']"
     :columns="columns"
     :rows="rows"
     :options="{
@@ -83,6 +83,9 @@
           </div>
           <div v-else-if="column.key === 'mobile_no'">
             <PhoneIcon class="h-4 w-4" />
+          </div>
+          <div v-else-if="column.key === 'deal_elements'">
+            <DealElement :deals="item.data || []" />
           </div>
           <div v-else-if="column.key === '_liked_by'">
             <Button
@@ -217,6 +220,7 @@ import {
 import { sessionStore } from '@/stores/session'
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import DealElement from '../frappe-ui/DealElement.vue'
 
 const props = defineProps({
   rows: {
