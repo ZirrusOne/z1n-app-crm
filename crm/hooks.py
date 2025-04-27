@@ -309,18 +309,11 @@ standard_dropdown_items = [
 	},
 ]
 
-<<<<<<< HEAD
 fixtures = [
     {
 		"doctype": "CRM Fields Layout",
         "filters": [["name", "=", "CRM Campaign-Quick Entry"]]
 	},
-=======
-fixtures = [ 
-    "CRM Deal Element",
-    "CRM Deal Status",
-    "CRM Deal Status Detail",
->>>>>>> feature/deal-elements
     { "doctype": "Custom Field", 
         "filters": [ 
             ["name", "=", "Contact-buying_role"]
