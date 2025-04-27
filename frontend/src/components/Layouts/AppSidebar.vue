@@ -184,6 +184,7 @@ import { capture } from '@/telemetry'
 import router from '@/router'
 import { useStorage } from '@vueuse/core'
 import { ref, reactive, computed, h, markRaw, onMounted } from 'vue'
+import CampaignIcon from '../Icons/CampaignIcon.vue'
 
 const { getPinnedViews, getPublicViews } = viewsStore()
 const { toggle: toggleNotificationPanel } = notificationsStore()
@@ -233,6 +234,11 @@ const links = [
     label: 'Email Templates',
     icon: Email2Icon,
     to: 'Email Templates',
+  },
+  {
+    label: 'Campaigns',
+    icon: CampaignIcon,
+    to: 'Email Campaigns',
   },
 ]
 

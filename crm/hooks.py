@@ -167,23 +167,13 @@ doc_events = {
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# "all": [
-# "crm.tasks.all"
-# ],
-# "daily": [
-# "crm.tasks.daily"
-# ],
-# "hourly": [
-# "crm.tasks.hourly"
-# ],
-# "weekly": [
-# "crm.tasks.weekly"
-# ],
-# "monthly": [
-# "crm.tasks.monthly"
-# ],
-# }
+scheduler_events = {
+    "cron": {
+        "0 */1 * * *": [
+            "crm.fcrm.doctype.crm_campaign.crm_campaign.send_email_for_campaign"
+        ]
+    }
+}
 
 # Testing
 # -------
@@ -319,12 +309,16 @@ standard_dropdown_items = [
 	},
 ]
 
-fixtures = [ 
+fixtures = [
+    {
+		"doctype": "CRM Fields Layout",
+        "filters": [["name", "=", "CRM Campaign-Quick Entry"]]
+	},
     { "doctype": "Custom Field", 
         "filters": [ 
             ["name", "=", "Contact-buying_role"]
         ]
-    } ,
+    },
     {
         "doctype": "CRM Buying Role", 
         "filters": [

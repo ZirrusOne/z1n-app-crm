@@ -92,9 +92,17 @@ const routes = [
     props: true,
   },
   {
-    path: '/welcome',
-    name: 'Welcome',
-    component: () => import('@/pages/Welcome.vue'),
+    alias: '/email-campaigns',
+    path: '/email-campaigns/view/:viewType?',
+    name: 'Email Campaigns',
+    component: () => import('@/pages/Campaigns.vue'),
+    meta: { scrollPos: { top: 0, left: 0 } },
+  },
+  {
+    path: '/email-campigns/:campaignId',
+    name: 'Campaign',
+    component: () => import('@/pages/Campaign.vue'),
+    props: true,
   },
   {
     path: '/:invalidpath',
