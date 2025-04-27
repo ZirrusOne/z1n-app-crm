@@ -56,69 +56,56 @@
       </div>
     </div>
 
-    <!-- Using simple div-based tabs as a workaround -->
-    <div class="flex border-b px-5">
-      <div 
-        class="flex items-center gap-2 px-4 py-2.5 cursor-pointer"
-        :class="tabIndex === 0 ? 'border-b-2 border-blue-500 text-gray-900 font-medium' : 'text-gray-600'"
-        @click="tabIndex = 0"
-      >
-        <LeadsIcon class="h-4 w-4" />
-        <span>{{ __('Leads') }}</span>
-        <span class="ml-1 text-sm text-gray-500">({{ leadParticipants.length || 0 }})</span>
-      </div>
-      <div 
-        class="flex items-center gap-2 px-4 py-2.5 cursor-pointer"
-        :class="tabIndex === 1 ? 'border-b-2 border-blue-500 text-gray-900 font-medium' : 'text-gray-600'"
-        @click="tabIndex = 1"
-      >
-        <ContactsIcon class="h-4 w-4" />
-        <span>{{ __('Contacts') }}</span>
-        <span class="ml-1 text-sm text-gray-500">({{ contactParticipants.length || 0 }})</span>
-      </div>
-    </div>
-
-    <!-- Tab content -->
-    <div class="p-5">
-      <!-- Loading State -->
-      <div v-if="isLoadingParticipants" class="flex justify-center py-8">
-        <div>{{ __('Loading data...') }}</div>
-      </div>
-      
-      <!-- Leads Tab Content -->
-      <div v-else-if="tabIndex === 0">
-        <div v-if="mappedLeadParticipants.length">
-          <LeadsListView
-            :rows="mappedLeadParticipants"
-            :columns="leadColumns"
-            :options="{ selectable: false, showTooltip: true }"
-          />
+    <!-- Tabs section using the same pattern as Organization.vue -->
+    <Tabs as="div" v-model="tabIndex" :tabs="tabs">
+      <template #tab-item="{ tab, selected }">
+        <button
+          class="group flex items-center gap-2 border-b border-transparent py-2.5 text-base text-gray-600 duration-300 ease-in-out hover:border-gray-400 hover:text-gray-900"
+          :class="{ 'text-gray-900': selected }"
+        >
+          <component v-if="tab.icon" :is="tab.icon" class="h-5" />
+          {{ __(tab.label) }}
+          <Badge
+            class="group-hover:bg-gray-100"
+            :class="[selected ? 'bg-gray-100' : 'bg-gray-50']"
+            variant="solid"
+            theme="gray"
+            size="sm"
+          >
+            {{ tab.count }}
+          </Badge>
+        </button>
+      </template>
+      <template #tab-panel="{ tab }">
+        <div v-if="isLoadingParticipants" class="flex justify-center py-8">
+          <div>{{ __('Loading data...') }}</div>
         </div>
-        <div v-else class="grid flex-1 place-items-center text-xl font-medium text-gray-500 p-10">
+        <LeadsListView
+          class="mt-4"
+          v-if="tab.label === 'Leads' && mappedLeadParticipants.length"
+          :rows="mappedLeadParticipants"
+          :columns="leadColumns"
+          :options="{ selectable: false, showTooltip: true }"
+        />
+        <ContactsListView
+          class="mt-4"
+          v-if="tab.label === 'Contacts' && mappedContactParticipants.length"
+          :rows="mappedContactParticipants"
+          :columns="contactColumns"
+          :options="{ selectable: false, showTooltip: true }"
+        />
+        <div
+          v-if="(tab.label === 'Leads' && !mappedLeadParticipants.length) || 
+               (tab.label === 'Contacts' && !mappedContactParticipants.length)"
+          class="grid flex-1 place-items-center text-xl font-medium text-gray-500 mt-10"
+        >
           <div class="flex flex-col items-center justify-center space-y-3">
-            <LeadsIcon class="h-10 w-10" />
-            <div>{{ __('No Leads Found') }}</div>
+            <component :is="tab.icon" class="!h-10 !w-10" />
+            <div>{{ __('No {0} Found', [__(tab.label)]) }}</div>
           </div>
         </div>
-      </div>
-      
-      <!-- Contacts Tab Content -->
-      <div v-else-if="tabIndex === 1">
-        <div v-if="mappedContactParticipants.length">
-          <ContactsListView
-            :rows="mappedContactParticipants"
-            :columns="contactColumns"
-            :options="{ selectable: false, showTooltip: true }"
-          />
-        </div>
-        <div v-else class="grid flex-1 place-items-center text-xl font-medium text-gray-500 p-10">
-          <div class="flex flex-col items-center justify-center space-y-3">
-            <ContactsIcon class="h-10 w-10" />
-            <div>{{ __('No Contacts Found') }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
+      </template>
+    </Tabs>
   </div>
   
   <!-- Loading State -->
@@ -140,11 +127,13 @@ import { usersStore } from '@/stores/users'
 import { statusesStore } from '@/stores/statuses'
 import { formatDate, timeAgo } from '@/utils'
 import {
+  Tabs,
   Tooltip,
+  Badge,
   FeatherIcon,
   createResource,
 } from 'frappe-ui'
-import { computed, ref, onMounted } from 'vue'
+import { h, computed, ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 const props = defineProps({
@@ -161,6 +150,20 @@ const campaignData = ref(null)
 const error = ref(null)
 const tabIndex = ref(0)
 const isLoadingParticipants = ref(true)
+
+// Define tabs using the pattern from Organization.vue
+const tabs = [
+  {
+    label: 'Leads',
+    icon: h(LeadsIcon, { class: 'h-4 w-4' }),
+    count: computed(() => leadParticipants.value?.length || 0),
+  },
+  {
+    label: 'Contacts',
+    icon: h(ContactsIcon, { class: 'h-4 w-4' }),
+    count: computed(() => contactParticipants.value?.length || 0),
+  },
+]
 
 onMounted(() => {
   loadCampaignData()
