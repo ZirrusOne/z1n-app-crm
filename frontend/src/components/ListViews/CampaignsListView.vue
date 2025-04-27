@@ -216,7 +216,7 @@ import { customFormatNumberIntoCurrency } from '@/utils'
 import { sessionStore } from '@/stores/session'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import DealElement from '../frappe-ui/DealElement.vue'
+import DealElement from '@/components/frappe-ui/DealElement.vue'
 
 const props = defineProps({
   rows: {
