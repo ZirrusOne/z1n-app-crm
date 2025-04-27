@@ -70,6 +70,9 @@
           <div v-else-if="column.key === 'mobile_no'">
             <PhoneIcon class="h-4 w-4" />
           </div>
+          <div v-else-if="column.key === 'scheduled_send_time'">
+            <FeatherIcon name="calendar" class="h-4 w-4" />
+          </div>
           <div v-else-if="column.key === '_liked_by'">
             <Button
               v-if="column.key == '_liked_by'"
@@ -104,8 +107,8 @@
                 })
             "
           >
-            <Tooltip :text="item.label">
-              <div>{{ item.timeAgo || item.label }}</div>
+            <Tooltip :text="item.label || item">
+              <div>{{ item.timeAgo || item.label || formatDateIfString(item) }}</div>
             </Tooltip>
           </div>
           <div v-else-if="column.type === 'Check'">
@@ -177,10 +180,12 @@ import {
   Tooltip,
   FormControl,
   Button,
+  FeatherIcon,
 } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { formatDate, timeAgo } from '@/utils'
 
 const props = defineProps({
   rows: {
@@ -233,6 +238,18 @@ function isLiked(item) {
     }
   }
   return false
+}
+
+// Format date if it's a string
+function formatDateIfString(value) {
+  if (typeof value === 'string' && value) {
+    try {
+      return formatDate(value, 'MMM D, YYYY h:mm A')
+    } catch (e) {
+      return value
+    }
+  }
+  return value
 }
 
 watch(pageLengthCount, (val, old_value) => {
