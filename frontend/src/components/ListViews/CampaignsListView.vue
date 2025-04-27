@@ -1,6 +1,6 @@
 <template>
   <ListView
-    :class="[$attrs.class, 'deal-chip']"
+    :class="[$attrs.class, 'campaign-list']"
     :columns="columns"
     :rows="rows"
     :options="{
@@ -67,20 +67,11 @@
               size="sm"
             />
           </div>
-          <div v-else-if="column.key === 'deal_owner'">
-            <Avatar
-              v-if="item.full_name"
-              class="flex items-center"
-              :image="item.user_image"
-              :label="item.full_name"
-              size="sm"
-            />
-          </div>
           <div v-else-if="column.key === 'mobile_no'">
             <PhoneIcon class="h-4 w-4" />
           </div>
-          <div v-else-if="column.key === 'deal_elements'">
-            <DealElement :deals="item.data" />
+          <div v-else-if="column.key === 'scheduled_send_time'">
+            <FeatherIcon name="calendar" class="h-4 w-4" />
           </div>
           <div v-else-if="column.key === '_liked_by'">
             <Button
@@ -101,9 +92,7 @@
               [
                 'modified',
                 'creation',
-                'first_response_time',
-                'first_responded_on',
-                'response_by',
+                'scheduled_send_time',
               ].includes(column.key)
             "
             class="truncate text-base"
@@ -118,31 +107,9 @@
                 })
             "
           >
-            <Tooltip :text="item.label">
-              <div>{{ item.timeAgo }}</div>
+            <Tooltip :text="item.label || item">
+              <div>{{ item.timeAgo || item.label || formatDateIfString(item) }}</div>
             </Tooltip>
-          </div>
-          <div
-            v-else-if="column.key === 'sla_status'"
-            class="truncate text-base"
-          >
-            <Badge
-              v-if="item.value"
-              :variant="'subtle'"
-              :theme="item.color"
-              size="md"
-              :label="item.value"
-              @click="
-                (event) =>
-                  emit('applyFilter', {
-                    event,
-                    idx,
-                    column,
-                    item,
-                    firstColumn: columns[0],
-                  })
-              "
-            />
           </div>
           <div v-else-if="column.type === 'Check'">
             <FormControl
@@ -191,7 +158,7 @@
     }"
     @loadMore="emit('loadMore')"
   />
-  <ListBulkActions ref="listBulkActionsRef" v-model="list" doctype="CRM Deal" />
+  <ListBulkActions ref="listBulkActionsRef" v-model="list" doctype="CRM Campaign" />
 </template>
 
 <script setup>
@@ -211,12 +178,14 @@ import {
   ListFooter,
   Dropdown,
   Tooltip,
+  FormControl,
+  Button,
+  FeatherIcon,
 } from 'frappe-ui'
-import { customFormatNumberIntoCurrency } from '@/utils'
 import { sessionStore } from '@/stores/session'
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import DealElement from '../frappe-ui/DealElement.vue'
+import { formatDate, timeAgo } from '@/utils'
 
 const props = defineProps({
   rows: {
@@ -253,23 +222,34 @@ const route = useRoute()
 const pageLengthCount = defineModel()
 const list = defineModel('list')
 
-
-onMounted(() => {
-    // Apply the default filter when the component is mounted
-    emit('applyDefaultStatusFilter');
-});
-
 const isLikeFilterApplied = computed(() => {
-  return list.value.params?.filters?._liked_by ? true : false
+  return list.value?.params?.filters?._liked_by ? true : false
 })
 
 const { user } = sessionStore()
 
 function isLiked(item) {
   if (item) {
-    let likedByMe = JSON.parse(item)
-    return likedByMe.includes(user)
+    try {
+      let likedByMe = JSON.parse(item)
+      return likedByMe.includes(user)
+    } catch (e) {
+      return false
+    }
   }
+  return false
+}
+
+// Format date if it's a string
+function formatDateIfString(value) {
+  if (typeof value === 'string' && value) {
+    try {
+      return formatDate(value, 'MMM D, YYYY h:mm A')
+    } catch (e) {
+      return value
+    }
+  }
+  return value
 }
 
 watch(pageLengthCount, (val, old_value) => {
@@ -284,29 +264,4 @@ defineExpose({
     () => listBulkActionsRef.value?.customListActions,
   ),
 })
-
-const computedAmountTotal = computed(() => {
-  return props.rows.reduce((total, row) => {
-    const revenue = parseFloat(row.annual_revenue?.replace(/[^0-9.-]+/g, '') || 0);
-    return total + revenue;
-  }, 0);
-});
-
-const formattedAmountTotal = computed(() => {
-  return customFormatNumberIntoCurrency(computedAmountTotal.value, 'USD');
-});
-
-const computedWeightedAmountTotal = computed(() => {
-  return props.rows.reduce((total, row) => {
-    const annualRevenue = parseFloat(row.annual_revenue?.replace(/[^0-9.-]+/g, '') || 0);
-    const probability = parseFloat(row.probability || 0) / 100;
-    const weightedRevenue = annualRevenue * probability;
-    return total + weightedRevenue;
-  }, 0);
-});
-
-const formattedWeightedAmountTotal = computed(() => {
-  return customFormatNumberIntoCurrency(computedWeightedAmountTotal.value, 'USD');
-});
-
 </script>
