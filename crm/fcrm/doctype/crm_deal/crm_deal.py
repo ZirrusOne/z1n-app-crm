@@ -24,6 +24,12 @@ class CRMDeal(Document):
 			self.assign_agent(self.deal_owner)
 		if self.has_value_changed("status"):
 			add_status_change_log(self)
+		if self.annual_revenue and self.probability:
+			# Convert probability percentage to decimal
+			probability_decimal = self.probability / 100
+			self.weighted_amount = self.annual_revenue * probability_decimal
+		else:
+			self.weighted_amount = 0
 
 	def after_insert(self):
 		if self.deal_owner:

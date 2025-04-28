@@ -36,6 +36,7 @@
   "currency",
   "annual_revenue",
   "industry",
+  "weighted_amount",
   "person_section",
   "salutation",
   "first_name",
@@ -362,13 +363,19 @@
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
+  },
+  {
+   "fieldname": "weighted_amount",
+   "fieldtype": "Currency",
+   "label": "Weighted Amount",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-04-26 10:15:25.948632",
+ "modified": "2025-04-28 10:12:42.572574",
  "modified_by": "Administrator",
  "module": "FCRM",
  "name": "CRM Deal",
