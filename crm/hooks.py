@@ -314,6 +314,10 @@ fixtures = [
 		"doctype": "CRM Fields Layout",
         "filters": [["name", "=", "CRM Campaign-Quick Entry"]]
 	},
+    {
+		"doctype": "CRM Fields Layout",
+        "filters": [["name", "=", "CRM Organization-Side Panel"]]
+	},
     { "doctype": "Custom Field", 
         "filters": [ 
             ["name", "=", "Contact-buying_role"]

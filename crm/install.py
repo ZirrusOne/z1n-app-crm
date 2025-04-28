@@ -159,7 +159,7 @@ def add_default_fields_layout(force=False):
 		},
 		"CRM Organization-Side Panel": {
 			"doctype": "CRM Organization",
-			"layout": '[{"label": "Details", "name": "details_section", "opened": true, "columns": [{"name": "column_IJOV", "fields": ["organization_name", "website", "territory", "industry", "no_of_employees", "address"]}]}]',
+			"layout": '[{"label": "Details", "name": "details_section", "opened": true, "columns": [{"name": "column_IJOV", "fields": ["organization_name", "website", "territory", "industry", "no_of_employees", "address","is_partner"]}]}]',
 		},
 	}
 

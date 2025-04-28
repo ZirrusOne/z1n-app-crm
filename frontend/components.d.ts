@@ -177,6 +177,7 @@ declare module 'vue' {
     OrganizationsIcon: typeof import('./src/components/Icons/OrganizationsIcon.vue')['default']
     OrganizationsListView: typeof import('./src/components/ListViews/OrganizationsListView.vue')['default']
     OutboundCallIcon: typeof import('./src/components/Icons/OutboundCallIcon.vue')['default']
+    PartnerIcon: typeof import('./src/components/Icons/PartnerIcon.vue')['default']
     PauseIcon: typeof import('./src/components/Icons/PauseIcon.vue')['default']
     PhoneIcon: typeof import('./src/components/Icons/PhoneIcon.vue')['default']
     PinIcon: typeof import('./src/components/Icons/PinIcon.vue')['default']
