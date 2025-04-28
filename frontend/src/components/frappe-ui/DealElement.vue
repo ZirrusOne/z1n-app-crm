@@ -9,9 +9,6 @@
           {{ deal.deal_elements }}
         </div>
       </div>
-      <div v-else class="text-ink-gray-4">
-        No deal elements
-      </div>
     </div>
   </template>
 
