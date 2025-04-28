@@ -89,27 +89,6 @@
         </Tooltip>
 
         </div>
-        <div class="flex flex-col flex-wrap gap-3 text-base text-gray-700 sm:flex-row sm:items-center sm:gap-2">
-          <!-- Email Template (only for Email campaigns) -->
-          <template v-if="campaignData.campaign_type === 'Email' && campaignData.email_template">
-            <Tooltip text="Email Template">
-              <div class="flex items-center gap-1.5">
-                <FeatherIcon name="mail" class="h-4 w-4" />
-                <span class="">{{ campaignData.email_template }}</span>
-              </div>
-            </Tooltip>
-            <span class="hidden text-3xl leading-[0] text-gray-600 sm:flex">
-              &middot;
-            </span>
-          </template>
-          
-          <!-- Campaign Type -->
-          <Tooltip text="Campaign Type" v-if="campaignData.campaign_type">
-            <div class="flex items-center gap-1.5">
-              <FeatherIcon name="tag" class="h-4 w-4" />
-              <span class="">{{ campaignData.campaign_type }}</span>
-            </div>
-          </Tooltip>
 
       </div>
     </div>
@@ -173,14 +152,6 @@
       :subtitle="__('Campaign details have been updated')"
       @hide="showSaveSuccess = false"
     />
-  </div>
-  
-  <!-- Loading State -->
-  <div v-else class="flex-1 grid place-items-center">
-    <div class="flex flex-col items-center justify-center space-y-3">
-      <FeatherIcon name="loader" class="h-10 w-10 animate-spin" />
-      <div class="text-lg text-gray-600">{{ __('Loading Campaign...') }}</div>
-    </div>
   </div>
   
   <!-- Loading State -->
