@@ -24,6 +24,7 @@
   "last_name",
   "email",
   "mobile_no",
+  "business_unit",
   "organization_tab",
   "section_break_uixv",
   "naming_series",
@@ -285,6 +286,11 @@
    "fieldtype": "Table",
    "label": "Status Change Log",
    "options": "CRM Status Change Log"
+  },
+  {
+   "fieldname": "business_unit",
+   "fieldtype": "Data",
+   "label": "Business Unit"
   }
  ],
  "image_field": "image",
