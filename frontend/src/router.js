@@ -92,14 +92,14 @@ const routes = [
     props: true,
   },
   {
-    alias: '/email-campaigns',
-    path: '/email-campaigns/view/:viewType?',
-    name: 'Email Campaigns',
+    alias: '/campaigns',
+    path: '/campaigns/view/:viewType?',
+    name: 'Campaigns',
     component: () => import('@/pages/Campaigns.vue'),
     meta: { scrollPos: { top: 0, left: 0 } },
   },
   {
-    path: '/email-campigns/:campaignId',
+    path: '/campaign/:campaignId',
     name: 'Campaign',
     component: () => import('@/pages/Campaign.vue'),
     props: true,

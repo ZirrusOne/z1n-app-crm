@@ -238,7 +238,7 @@ const links = [
   {
     label: 'Campaigns',
     icon: CampaignIcon,
-    to: 'Email Campaigns',
+    to: 'Campaigns',
   },
 ]
 

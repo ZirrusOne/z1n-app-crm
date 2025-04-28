@@ -187,3 +187,55 @@ def get_campaign_participants(ref_doctype, campaign_name):
         row['name'] = frappe.db.get_value(row.participant_source, {'name':row.reference_docname}, 'name')
     return data if len(data)>0 else []
 
+@frappe.whitelist()
+def update_campaign_scheduled_time(campaign_name, scheduled_send_time):
+    if not campaign_name or not scheduled_send_time:
+        frappe.throw("Campaign Name and Scheduled Send Time are required")
+
+    campaign = frappe.get_doc('CRM Campaign', campaign_name)
+    campaign.scheduled_send_time = scheduled_send_time
+    campaign.save(ignore_permissions=True)
+
+    return {"status": "success", "campaign_name": campaign.name, "scheduled_send_time": scheduled_send_time}
+
+@frappe.whitelist()
+def update_campaign_status(campaign_name, status):
+    """
+    Update the status of a campaign
+    
+    Args:
+        campaign_name (str): The name of the campaign to update
+        status (str): The new status value
+    
+    Returns:
+        dict: A dictionary indicating success and the updated document
+    """
+    if not frappe.has_permission("CRM Campaign", "write"):
+        frappe.throw(_("Not permitted"), frappe.PermissionError)
+    
+    # Get valid status options to validate input
+    valid_statuses = frappe.get_meta("CRM Campaign").get_field("status").options.split("\n")
+    valid_statuses = [s.strip() for s in valid_statuses if s.strip()]
+    
+    # Validate status
+    if status not in valid_statuses:
+        frappe.throw(_("Invalid status value"), frappe.ValidationError)
+    
+    # Update the campaign
+    campaign = frappe.get_doc("CRM Campaign", campaign_name)
+    campaign.status = status
+    campaign.save()
+    
+    return {
+        "success": True,
+        "data": campaign.as_dict()
+    }
+
+@frappe.whitelist()
+def get_crm_campaign_meta():
+    meta = frappe.get_meta('CRM Campaign')
+    status_field = next((f for f in meta.fields if f.fieldname == 'status'), None)
+    if not status_field:
+        return []
+    options = status_field.options.split("\n")
+    return [{"label": opt, "value": opt} for opt in options if opt]
