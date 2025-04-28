@@ -73,6 +73,9 @@
               <div>{{ item.timeAgo }}</div>
             </Tooltip>
           </div>
+          <div v-else-if="column.key === 'is_partner'">
+            <PartnerIcon class="h-4 w-4" v-if="item == 1"/>
+          </div>
           <div v-else-if="column.type === 'Check'">
             <FormControl
               type="checkbox"
@@ -143,6 +146,7 @@
 <script setup>
 import HeartIcon from '@/components/Icons/HeartIcon.vue'
 import ListBulkActions from '@/components/ListBulkActions.vue'
+import PartnerIcon from '@/components/Icons/PartnerIcon.vue'
 import ListRows from '@/components/ListViews/ListRows.vue'
 import {
   Avatar,
