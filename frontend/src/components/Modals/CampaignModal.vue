@@ -22,30 +22,6 @@
             </Button>
           </div>
         </div>
-        
-        <!-- Debug Information Section -->
-        <div class="mb-4 p-2 bg-gray-100 rounded">
-          <button @click="debug = !debug" class="text-xs text-blue-500 mb-2">
-            {{ debug ? 'Hide Debug Info' : 'Show Debug Info' }}
-          </button>
-          
-          <div v-if="debug">
-            <div class="text-xs">
-              <div><strong>Loading:</strong> {{ sections.loading }}</div>
-              <div><strong>Error:</strong> {{ sections.error }}</div>
-              <div><strong>Sections Count:</strong> {{ sections.data ? sections.data.length : 0 }}</div>
-              <div><strong>Campaign Data:</strong></div>
-              <pre class="overflow-auto max-h-40">{{ JSON.stringify(campaign, null, 2) }}</pre>
-              
-              <div class="mt-2"><strong>Sections Data:</strong></div>
-              <pre class="overflow-auto max-h-40">{{ JSON.stringify(sections.data, null, 2) }}</pre>
-              
-              <div class="mt-2"><strong>Field Metadata:</strong></div>
-              <pre class="overflow-auto max-h-40">{{ JSON.stringify(fieldMeta.data, null, 2) }}</pre>
-            </div>
-          </div>
-        </div>
-        
         <div>
           <div v-if="sections.loading || fieldMeta.loading" class="flex justify-center py-8">
             <div>{{ __('Loading fields...') }}</div>
@@ -54,7 +30,6 @@
             {{ __('Failed to load form fields') }}
           </div>
           <div v-else>
-            <!-- Manual form creation based on the actual data structure -->
             <div v-for="(tab, tabIndex) in sections.data" :key="tabIndex">
               <div v-for="(section, sectionIndex) in tab.sections" :key="sectionIndex" class="mb-6">
                 <div class="font-semibold mb-3">{{ section.label }}</div>
