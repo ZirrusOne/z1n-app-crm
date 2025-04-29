@@ -169,7 +169,7 @@ doc_events = {
 
 scheduler_events = {
     "cron": {
-        "0 */1 * * *": [
+        "* * * * *": [
             "crm.fcrm.doctype.crm_campaign.crm_campaign.send_email_for_campaign"
         ]
     }
