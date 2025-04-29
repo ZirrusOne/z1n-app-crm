@@ -3,7 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
-from frappe.utils import getdate, today
+from frappe.utils import  get_datetime, now_datetime
 
 
 class CRMCampaign(Document):
@@ -133,13 +133,20 @@ def send_email_for_campaign():
     crm_campaigns = frappe.get_all(
         "CRM Campaign", filters={"status": ("not in", ["On Hold", "Closed"])}
     )
+    now = now_datetime()
     for camp in crm_campaigns:
         campaign = frappe.get_doc("CRM Campaign", camp.name)
-        if getdate(campaign.scheduled_send_time) == getdate(today()) and (campaign.scheduled_send_time).hour == (today()).hour:
+        if not campaign.scheduled_send_time:
+            continue
+
+        scheduled = get_datetime(campaign.scheduled_send_time)
+
+        # Allow window of 60 seconds before and after scheduled time
+        if abs((now - scheduled).total_seconds()) <= 60:
             for entry in campaign.get("campaign_participants"):
-                campaign.status= "In Progress"
-                comm = send_mail(campaign, entry)
-                campaign.status= "Closed"
+                campaign.status = "In Progress"
+                send_mail(campaign, entry)
+                campaign.status = "Closed"
                 campaign.save(ignore_permissions=True)
 
 
