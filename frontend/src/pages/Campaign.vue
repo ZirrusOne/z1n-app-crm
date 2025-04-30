@@ -8,91 +8,8 @@
       </Breadcrumbs>
     </template>
   </LayoutHeader>
-  <div v-if="campaignData" class="flex flex-1 flex-col overflow-hidden">
-    <!-- Campaign title section -->
-    <div class="flex items-start justify-start gap-6 p-5 sm:items-center">
-      <div class="flex flex-col justify-center gap-2 sm:gap-0.5">
-        <div class="text-3xl font-semibold text-gray-900">
-          {{ campaignData.campaign_name || campaignData.name || 'Unnamed Campaign' }}
-        </div>
-        <div class="flex flex-col flex-wrap gap-3 text-base text-gray-700 sm:flex-row sm:items-center sm:gap-2">
-        <!-- Email Template (only for Email campaigns) -->
-        <template v-if="campaignData.campaign_type === 'Email' && campaignData.email_template">
-          <Tooltip text="Email Template">
-            <div class="flex items-center gap-1.5">
-              <FeatherIcon name="mail" class="h-4 w-4" />
-              <span>{{ campaignData.email_template }}</span>
-            </div>
-          </Tooltip>
-          <span class="hidden text-3xl leading-[0] text-gray-600 sm:flex">
-            &middot;
-          </span>
-        </template>
-
-        <!-- Campaign Type -->
-        <Tooltip text="Campaign Type" v-if="campaignData.campaign_type">
-          <div class="flex items-center gap-1.5">
-            <FeatherIcon name="tag" class="h-4 w-4" />
-            <span>{{ campaignData.campaign_type }}</span>
-          </div>
-        </Tooltip>
-
-        <!-- Separator -->
-        <span v-if="campaignData.campaign_type && campaignData.status" class="hidden text-3xl leading-[0] text-gray-600 sm:flex">
-          &middot;
-        </span>
-
-        <!-- Editable Status -->
-        <Tooltip text="Status" v-if="campaignData.status">
-          <div class="flex items-center gap-1.5 cursor-pointer" @click="startEditingStatus">
-            <FeatherIcon name="bookmark" class="h-4 w-4" />
-            <span v-if="!isEditingStatus">{{ campaignData.status }}</span>
-            <div v-else class="relative">
-              <select 
-                v-model="editedStatus"
-                class="min-w-32 border rounded p-1 text-base text-gray-700"
-                @change="saveStatus"
-                @blur="isEditingStatus = false"
-                ref="statusSelect"
-              >
-                <option v-for="option in formattedStatusOptions" :key="option.value" :value="option.value">
-                  {{ option.label }}
-                </option>
-              </select>
-            </div>
-            <FeatherIcon v-if="!isEditingStatus" name="edit-2" class="h-3 w-3 ml-1 text-gray-500" />
-          </div>
-        </Tooltip>
-
-        <!-- Scheduled Send Time -->
-        <span v-if="campaignData.scheduled_send_time" class="hidden text-3xl leading-[0] text-gray-600 sm:flex">
-          &middot;
-        </span>
-        <Tooltip text="Scheduled Time" v-if="campaignData.scheduled_send_time">
-          <div class="flex items-center gap-1.5 cursor-pointer" @click="isEditingScheduledTime = true">
-            <FeatherIcon name="calendar" class="h-4 w-4" />
-            <span v-if="!isEditingScheduledTime">
-              {{ formatDate(campaignData.scheduled_send_time, 'MMM D, YYYY h:mm A') }}
-            </span>
-            <DateTimePicker
-              v-else
-              v-model="editedScheduledTime"
-              :enableSeconds="false"
-              :dateFormat="'MMM D, YYYY h:mm A'"
-              class="border rounded p-1"
-              @update:modelValue="onScheduledTimeChange"
-              autoApply
-            />
-            <FeatherIcon v-if="!isEditingScheduledTime" name="edit-2" class="h-3 w-3 ml-1 text-gray-500" />
-          </div>
-        </Tooltip>
-
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Tabs section -->
+  <div v-if="campaignData" class="flex h-full">
+    <!-- Left panel with tabs -->
     <Tabs as="div" v-model="tabIndex" :tabs="tabs">
       <template #tab-item="{ tab, selected }">
         <button
@@ -143,14 +60,102 @@
       </template>
     </Tabs>
     
-    <!-- Success Toast for Date Change -->
-    <Toast
-      v-if="showSaveSuccess"
-      theme="success"
-      :title="__('Update Successful')"
-      :subtitle="__('Campaign details have been updated')"
-      @hide="showSaveSuccess = false"
-    />
+    <!-- Right panel with campaign details -->
+    <Resizer class="flex flex-col border-l" side="right">
+      <!-- Campaign Name Header -->
+      <div class="border-b">
+        <div class="flex flex-col items-start justify-start gap-4 p-5">
+          <div class="flex gap-4 items-center">
+            <div class="flex flex-col gap-2 truncate">
+              <div class="truncate text-2xl font-medium text-gray-900">
+                {{ campaignData.campaign_name || campaignData.name || 'Unnamed Campaign' }}
+              </div>
+              <div class="flex flex-col flex-wrap gap-3 text-base text-gray-700 sm:flex-row sm:items-center sm:gap-2">
+                <!-- Email Template (only for Email campaigns) -->
+                <template v-if="campaignData.campaign_type === 'Email' && campaignData.email_template">
+                  <Tooltip text="Email Template">
+                    <div class="flex items-center gap-1.5">
+                      <FeatherIcon name="mail" class="h-4 w-4" />
+                      <span>{{ campaignData.email_template }}</span>
+                    </div>
+                  </Tooltip>
+                  <span class="hidden text-3xl leading-[0] text-gray-600 sm:flex">
+                    &middot;
+                  </span>
+                </template>
+
+                <!-- Campaign Type -->
+                <Tooltip text="Campaign Type" v-if="campaignData.campaign_type">
+                  <div class="flex items-center gap-1.5">
+                    <FeatherIcon name="tag" class="h-4 w-4" />
+                    <span>{{ campaignData.campaign_type }}</span>
+                  </div>
+                </Tooltip>
+
+                <!-- Separator -->
+                <span v-if="campaignData.campaign_type && campaignData.status" class="hidden text-3xl leading-[0] text-gray-600 sm:flex">
+                  &middot;
+                </span>
+
+                <!-- Editable Status -->
+                <Tooltip text="Status" v-if="campaignData.status">
+                  <div class="flex items-center gap-1.5 cursor-pointer" @click="startEditingStatus">
+                    <FeatherIcon name="bookmark" class="h-4 w-4" />
+                    <span v-if="!isEditingStatus">{{ campaignData.status }}</span>
+                    <div v-else class="relative">
+                      <select 
+                        v-model="editedStatus"
+                        class="min-w-32 border rounded p-1 text-base text-gray-700"
+                        @change="saveStatus"
+                        @blur="isEditingStatus = false"
+                        ref="statusSelect"
+                      >
+                        <option v-for="option in formattedStatusOptions" :key="option.value" :value="option.value">
+                          {{ option.label }}
+                        </option>
+                      </select>
+                    </div>
+                    <FeatherIcon v-if="!isEditingStatus" name="edit-2" class="h-3 w-3 ml-1 text-gray-500" />
+                  </div>
+                </Tooltip>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Campaign Details Section -->
+      <div class="border-b p-5">
+        <div class="flex flex-wrap gap-3 text-base text-gray-700 sm:flex-row sm:items-center sm:gap-2">
+          <!-- Scheduled Send Time -->
+          <Tooltip text="Scheduled Time" v-if="campaignData.scheduled_send_time">
+            <div class="flex items-center gap-1.5 cursor-pointer" @click="isEditingScheduledTime = true">
+              <FeatherIcon name="calendar" class="h-4 w-4" />
+              <span v-if="!isEditingScheduledTime" class="text-base text-gray-700">
+                {{ formatDate(campaignData.scheduled_send_time, 'MMM D, YYYY h:mm A') }}
+              </span>
+              <DateTimePicker
+                v-else
+                v-model="editedScheduledTime"
+                :enableSeconds="false"
+                :dateFormat="'MMM D, YYYY h:mm A'"
+                class="border rounded p-1"
+                @update:modelValue="onScheduledTimeChange"
+                autoApply
+              />
+              <FeatherIcon v-if="!isEditingScheduledTime" name="edit-2" class="h-3 w-3 ml-1 text-gray-500" />
+            </div>
+          </Tooltip>
+          
+          <!-- Add other campaign details fields here to maintain consistent layout -->
+        </div>
+      </div>
+      
+      <!-- Additional Campaign Info Section -->
+      <div class="flex-1 overflow-y-auto p-5">
+        <!-- Additional campaign details can be placed here -->
+      </div>
+    </Resizer>
   </div>
   
   <!-- Loading State -->
@@ -160,6 +165,16 @@
       <div class="text-lg text-gray-600">{{ __('Loading Campaign...') }}</div>
     </div>
   </div>
+  
+  <!-- Success Toast - Moved outside main layout -->
+  <Toast
+    v-if="showSaveSuccess"
+    theme="success"
+    :title="__('Update Successful')"
+    :subtitle="__('Campaign details have been updated')"
+    @hide="showSaveSuccess = false"
+    class="fixed right-4 top-4 z-50 max-w-sm"
+  />
 </template>
 
 <script setup>
@@ -170,6 +185,7 @@ import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 import Icon from '@/components/Icon.vue'
+import Resizer from '@/components/Resizer.vue'
 import { globalStore } from '@/stores/global'
 import { usersStore } from '@/stores/users'
 import { statusesStore } from '@/stores/statuses'
