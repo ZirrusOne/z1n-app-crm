@@ -78,13 +78,13 @@
             <DateTimePicker
               v-else
               v-model="editedScheduledTime"
-              :dateFormat="'MMM d, yyyy h:mm aa'"
-              :enableTimeSeconds="false"
+              :enableSeconds="false"
+              :dateFormat="'M j, Y h:i K'"
               class="border rounded p-1"
               @update:modelValue="onScheduledTimeChange"
               autoApply
             />
-            <FeatherIcon v-if="!isEditingScheduledTime" name="edit-2" class="h-3 w-3 ml-1 text-gray-500" />
+            <FeatherIcon v-if="!isEditingScheduledTime" name="edit-2" class="h-3 w-3 ml-                                                                                                                                                                                                                                      1 text-gray-500" />
           </div>
         </Tooltip>
 
@@ -338,7 +338,6 @@ function loadCampaignData() {
         editedStatus.value = data.status
       }
       isLoadingParticipants.value = false
-      console.log('Campaign data loaded:', data)
     },
     onError: (err) => {
       console.error('Failed to load campaign data:', err)
@@ -426,18 +425,21 @@ function saveScheduledTime() {
     return
   }
 
+  // Format date properly for Frappe
   const formattedDate = formatDateForFrappe(editedScheduledTime.value)
 
   const updateCampaign = createResource({
     url: 'crm.fcrm.doctype.crm_campaign.crm_campaign.update_campaign_scheduled_time',
     params: {
       campaign_name: props.campaignId,
-      scheduled_send_time: formattedDate
+      scheduled_send_time: formattedDate  // Use the formatted string
     },
     onSuccess: (data) => {
+      // Update UI with the same formatted string
       if (campaignData.value) {
-        campaignData.value.scheduled_send_time = editedScheduledTime.value
+        campaignData.value.scheduled_send_time = formattedDate
       }
+      
       showSaveSuccess.value = true
       setTimeout(() => {
         showSaveSuccess.value = false

@@ -2,9 +2,11 @@
 # For license information, please see license.txt
 
 import frappe
+import time
+import pytz
 from frappe.model.document import Document
-from frappe.utils import  get_datetime, now_datetime
-
+from frappe.utils import get_datetime, now_datetime
+from datetime import datetime
 
 class CRMCampaign(Document):
     def validate(self):
@@ -89,7 +91,11 @@ def update_campaign_participants():
 
     return {"campaign_name": campaign.name}
 
-        
+def get_campaign():
+    campaigns = frappe.db.sql(f"""SELECT cc.name
+                              FROM `tabCRM Campaign` cc""", as_dict=True)
+    result = [{"label": c['name'], "type": "Data", "value" : c['name']} for c in campaigns]
+    return result
 
 @frappe.whitelist()
 def create_or_update_campaign(args):
@@ -123,53 +129,125 @@ def create_or_update_campaign(args):
         return campaign.name
 
 @frappe.whitelist()
-def get_campaign():
-    campaigns = frappe.db.sql(f"""SELECT cc.name
-                                FROM `tabCRM Campaign` cc""", as_dict=True)
-    result = [{"label": c['name'], "type": "Data", "value" : c['name']} for c in campaigns]
-    return result
-    
 def send_email_for_campaign():
-    crm_campaigns = frappe.get_all(
-        "CRM Campaign", filters={"status": ("not in", ["On Hold", "Closed"])}
-    )
     now = now_datetime()
-    for camp in crm_campaigns:
-        campaign = frappe.get_doc("CRM Campaign", camp.name)
-        if not campaign.scheduled_send_time:
-            continue
+    print(f"Current server time: {now}, TZ: {now.tzinfo}")
 
-        scheduled = get_datetime(campaign.scheduled_send_time)
+    try:
+        campaigns = frappe.get_all(
+            "CRM Campaign",
+            filters={"status": ["in", ["In Progress"]]},
+            fields=["name", "scheduled_send_time"]
+        )
 
-        # Allow window of 60 seconds before and after scheduled time
-        if abs((now - scheduled).total_seconds()) <= 60:
-            for entry in campaign.get("campaign_participants"):
-                campaign.status = "In Progress"
-                send_mail(campaign, entry)
-                campaign.status = "Closed"
-                campaign.save(ignore_permissions=True)
+        print(f"Found {len(campaigns)} active campaigns")
 
+        for c in campaigns:
+            try:
+                campaign = frappe.get_doc("CRM Campaign", c.name)
+                if not campaign.scheduled_send_time:
+                    print(f"Campaign {campaign.name} has no schedule")
+                    continue
 
+                print(f"Campaign {campaign.name} - scheduled time: {campaign.scheduled_send_time}")
+                
+                # Important fix: If both times are naive (no timezone), 
+                # compare them directly without timezone conversion
+                scheduled = get_datetime(campaign.scheduled_send_time)
+                
+                # If both have no timezone, compare them directly
+                if now.tzinfo is None and scheduled.tzinfo is None:
+                    delta = abs((now - scheduled).total_seconds())
+                    print(f"Direct comparison of naive datetimes: |{now} - {scheduled}| = {delta}s")
+                else:
+                    # If either has timezone info, convert both to UTC
+                    now_utc = now.astimezone(pytz.UTC) if now.tzinfo else pytz.UTC.localize(now)
+                    scheduled_utc = scheduled.astimezone(pytz.UTC) if scheduled.tzinfo else pytz.UTC.localize(scheduled)
+                    delta = abs((now_utc - scheduled_utc).total_seconds())
+                    print(f"Timezone-aware comparison: |{now_utc} - {scheduled_utc}| = {delta}s")
+
+                if delta <= 60:  # Threshold of 60 seconds
+                    print(f"✅ TRIGGERING campaign: {campaign.name}")
+                    campaign.status = "In Progress"
+                    campaign.save(ignore_permissions=True)
+                    
+                    for entry in campaign.get("campaign_participants"):
+                        send_mail(campaign, entry)
+                    
+                    campaign.status = "Closed"
+                    campaign.save(ignore_permissions=True)
+                    print(f"✅ Campaign {campaign.name} completed")
+                else:
+                    print(f"❌ Skipping {campaign.name}, delta={delta:.1f}s")
+
+            except Exception as e:
+                print(f"Error in campaign {c.name}: {str(e)}")
+                import traceback
+                print(traceback.format_exc())
+                
+    except Exception as outer:
+        print(f"Fatal scheduler error: {str(outer)}")
+        import traceback
+        print(traceback.format_exc())
 
 def send_mail(campaign, entry):
-    if campaign.get("email_template"):
-        email_template = frappe.get_doc("Email Template", campaign.get("email_template"))
-        context = {"doc": frappe.get_doc(entry.get('participant_source'), entry.get('reference_docname'))}
-        # send mail and link communication to document
+    try:
+        entry_info = entry.as_dict() if hasattr(entry, "as_dict") else dict(entry)
+
+        email = entry_info.get("email")
+        if not email:
+            # Just log the docname, not the entire record
+            frappe.log_error(f"Missing email for {entry_info.get('name')}", "Email Missing")
+            return
+
+        email_template_name = campaign.get("email_template")
+        if not email_template_name:
+            frappe.log_error(f"No template for {campaign.name}", "Template Missing")
+            return
+
+        email_template = frappe.get_doc("Email Template", email_template_name)
+        
+        # Get the participant document for context
+        participant_source = entry_info.get("participant_source")
+        reference_docname = entry_info.get("reference_docname")
+        
+        if not participant_source or not reference_docname:
+            frappe.log_error(f"Missing reference for {entry_info.get('name')}", "Reference Missing")
+            return
+            
+        context_doc = frappe.get_doc(participant_source, reference_docname)
+        context = {"doc": context_doc}
+
+        # Add error handling for template rendering
+        try:
+            subject = frappe.render_template(email_template.get("subject"), context)
+            content = frappe.render_template(email_template.response_, context)
+        except Exception as template_error:
+            frappe.log_error(str(template_error), "Template Rendering Error")
+            return
+
+        # Log more concisely
+        print(f"Sending email to: {email} | Subject: {subject[:30]}...")
+
         comm = make(
             doctype="CRM Campaign",
-            name= campaign.name,
-            subject=frappe.render_template(email_template.get("subject"), context),
-            content=frappe.render_template(email_template.response_, context),
-            recipients=entry.get('email'),
+            name=campaign.name,
+            subject=subject,
+            content=content,
+            recipients=email,
             communication_medium="Email",
             sent_or_received="Sent",
             send_email=True,
             email_template=email_template.name,
         )
+
+        print(f"Communication created: {comm.name}")
         return comm
-    else:
-        return f"Please set Email template for {campaign.name}"
+
+    except Exception as e:
+        # Use a shorter, more specific error log
+        frappe.log_error(str(e), f"Mail Send Error: {campaign.name}")
+
 
 @frappe.whitelist()
 def get_doc_view_campaign_data(campaign_name):
