@@ -91,12 +91,6 @@ def update_campaign_participants():
 
     return {"campaign_name": campaign.name}
 
-def get_campaign():
-    campaigns = frappe.db.sql(f"""SELECT cc.name
-                              FROM `tabCRM Campaign` cc""", as_dict=True)
-    result = [{"label": c['name'], "type": "Data", "value" : c['name']} for c in campaigns]
-    return result
-
 @frappe.whitelist()
 def create_or_update_campaign(args):
     existing_campaign = frappe.db.exists("CRM Campaign", {"campaign_name": args.get('campaign_name')})
@@ -129,6 +123,12 @@ def create_or_update_campaign(args):
         return campaign.name
 
 @frappe.whitelist()
+def get_campaign():
+    campaigns = frappe.db.sql(f"""SELECT cc.name
+                              FROM `tabCRM Campaign` cc""", as_dict=True)
+    result = [{"label": c['name'], "type": "Data", "value" : c['name']} for c in campaigns]
+    return result
+
 def send_email_for_campaign():
     now = now_datetime()
     print(f"Current server time: {now}, TZ: {now.tzinfo}")
