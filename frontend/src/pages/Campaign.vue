@@ -8,7 +8,6 @@
       </Breadcrumbs>
     </template>
   </LayoutHeader>
-
   <div v-if="campaignData" class="flex flex-1 flex-col overflow-hidden">
     <!-- Campaign title section -->
     <div class="flex items-start justify-start gap-6 p-5 sm:items-center">
@@ -79,12 +78,12 @@
               v-else
               v-model="editedScheduledTime"
               :enableSeconds="false"
-              :dateFormat="'M j, Y h:i K'"
+              :dateFormat="'MMM D, YYYY h:mm A'"
               class="border rounded p-1"
               @update:modelValue="onScheduledTimeChange"
               autoApply
             />
-            <FeatherIcon v-if="!isEditingScheduledTime" name="edit-2" class="h-3 w-3 ml-                                                                                                                                                                                                                                      1 text-gray-500" />
+            <FeatherIcon v-if="!isEditingScheduledTime" name="edit-2" class="h-3 w-3 ml-1 text-gray-500" />
           </div>
         </Tooltip>
 
@@ -262,8 +261,6 @@ const formattedStatusOptions = computed(() => {
 usePageMeta(() => {
   return {
     title: title.value,
-    // Add favicon if needed
-    // icon: brand.favicon,
   }
 })
 
@@ -312,15 +309,6 @@ onMounted(() => {
   fetchStatusOptions()
 })
 
-// Round date to nearest minute (remove seconds)
-function roundToMinute(date) {
-  if (!date) return null;
-  const newDate = new Date(date);
-  newDate.setSeconds(0);
-  newDate.setMilliseconds(0);
-  return newDate;
-}
-
 // Load campaign data
 function loadCampaignData() {
   isLoadingParticipants.value = true
@@ -331,8 +319,8 @@ function loadCampaignData() {
     onSuccess: (data) => {
       campaignData.value = data
       if (data.scheduled_send_time) {
-        // Round to nearest minute when initializing
-        editedScheduledTime.value = roundToMinute(new Date(data.scheduled_send_time))
+        // Store the date string directly - no conversion
+        editedScheduledTime.value = data.scheduled_send_time
       }
       if (data.status) {
         editedStatus.value = data.status
@@ -362,7 +350,6 @@ function startEditingStatus() {
   }, 10)
 }
 
-// Save updated status
 // Save updated status
 function saveStatus() {
   if (!editedStatus.value || editedStatus.value === campaignData.value.status) {
@@ -418,6 +405,17 @@ function saveStatus() {
   updateCampaign.submit()
 }
 
+// Handle scheduled time change from the DateTimePicker
+function onScheduledTimeChange(value) {
+  if (!value) return
+  
+  // Use the value directly from the DateTimePicker
+  editedScheduledTime.value = value
+  
+  // Save the new time
+  saveScheduledTime()
+}
+
 // Save updated scheduled time
 function saveScheduledTime() {
   if (!editedScheduledTime.value) {
@@ -425,19 +423,16 @@ function saveScheduledTime() {
     return
   }
 
-  // Format date properly for Frappe
-  const formattedDate = formatDateForFrappe(editedScheduledTime.value)
-
   const updateCampaign = createResource({
     url: 'crm.fcrm.doctype.crm_campaign.crm_campaign.update_campaign_scheduled_time',
     params: {
       campaign_name: props.campaignId,
-      scheduled_send_time: formattedDate  // Use the formatted string
+      scheduled_send_time: editedScheduledTime.value  // Send the value directly
     },
     onSuccess: (data) => {
-      // Update UI with the same formatted string
+      // Update UI with the same value
       if (campaignData.value) {
-        campaignData.value.scheduled_send_time = formattedDate
+        campaignData.value.scheduled_send_time = editedScheduledTime.value
       }
       
       showSaveSuccess.value = true
@@ -449,7 +444,7 @@ function saveScheduledTime() {
     onError: (err) => {
       console.error('Failed to update scheduled time:', err)
       if (campaignData.value) {
-        editedScheduledTime.value = new Date(campaignData.value.scheduled_send_time)
+        editedScheduledTime.value = campaignData.value.scheduled_send_time
       }
       isEditingScheduledTime.value = false
       $dialog({
@@ -490,33 +485,6 @@ function fetchStatusOptions() {
   })
   
   statusOptionsResource.fetch()
-}
-
-function onScheduledTimeChange(value) {
-  if (!value) return
-
-  // Ensure 'value' is a Date object
-  const newDate = new Date(value)
-
-  // Force seconds to 0
-  newDate.setSeconds(0)
-  newDate.setMilliseconds(0)
-
-  // Update edited time
-  editedScheduledTime.value = newDate
-
-  // Now save
-  saveScheduledTime()
-}
-
-function formatDateForFrappe(date) {
-  const pad = (n) => (n < 10 ? '0' + n : n)
-  return date.getFullYear() + '-' +
-    pad(date.getMonth() + 1) + '-' +
-    pad(date.getDate()) + ' ' +
-    pad(date.getHours()) + ':' +
-    pad(date.getMinutes()) + ':' +
-    pad(date.getSeconds())
 }
 
 // Extract lead participants using a computed property
