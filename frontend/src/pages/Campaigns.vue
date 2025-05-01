@@ -11,7 +11,7 @@
       <Button
         variant="solid"
         :label="__('Create')"
-        @click="showDealModal = true"
+        @click="showCampaignModal = true"
       >
         <template #prefix><FeatherIcon name="plus" class="h-4" /></template>
       </Button>
@@ -55,16 +55,16 @@
     <div
       class="flex flex-col items-center gap-3 text-xl font-medium text-gray-500"
     >
-      <DealsIcon class="h-10 w-10" />
+      <CampaignIcon class="h-10 w-10" />
       <span>{{ __('No {0} Found', [__('Campaigns')]) }}</span>
-      <Button :label="__('Create')" @click="showDealModal = true">
+      <Button :label="__('Create')" @click="showCampaignModal = true">
         <template #prefix><FeatherIcon name="plus" class="h-4" /></template>
       </Button>
     </div>
   </div>
   <CampaignModal
-    v-if="showDealModal"
-    v-model="showDealModal"
+    v-if="showCampaignModal"
+    v-model="showCampaignModal"
     v-model:quickEntry="showQuickEntryModal"
     :defaults="defaults"
   />
@@ -76,7 +76,7 @@ import CustomActions from '@/components/CustomActions.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import NoteIcon from '@/components/Icons/NoteIcon.vue'
 import TaskIcon from '@/components/Icons/TaskIcon.vue'
-import DealsIcon from '@/components/Icons/DealsIcon.vue'
+import CampaignIcon from '@/components/Icons/CampaignIcon.vue'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import CampaignModal from '@/components/Modals/CampaignModal.vue'
 import ViewControls from '@/components/ViewControls.vue'
@@ -91,7 +91,7 @@ const { makeCall } = globalStore()
 const route = useRoute()
 
 const campaignsListView = ref(null)
-const showDealModal = ref(false)
+const showCampaignModal = ref(false)
 const showQuickEntryModal = ref(false)
 
 const defaults = reactive({})
@@ -130,7 +130,7 @@ function onNewClick(column) {
     defaults[column_field] = column.column.name
   }
 
-  showDealModal.value = true
+  showCampaignModal.value = true
 }
 
 
