@@ -6,6 +6,8 @@ import time
 import pytz
 from frappe.model.document import Document
 from frappe.utils import get_datetime, now_datetime
+from frappe.core.doctype.communication.email import make
+from frappe import _
 from datetime import datetime
 
 class CRMCampaign(Document):
@@ -241,7 +243,9 @@ def send_mail(campaign, entry):
             email_template=email_template.name,
         )
 
-        print(f"Communication created: {comm.name}")
+        frappe.db.commit()
+
+        print(f"Communication created: {comm.get('name', 'No name returned')}")
         return comm
 
     except Exception as e:
